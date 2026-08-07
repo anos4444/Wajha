@@ -130,7 +130,7 @@
    "fieldtype": "Data",
    "label": "المسار",
    "depends_on": "eval:doc.view_type=='Route Link'",
-   "description": "مثال: /app/bms-dashboard"
+   "description": "مثال: /app/query-report/..."
   },
   {
    "fieldname": "col_v1",

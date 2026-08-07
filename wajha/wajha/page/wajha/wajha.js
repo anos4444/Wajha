@@ -23,7 +23,7 @@ class WajhaShell {
 	// ------------------------------------------------------------------ chrome
 	render_disabled() {
 		this.$root.html(`<div class="wj-empty">
-			الواجهة غير مفعّلة. فعّلها من <b>إعدادات الواجهة (Shell Settings)</b>.
+			${__("The shell is not enabled. Enable it in Shell Settings.")}
 		</div>`);
 	}
 
@@ -33,7 +33,7 @@ class WajhaShell {
 		this.$shell = $(`
 			<div class="wj-shell">
 				<div class="wj-backdrop" hidden></div>
-				<aside class="wj-sidebar" role="navigation" aria-label="التنقل الرئيسي">
+				<aside class="wj-sidebar" role="navigation" aria-label="${__("Main navigation")}">
 					<div class="wj-brand">
 						${b.logo ? `<img src="${frappe.utils.escape_html(b.logo)}" alt="">` : ''}
 						<div>
@@ -48,7 +48,7 @@ class WajhaShell {
 					<div class="wj-head">
 						<div style="display:flex;align-items:center;gap:10px">
 							<button class="wj-burger" aria-expanded="false"
-								aria-label="فتح قائمة التنقل" aria-controls="wj-nav">☰</button>
+								aria-label="${__("Open navigation menu")}" aria-controls="wj-nav">☰</button>
 							<h2 class="wj-title"></h2>
 						</div>
 						<div class="wj-chips"></div>
@@ -108,11 +108,11 @@ class WajhaShell {
 		const $burger = $shell.find('.wj-burger');
 		const close = () => {
 			$shell.removeClass('wj-open');
-			$burger.attr('aria-expanded', 'false').attr('aria-label', 'فتح قائمة التنقل');
+			$burger.attr('aria-expanded', 'false').attr('aria-label', __('Open navigation menu'));
 		};
 		const open = () => {
 			$shell.addClass('wj-open');
-			$burger.attr('aria-expanded', 'true').attr('aria-label', 'إغلاق قائمة التنقل');
+			$burger.attr('aria-expanded', 'true').attr('aria-label', __('Close navigation menu'));
 			$shell.find('.wj-link').first().focus();
 		};
 		$burger.on('click', () => ($shell.hasClass('wj-open') ? close() : open()));
@@ -127,8 +127,7 @@ class WajhaShell {
 		const mods = this.cfg.modules || [];
 		if (!mods.length) {
 			this.$body.html(`<div class="wj-card wj-empty">
-				لا توجد وحدات مُهيّأة بعد. أنشئ وحدات من <b>Shell Module</b>،
-				أو استخدم أداة التهيئة السريعة من DocType موجود.</div>`);
+				${__("No modules configured yet. Create Shell Module records, or scaffold one from an existing DocType.")}</div>`);
 			return;
 		}
 		const preferred = (this.cfg.layout || {}).default_module;
@@ -144,7 +143,7 @@ class WajhaShell {
 		this.state = { module: m, page_no: 1, filters: {}, search: '', sort: null, dir: null };
 
 		if (m.view_type === 'Route Link') {
-			this.$body.html(`<div class="wj-card wj-empty">جارٍ الفتح…</div>`);
+			this.$body.html(`<div class="wj-card wj-empty">${__("Opening…")}</div>`);
 			frappe.set_route(m.route.replace(/^\/app\//, '').split('/'));
 			return;
 		}
@@ -152,7 +151,7 @@ class WajhaShell {
 	}
 
 	render_list_view(m) {
-		this.$body.html('<div class="wj-card wj-empty">جارٍ التحميل…</div>');
+		this.$body.html(`<div class="wj-card wj-empty">${__("Loading…")}</div>`);
 		frappe.call('wajha.api.get_module_meta', { module_key: m.module_key })
 			.then((r) => {
 				this.meta = r.message;
@@ -160,7 +159,7 @@ class WajhaShell {
 				this.load_rows();
 				if (this.meta.map && this.meta.map.enabled) this.load_map();
 			})
-			.catch(() => this.$body.html('<div class="wj-card wj-empty">تعذّر تحميل الوحدة.</div>'));
+			.catch(() => this.$body.html(`<div class="wj-card wj-empty">${__("Could not load this module.")}</div>`));
 	}
 
 	paint_list_frame() {
@@ -170,7 +169,7 @@ class WajhaShell {
 		const $tools = $('<div class="wj-toolbar"></div>').appendTo($card);
 
 		// free-text search
-		$(`<div class="wj-field"><label>بحث</label><input type="search" class="wj-search"></div>`)
+		$(`<div class="wj-field"><label>${__("Search")}</label><input type="search" class="wj-search"></div>`)
 			.appendTo($tools)
 			.find('input')
 			.on('input', frappe.utils.debounce(() => {
@@ -198,7 +197,7 @@ class WajhaShell {
 			});
 		});
 
-		$('<button class="wj-btn wj-ghost">تفريغ</button>').appendTo($tools).on('click', () => {
+		$(`<button class="wj-btn wj-ghost">${__("Clear")}</button>`).appendTo($tools).on('click', () => {
 			this.state.filters = {};
 			this.state.search = '';
 			this.paint_list_frame();
@@ -206,15 +205,15 @@ class WajhaShell {
 		});
 
 		if (meta.can_create) {
-			$('<button class="wj-btn">جديد</button>').appendTo($tools)
+			$(`<button class="wj-btn">${__("New")}</button>`).appendTo($tools)
 				.on('click', () => frappe.new_doc(meta.doctype));
 		}
 
 		$(`<div class="wj-table-wrap"><table class="wj-table">
 			<thead><tr></tr></thead><tbody></tbody></table></div>
 			<div class="wj-pager"><span class="wj-count"></span>
-			<span><button class="wj-btn wj-ghost wj-prev">السابق</button>
-			<button class="wj-btn wj-ghost wj-next">التالي</button></span></div>`).appendTo($card);
+			<span><button class="wj-btn wj-ghost wj-prev">${__("Previous")}</button>
+			<button class="wj-btn wj-ghost wj-next">${__("Next")}</button></span></div>`).appendTo($card);
 
 		const $tr = $card.find('thead tr');
 		(meta.columns || []).forEach((c) => {
@@ -254,7 +253,7 @@ class WajhaShell {
 			const $tb = this.$body.find('tbody').empty();
 			if (!d.rows.length) {
 				$tb.append(`<tr><td colspan="${(meta.columns || []).length || 1}">
-					<div class="wj-empty">لا توجد سجلات مطابقة.</div></td></tr>`);
+					<div class="wj-empty">${__("No matching records.")}</div></td></tr>`);
 			}
 			d.rows.forEach((row) => {
 				const $tr = $('<tr></tr>').on('click', () =>
@@ -266,7 +265,7 @@ class WajhaShell {
 			});
 			const from = (d.page - 1) * d.page_length + (d.rows.length ? 1 : 0);
 			const to = (d.page - 1) * d.page_length + d.rows.length;
-			this.$body.find('.wj-count').text(`${from}–${to} من ${d.total}`);
+			this.$body.find('.wj-count').text(`${from}–${to} ${__("of")} ${d.total}`);
 			this.$body.find('.wj-prev').prop('disabled', d.page <= 1);
 			this.$body.find('.wj-next').prop('disabled', to >= d.total);
 		});
@@ -313,13 +312,12 @@ class WajhaShell {
 					L.circleMarker([p[conf.lat], p[conf.lon]], {
 						radius: 5, color, fillColor: color, fillOpacity: .85, weight: 1,
 					}).bindPopup(`<b>${frappe.utils.escape_html(p[conf.label] || p.name)}</b>` +
-						`<br><a href="/app/${frappe.router.slug(this.meta.doctype)}/${encodeURIComponent(p.name)}">فتح السجل</a>`)
+						`<br><a href="/app/${frappe.router.slug(this.meta.doctype)}/${encodeURIComponent(p.name)}">${__("Open record")}</a>`)
 						.addTo(map);
 				});
 			});
 		}).catch(() => {
-			$('#wj-map').html(`<div class="wj-empty">تعذّر تحميل مكتبة الخرائط.
-				داخل الشبكات المغلقة يلزم خادم خرائط محلي.</div>`);
+			$('#wj-map').html(`<div class="wj-empty">${__("The map library could not be loaded. Closed networks require a local tile server.")}</div>`);
 		});
 	}
 

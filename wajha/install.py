@@ -4,7 +4,7 @@ import frappe
 
 PRESETS = [
     {
-        "theme_name": "الأمانة الأخضر",
+        "theme_name": "الأخضر المؤسسي",
         "primary": "#013D28", "primary_dark": "#00291B", "accent": "#D9A21B",
         "sidebar_bg": "#00543C", "sidebar_ink": "#CFE3D8",
         "sidebar_active_bg": "#FFFFFF", "sidebar_active_ink": "#013D28",

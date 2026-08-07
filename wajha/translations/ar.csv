@@ -1,0 +1,17 @@
+Main navigation,التنقل الرئيسي
+Open navigation menu,فتح قائمة التنقل
+Close navigation menu,إغلاق قائمة التنقل
+The shell is not enabled. Enable it in Shell Settings.,الواجهة غير مفعّلة. فعّلها من إعدادات الواجهة (Shell Settings).
+"No modules configured yet. Create Shell Module records, or scaffold one from an existing DocType.",لا توجد وحدات مُهيّأة بعد. أنشئ وحدات من Shell Module، أو استخدم أداة التهيئة السريعة من DocType موجود.
+Loading…,جارٍ التحميل…
+Opening…,جارٍ الفتح…
+Could not load this module.,تعذّر تحميل الوحدة.
+No matching records.,لا توجد سجلات مطابقة.
+Search,بحث
+Clear,تفريغ
+New,جديد
+Previous,السابق
+Next,التالي
+of,من
+Open record,فتح السجل
+The map library could not be loaded. Closed networks require a local tile server.,تعذّر تحميل مكتبة الخرائط. داخل الشبكات المغلقة يلزم خادم خرائط محلي.
