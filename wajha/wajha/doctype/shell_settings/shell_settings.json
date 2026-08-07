@@ -1,0 +1,196 @@
+{
+ "doctype": "DocType",
+ "name": "Shell Settings",
+ "module": "Wajha",
+ "custom": 0,
+ "istable": 0,
+ "issingle": 1,
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "allow_rename": 0,
+ "track_changes": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "field_order": [
+  "sec_brand",
+  "enabled",
+  "brand_title",
+  "brand_title_en",
+  "brand_subtitle",
+  "col_b1",
+  "logo",
+  "favicon",
+  "sec_theme",
+  "active_theme",
+  "apply_font_globally",
+  "col_th1",
+  "apply_theme_globally",
+  "hide_desk_sidebar",
+  "sec_layout",
+  "default_module",
+  "mobile_breakpoint",
+  "col_l1",
+  "show_clock",
+  "show_user_chip",
+  "footer_note"
+ ],
+ "fields": [
+  {
+   "fieldname": "sec_brand",
+   "fieldtype": "Section Break",
+   "label": "الهوية"
+  },
+  {
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "تفعيل الواجهة",
+   "default": "1"
+  },
+  {
+   "fieldname": "brand_title",
+   "fieldtype": "Data",
+   "label": "اسم النظام",
+   "default": "نظام الإدارة"
+  },
+  {
+   "fieldname": "brand_title_en",
+   "fieldtype": "Data",
+   "label": "الاسم بالإنجليزية"
+  },
+  {
+   "fieldname": "brand_subtitle",
+   "fieldtype": "Data",
+   "label": "الجهة"
+  },
+  {
+   "fieldname": "col_b1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "logo",
+   "fieldtype": "Attach Image",
+   "label": "الشعار"
+  },
+  {
+   "fieldname": "favicon",
+   "fieldtype": "Attach Image",
+   "label": "أيقونة المتصفح"
+  },
+  {
+   "fieldname": "sec_theme",
+   "fieldtype": "Section Break",
+   "label": "السمة"
+  },
+  {
+   "fieldname": "active_theme",
+   "fieldtype": "Link",
+   "label": "السمة النشطة",
+   "options": "Shell Theme"
+  },
+  {
+   "fieldname": "apply_font_globally",
+   "fieldtype": "Check",
+   "label": "تطبيق الخط على كامل النظام",
+   "default": "1"
+  },
+  {
+   "fieldname": "col_th1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "apply_theme_globally",
+   "fieldtype": "Check",
+   "label": "تطبيق ألوان السمة خارج الواجهة",
+   "description": "يلوّن قوائم ونماذج Frappe لتتناسق مع الواجهة"
+  },
+  {
+   "fieldname": "hide_desk_sidebar",
+   "fieldtype": "Check",
+   "label": "إخفاء شريط Frappe داخل الواجهة",
+   "default": "1"
+  },
+  {
+   "fieldname": "sec_layout",
+   "fieldtype": "Section Break",
+   "label": "التخطيط"
+  },
+  {
+   "fieldname": "default_module",
+   "fieldtype": "Link",
+   "label": "الوحدة الافتراضية",
+   "options": "Shell Module"
+  },
+  {
+   "fieldname": "mobile_breakpoint",
+   "fieldtype": "Int",
+   "label": "نقطة التحول للجوال",
+   "default": "900"
+  },
+  {
+   "fieldname": "col_l1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "show_clock",
+   "fieldtype": "Check",
+   "label": "عرض الساعة",
+   "default": "1"
+  },
+  {
+   "fieldname": "show_user_chip",
+   "fieldtype": "Check",
+   "label": "عرض اسم المستخدم",
+   "default": "1"
+  },
+  {
+   "fieldname": "footer_note",
+   "fieldtype": "Data",
+   "label": "نص أسفل الشريط الجانبي"
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "report": 1,
+   "share": 1
+  },
+  {
+   "role": "Shell Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "report": 1,
+   "share": 1
+  },
+  {
+   "role": "All",
+   "read": 1,
+   "write": 0,
+   "create": 0,
+   "delete": 0,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "report": 1,
+   "share": 1
+  }
+ ],
+ "owner": "Administrator",
+ "modified_by": "Administrator",
+ "creation": "2026-08-07 09:00:00.000000",
+ "modified": "2026-08-07 09:00:00.000000",
+ "idx": 0,
+ "links": [],
+ "states": []
+}

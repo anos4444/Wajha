@@ -1,0 +1,15 @@
+{
+ "doctype": "Page",
+ "name": "wajha",
+ "page_name": "wajha",
+ "title": "Wajha",
+ "module": "Wajha",
+ "standard": "Yes",
+ "system_page": 0,
+ "owner": "Administrator",
+ "modified_by": "Administrator",
+ "creation": "2026-08-07 09:00:00.000000",
+ "modified": "2026-08-07 09:00:00.000000",
+ "idx": 0,
+ "roles": []
+}

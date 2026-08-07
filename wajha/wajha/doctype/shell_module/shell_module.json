@@ -1,0 +1,299 @@
+{
+ "doctype": "DocType",
+ "name": "Shell Module",
+ "module": "Wajha",
+ "custom": 0,
+ "istable": 0,
+ "issingle": 0,
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "allow_rename": 0,
+ "track_changes": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "field_order": [
+  "sec_id",
+  "module_key",
+  "module_label",
+  "module_label_en",
+  "col_i1",
+  "icon",
+  "group",
+  "sequence",
+  "enabled",
+  "sec_view",
+  "view_type",
+  "ref_doctype",
+  "route",
+  "col_v1",
+  "page_length",
+  "sort_field",
+  "sort_order",
+  "search_fields",
+  "sec_cols",
+  "columns",
+  "sec_filters",
+  "filters",
+  "sec_map",
+  "show_map",
+  "map_lat_field",
+  "map_lon_field",
+  "col_m1",
+  "map_label_field",
+  "map_color_field",
+  "map_center_lat",
+  "map_center_lon",
+  "map_zoom"
+ ],
+ "fields": [
+  {
+   "fieldname": "sec_id",
+   "fieldtype": "Section Break",
+   "label": "تعريف الوحدة"
+  },
+  {
+   "fieldname": "module_key",
+   "fieldtype": "Data",
+   "label": "المعرّف البرمجي",
+   "reqd": 1,
+   "unique": 1,
+   "description": "حروف لاتينية صغيرة بدون مسافات، مثل: assets",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "module_label",
+   "fieldtype": "Data",
+   "label": "العنوان",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "module_label_en",
+   "fieldtype": "Data",
+   "label": "العنوان بالإنجليزية",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "col_i1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "icon",
+   "fieldtype": "Data",
+   "label": "الأيقونة",
+   "description": "رمز تعبيري أو اسم أيقونة Frappe"
+  },
+  {
+   "fieldname": "group",
+   "fieldtype": "Data",
+   "label": "المجموعة",
+   "description": "لتجميع الوحدات الثانوية في الشريط الجانبي"
+  },
+  {
+   "fieldname": "sequence",
+   "fieldtype": "Int",
+   "label": "الترتيب",
+   "default": "10",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "مُفعّلة",
+   "default": "1",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "sec_view",
+   "fieldtype": "Section Break",
+   "label": "نوع العرض"
+  },
+  {
+   "fieldname": "view_type",
+   "fieldtype": "Select",
+   "label": "نوع العرض",
+   "options": "List\nRoute Link",
+   "default": "List",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "ref_doctype",
+   "fieldtype": "Link",
+   "label": "الـ DocType",
+   "options": "DocType",
+   "depends_on": "eval:doc.view_type=='List'",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "route",
+   "fieldtype": "Data",
+   "label": "المسار",
+   "depends_on": "eval:doc.view_type=='Route Link'",
+   "description": "مثال: /app/bms-dashboard"
+  },
+  {
+   "fieldname": "col_v1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "page_length",
+   "fieldtype": "Int",
+   "label": "عدد السجلات في الصفحة",
+   "default": "20"
+  },
+  {
+   "fieldname": "sort_field",
+   "fieldtype": "Data",
+   "label": "حقل الترتيب",
+   "default": "modified"
+  },
+  {
+   "fieldname": "sort_order",
+   "fieldtype": "Select",
+   "label": "اتجاه الترتيب",
+   "options": "DESC\nASC",
+   "default": "DESC"
+  },
+  {
+   "fieldname": "search_fields",
+   "fieldtype": "Small Text",
+   "label": "حقول البحث",
+   "description": "أسماء حقول مفصولة بفواصل تُستخدم في البحث الحر"
+  },
+  {
+   "fieldname": "sec_cols",
+   "fieldtype": "Section Break",
+   "label": "الأعمدة",
+   "depends_on": "eval:doc.view_type=='List'"
+  },
+  {
+   "fieldname": "columns",
+   "fieldtype": "Table",
+   "label": "الأعمدة",
+   "options": "Shell Module Column"
+  },
+  {
+   "fieldname": "sec_filters",
+   "fieldtype": "Section Break",
+   "label": "عوامل التصفية",
+   "depends_on": "eval:doc.view_type=='List'"
+  },
+  {
+   "fieldname": "filters",
+   "fieldtype": "Table",
+   "label": "عوامل التصفية",
+   "options": "Shell Module Filter"
+  },
+  {
+   "fieldname": "sec_map",
+   "fieldtype": "Section Break",
+   "label": "الخريطة (اختياري)",
+   "collapsible": 1,
+   "depends_on": "eval:doc.view_type=='List'"
+  },
+  {
+   "fieldname": "show_map",
+   "fieldtype": "Check",
+   "label": "عرض خريطة"
+  },
+  {
+   "fieldname": "map_lat_field",
+   "fieldtype": "Data",
+   "label": "حقل خط العرض",
+   "depends_on": "show_map"
+  },
+  {
+   "fieldname": "map_lon_field",
+   "fieldtype": "Data",
+   "label": "حقل خط الطول",
+   "depends_on": "show_map"
+  },
+  {
+   "fieldname": "col_m1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "map_label_field",
+   "fieldtype": "Data",
+   "label": "حقل التسمية",
+   "depends_on": "show_map"
+  },
+  {
+   "fieldname": "map_color_field",
+   "fieldtype": "Data",
+   "label": "حقل التلوين",
+   "depends_on": "show_map",
+   "description": "حقل نصي/اختياري تُشتق منه ألوان النقاط"
+  },
+  {
+   "fieldname": "map_center_lat",
+   "fieldtype": "Float",
+   "label": "مركز الخريطة - خط العرض",
+   "depends_on": "show_map",
+   "precision": "6"
+  },
+  {
+   "fieldname": "map_center_lon",
+   "fieldtype": "Float",
+   "label": "مركز الخريطة - خط الطول",
+   "depends_on": "show_map",
+   "precision": "6"
+  },
+  {
+   "fieldname": "map_zoom",
+   "fieldtype": "Int",
+   "label": "مستوى التقريب",
+   "default": "10",
+   "depends_on": "show_map"
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "report": 1,
+   "share": 1
+  },
+  {
+   "role": "Shell Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "report": 1,
+   "share": 1
+  },
+  {
+   "role": "All",
+   "read": 1,
+   "write": 0,
+   "create": 0,
+   "delete": 0,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "report": 1,
+   "share": 1
+  }
+ ],
+ "owner": "Administrator",
+ "modified_by": "Administrator",
+ "creation": "2026-08-07 09:00:00.000000",
+ "modified": "2026-08-07 09:00:00.000000",
+ "idx": 0,
+ "links": [],
+ "states": [],
+ "autoname": "field:module_key",
+ "naming_rule": "By fieldname",
+ "title_field": "module_label"
+}

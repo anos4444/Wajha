@@ -1,0 +1,70 @@
+{
+ "doctype": "DocType",
+ "name": "Shell Module Column",
+ "module": "Wajha",
+ "custom": 0,
+ "istable": 1,
+ "issingle": 0,
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "allow_rename": 0,
+ "track_changes": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "field_order": [
+  "fieldname",
+  "label",
+  "format",
+  "width",
+  "align"
+ ],
+ "fields": [
+  {
+   "fieldname": "fieldname",
+   "fieldtype": "Data",
+   "label": "اسم الحقل",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 3
+  },
+  {
+   "fieldname": "label",
+   "fieldtype": "Data",
+   "label": "العنوان",
+   "in_list_view": 1,
+   "columns": 3
+  },
+  {
+   "fieldname": "format",
+   "fieldtype": "Select",
+   "label": "التنسيق",
+   "options": "Text\nBadge\nPercent\nCurrency\nDate\nDatetime\nLink\nInt\nFloat",
+   "default": "Text",
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "width",
+   "fieldtype": "Data",
+   "label": "العرض",
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "align",
+   "fieldtype": "Select",
+   "label": "المحاذاة",
+   "options": "start\ncenter\nend",
+   "default": "start",
+   "columns": 1
+  }
+ ],
+ "permissions": [],
+ "owner": "Administrator",
+ "modified_by": "Administrator",
+ "creation": "2026-08-07 09:00:00.000000",
+ "modified": "2026-08-07 09:00:00.000000",
+ "idx": 0,
+ "links": [],
+ "states": []
+}

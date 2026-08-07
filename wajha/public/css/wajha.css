@@ -1,0 +1,430 @@
+/* Wajha — Arabic-first Desk shell.
+   All values come from CSS custom properties injected at runtime from the
+   active Shell Theme, with sane fallbacks so the app is never unstyled. */
+
+:root {
+	--wj-primary: #013D28;
+	--wj-primary-dark: #00291B;
+	--wj-accent: #D9A21B;
+	--wj-sidebar-bg: #00543C;
+	--wj-sidebar-ink: #CFE3D8;
+	--wj-sidebar-active-bg: #FFFFFF;
+	--wj-sidebar-active-ink: #013D28;
+	--wj-page-bg: #F2F3F1;
+	--wj-surface-bg: #FFFFFF;
+	--wj-ink: #182620;
+	--wj-muted-ink: #6B7C74;
+	--wj-border: #E2E6E0;
+	--wj-danger: #C0392B;
+	--wj-warning: #E07B1A;
+	--wj-success: #2E7D4F;
+	--wj-info: #00838F;
+	--wj-radius: 10px;
+	--wj-shadow: 0 1px 2px rgba(0, 0, 0, .06);
+	--wj-sidebar-width: 260px;
+	--wj-font: 'IBM Plex Sans Arabic', system-ui, sans-serif;
+	--wj-font-size: 14px;
+}
+
+/* ---------------------------------------------------------------- shell */
+.wj-shell {
+	display: grid;
+	grid-template-columns: var(--wj-sidebar-width) 1fr;
+	min-height: calc(100vh - var(--wj-chrome-offset, 0px));
+	direction: rtl;
+	font-family: var(--wj-font);
+	font-size: var(--wj-font-size);
+	color: var(--wj-ink);
+	background: var(--wj-page-bg);
+}
+
+/* sidebar sits in the first grid column (inline-start in RTL = right) */
+.wj-sidebar {
+	background: var(--wj-sidebar-bg);
+	color: var(--wj-sidebar-ink);
+	display: flex;
+	flex-direction: column;
+	position: sticky;
+	top: 0;
+	align-self: start;
+	height: 100vh;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	padding: 14px 12px;
+	gap: 8px;
+	padding-block-start: max(14px, env(safe-area-inset-top));
+	padding-inline-end: max(12px, env(safe-area-inset-right));
+}
+
+.wj-brand {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 6px 6px 14px;
+}
+
+.wj-brand img {
+	width: 46px;
+	height: 46px;
+	border-radius: 12px;
+	background: #fff;
+	object-fit: contain;
+	flex: none;
+}
+
+.wj-brand h1 {
+	font-size: 15px;
+	font-weight: 600;
+	margin: 0;
+	color: #fff;
+	line-height: 1.4;
+}
+
+.wj-brand p {
+	font-size: 12px;
+	margin: 2px 0 0;
+	opacity: .8;
+}
+
+.wj-nav {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.wj-group-label {
+	font-size: 11px;
+	opacity: .65;
+	padding: 12px 10px 2px;
+	letter-spacing: .02em;
+}
+
+.wj-link {
+	appearance: none;
+	border: 0;
+	width: 100%;
+	text-align: start;
+	background: rgba(255, 255, 255, .07);
+	color: var(--wj-sidebar-ink);
+	border-radius: var(--wj-radius);
+	padding: 11px 14px;
+	min-height: 44px;
+	cursor: pointer;
+	font-family: inherit;
+	font-size: 14px;
+	line-height: 1.5;
+	transition: background .15s ease;
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+}
+
+.wj-link:hover {
+	background: rgba(255, 255, 255, .14);
+}
+
+.wj-link .wj-en {
+	font-size: 11px;
+	opacity: .7;
+}
+
+.wj-link[aria-current="page"] {
+	background: var(--wj-sidebar-active-bg);
+	color: var(--wj-sidebar-active-ink);
+	font-weight: 600;
+}
+
+.wj-link[aria-current="page"] .wj-en {
+	opacity: .75;
+}
+
+.wj-foot {
+	margin-top: auto;
+	font-size: 11px;
+	opacity: .65;
+	padding: 12px 8px 4px;
+}
+
+/* ---------------------------------------------------------------- content */
+.wj-main {
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+.wj-head {
+	background: var(--wj-surface-bg);
+	border-bottom: 1px solid var(--wj-border);
+	padding: 14px 20px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+
+.wj-head h2 {
+	margin: 0;
+	font-size: 20px;
+	font-weight: 700;
+}
+
+.wj-chips {
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.wj-chip {
+	background: var(--wj-page-bg);
+	border-radius: 999px;
+	padding: 6px 14px;
+	font-size: 13px;
+	color: var(--wj-muted-ink);
+	white-space: nowrap;
+}
+
+.wj-body {
+	padding: 16px 20px 32px;
+	min-width: 0;
+}
+
+.wj-card {
+	background: var(--wj-surface-bg);
+	border: 1px solid var(--wj-border);
+	border-radius: var(--wj-radius);
+	box-shadow: var(--wj-shadow);
+	padding: 14px;
+	margin-bottom: 14px;
+}
+
+/* ---------------------------------------------------------------- toolbar */
+.wj-toolbar {
+	display: flex;
+	gap: 10px;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	margin-bottom: 12px;
+}
+
+.wj-field {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 150px;
+	flex: 1 1 150px;
+}
+
+.wj-field label {
+	font-size: 12px;
+	color: var(--wj-muted-ink);
+}
+
+.wj-field input,
+.wj-field select {
+	font-family: inherit;
+	font-size: 13px;
+	min-height: 40px;
+	padding: 8px 10px;
+	border: 1px solid var(--wj-border);
+	border-radius: 8px;
+	background: var(--wj-surface-bg);
+	color: var(--wj-ink);
+}
+
+.wj-field input:focus,
+.wj-field select:focus {
+	outline: 2px solid var(--wj-primary);
+	outline-offset: 1px;
+}
+
+.wj-btn {
+	appearance: none;
+	font-family: inherit;
+	font-size: 13px;
+	min-height: 40px;
+	padding: 8px 18px;
+	border-radius: 8px;
+	border: 1px solid var(--wj-primary);
+	background: var(--wj-primary);
+	color: #fff;
+	cursor: pointer;
+}
+
+.wj-btn.wj-ghost {
+	background: transparent;
+	color: var(--wj-primary);
+}
+
+.wj-btn:hover {
+	filter: brightness(1.08);
+}
+
+/* ---------------------------------------------------------------- table */
+.wj-table-wrap {
+	overflow-x: auto;
+}
+
+.wj-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 13px;
+}
+
+.wj-table th {
+	text-align: start;
+	background: var(--wj-page-bg);
+	color: var(--wj-muted-ink);
+	font-weight: 600;
+	padding: 10px 12px;
+	white-space: nowrap;
+	position: sticky;
+	top: 0;
+	cursor: pointer;
+}
+
+.wj-table td {
+	padding: 10px 12px;
+	border-top: 1px solid var(--wj-border);
+	vertical-align: top;
+}
+
+.wj-table tbody tr:hover {
+	background: color-mix(in srgb, var(--wj-primary) 4%, transparent);
+	cursor: pointer;
+}
+
+.wj-badge {
+	display: inline-block;
+	padding: 2px 10px;
+	border-radius: 999px;
+	font-size: 12px;
+	background: color-mix(in srgb, var(--wj-primary) 10%, transparent);
+	color: var(--wj-primary);
+	white-space: nowrap;
+}
+
+.wj-empty {
+	padding: 36px 16px;
+	text-align: center;
+	color: var(--wj-muted-ink);
+	line-height: 1.9;
+}
+
+.wj-pager {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	margin-top: 12px;
+	font-size: 13px;
+	color: var(--wj-muted-ink);
+}
+
+.wj-map {
+	height: 55vh;
+	min-height: 320px;
+	border-radius: var(--wj-radius);
+	margin-top: 12px;
+}
+
+/* ---------------------------------------------------------------- drawer */
+.wj-burger {
+	display: none;
+	appearance: none;
+	border: 1px solid var(--wj-border);
+	background: var(--wj-surface-bg);
+	color: var(--wj-ink);
+	border-radius: 8px;
+	width: 44px;
+	height: 44px;
+	font-size: 18px;
+	cursor: pointer;
+}
+
+.wj-backdrop {
+	display: none;
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, .42);
+	z-index: 1029;
+}
+
+@media (max-width: 900px) {
+	.wj-shell {
+		grid-template-columns: 1fr;
+	}
+
+	.wj-burger {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.wj-sidebar {
+		position: fixed;
+		inset-block: 0;
+		inset-inline-end: 0;
+		width: min(86vw, 320px);
+		height: 100vh;
+		z-index: 1030;
+		transform: translateX(100%);
+		transition: transform .22s ease;
+		box-shadow: -6px 0 24px rgba(0, 0, 0, .18);
+	}
+
+	:root[dir="ltr"] .wj-sidebar,
+	[dir="ltr"] .wj-sidebar {
+		transform: translateX(-100%);
+	}
+
+	.wj-shell.wj-open .wj-sidebar {
+		transform: translateX(0);
+	}
+
+	.wj-shell.wj-open .wj-backdrop {
+		display: block;
+	}
+
+	.wj-body {
+		padding: 12px 12px 28px;
+	}
+
+	.wj-head {
+		padding: 12px;
+	}
+}
+
+/* Touch devices: no keyboard hints, roomier targets */
+@media (hover: none) and (pointer: coarse) {
+	.wj-kbd-hint {
+		display: none !important;
+	}
+}
+
+/* ---------------------------------------------------------------- desk integration */
+/* Hide Frappe's own app rail only on the shell route, so the user never sees
+   two navigation columns. Applied via a body class set by wajha_boot.js. */
+body.wj-route .body-sidebar,
+body.wj-route .layout-side-section {
+	display: none !important;
+}
+
+body.wj-route .page-head,
+body.wj-route .navbar {
+	display: none !important;
+}
+
+body.wj-route .main-section,
+body.wj-route .page-body {
+	padding: 0 !important;
+	margin: 0 !important;
+}
+
+body.wj-route .container,
+body.wj-route .page-container {
+	max-width: none !important;
+	padding: 0 !important;
+	margin: 0 !important;
+}
