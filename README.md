@@ -4,7 +4,7 @@
 
 Wajha turns a Frappe site into a branded, single-column application: a right-to-left sidebar of your own modules, a themed list experience with server-side filtering and pagination, an optional map view, and a colour system you switch from the UI rather than from code.
 
-It is **configuration, not code**. Adding a module to the sidebar means creating a `Shell Module` record — no JavaScript edits, no rebuild. The same app can therefore dress a bridge-management system, a licensing system, or a fleet system without forking.
+It is **configuration, not code**. Adding a module to the sidebar means creating a `Shell Module` record — no JavaScript edits, no rebuild. The same app can therefore dress an asset-management system, a licensing system, or a fleet system without forking.
 
 ---
 
@@ -48,7 +48,7 @@ Requires Frappe v16 (Python 3.14). No Node build step is needed.
 To go faster, scaffold a module from an existing DocType — it copies the list-view columns and standard filters:
 
 ```python
-frappe.call("wajha.api.scaffold_module_from_doctype", {"doctype": "Bridge Asset"})
+frappe.call("wajha.api.scaffold_module_from_doctype", {"doctype": "Asset"})
 ```
 
 ## Theming
