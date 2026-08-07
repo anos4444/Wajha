@@ -180,8 +180,12 @@ def get_module_data(module_key, page=1, filters=None, search=None,
     page_length = min(cint(module.page_length) or 20, MAX_PAGE_LENGTH)
 
     sf = sort_field if sort_field in real else (module.sort_field or "modified")
+    if sf not in real:
+        sf = "modified"
     so = "asc" if (sort_order or module.sort_order or "DESC").upper() == "ASC" else "desc"
-    order_by = f"`{sf}` {so}"
+    # v16's query engine rejects backtick notation in order_by; the fieldname is
+    # already validated against the DocType's real fields above.
+    order_by = f"{sf} {so}"
 
     kwargs = dict(doctype=module.ref_doctype, fields=fields, filters=applied,
                   order_by=order_by, limit_start=(page - 1) * page_length,
@@ -190,9 +194,14 @@ def get_module_data(module_key, page=1, filters=None, search=None,
         kwargs["or_filters"] = or_filters
 
     rows = frappe.get_list(**kwargs)
-    total = frappe.get_list(doctype=module.ref_doctype, filters=applied,
-                            or_filters=or_filters, limit_page_length=0,
-                            as_list=True, fields=["count(name) as c"])
+
+    # v16 forbids SQL functions as strings in SELECT; use the dict form.
+    count_kwargs = dict(doctype=module.ref_doctype, filters=applied,
+                        fields=[{"COUNT": "*"}], as_list=True,
+                        limit_page_length=0)
+    if or_filters:
+        count_kwargs["or_filters"] = or_filters
+    total = frappe.get_list(**count_kwargs)
     total = cint(total[0][0]) if total else 0
 
     return {
