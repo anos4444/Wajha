@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.0 — 2026-08-08
+
+Performance & scalability pass. Measured live against a 100,000-row Sales Order
+table (random dates over the last 365 days, random amounts, mixed docstatus)
+and 84 concurrently-configured Shell Modules — not estimated.
+
+- **Auto-indexing for range filters**: saving a Shell Module now enqueues a background job (`queue="long"`, so it never blocks the save) that adds a DB index to any field used by a `Number Range`, `Date Range` or `Datetime Range` filter, via Frappe's own idempotent `frappe.db.add_index()`. Measured effect: sorting 100k rows by a previously-unindexed amount field dropped from 51.8ms to 1.7ms (~30x). A broad Date Range filter that matches most of the table is unaffected either way, which is correct — MariaDB rightly prefers a full scan over an index lookup at that selectivity, so this isn't something an index can fix.
+- **Pagination COUNT(*) caching**: the total-row-count query that powers the pager is now cached for 20 seconds per unique (module, filters) combination — long enough to absorb a user clicking through pages of the same filtered view, short enough that a newly added/edited record shows up in the count almost immediately. Measured effect: a filtered `get_module_data` call went from 122.5ms (cache miss) to ~51-54ms on repeat calls (cache hit) — the count query alone had been costing ~70ms on the 100k-row table.
+- **Verified**: full 18-check functional suite + 6-check permission-boundary suite re-run clean against the 100k-row dataset after these changes; the auto-index job was triggered directly (no RQ worker running in the validation environment) and confirmed via `SHOW INDEX` to actually create the index, and confirmed idempotent (re-running it a second time did not create a duplicate).
+
 ## 0.2.0 — 2026-08-08
 
 Native ERPNext DocType compatibility pass.

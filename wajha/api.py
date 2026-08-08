@@ -6,6 +6,7 @@ builds the query from it. Frappe's own permission layer then applies on top via
 frappe.get_list, so a user can never see rows or fields their roles forbid.
 """
 
+import hashlib
 import json
 
 import frappe
@@ -14,6 +15,11 @@ from frappe.utils import cint
 CONFIG_CACHE_KEY = "wajha_config"
 FIELDS_CACHE_PREFIX = "wajha_fields_"
 FIELDS_CACHE_TTL = 300  # 5 minutes; cleared immediately on module save regardless
+COUNT_CACHE_PREFIX = "wajha_count_"
+COUNT_CACHE_TTL = 20  # seconds -- short enough that a new/edited doc shows up
+                      # in the pager quickly, long enough to absorb a user
+                      # clicking Next/Previous through the same filtered view
+                      # without re-running the same COUNT(*) on every click
 
 TOKEN_FIELDS = [
     "primary", "primary_dark", "accent", "sidebar_bg", "sidebar_ink",
@@ -223,6 +229,38 @@ def _search_filters(module, search, real_fields):
     return [[f, "like", f"%{search}%"] for f in fields]
 
 
+def _cached_count(module, applied, or_filters):
+    """Total row count for the current filter/search combination.
+
+    A pager click (Next/Previous, or re-sorting the same filtered view)
+    re-sends the identical filters+search on every request, but a COUNT(*)
+    over a large, mostly-unindexed WHERE clause can be as expensive as the
+    row fetch itself -- on a 100k-row table in testing, an unindexed range
+    filter's count query alone ran ~150-200ms. Short-TTL caching means that
+    cost is paid once per filter combination per COUNT_CACHE_TTL window
+    instead of on every single page turn. 20s means a newly created or
+    edited document can take up to that long to move the "total" number in
+    the pager -- an acceptable trade for how much repeat-paging this saves.
+    """
+    key = COUNT_CACHE_PREFIX + hashlib.md5(
+        json.dumps([module.name, applied, or_filters], sort_keys=True, default=str).encode()
+    ).hexdigest()
+    cached = frappe.cache().get_value(key)
+    if cached is not None:
+        return cached
+
+    # v16 forbids SQL functions as strings in SELECT; use the dict form.
+    count_kwargs = dict(doctype=module.ref_doctype, filters=applied,
+                        fields=[{"COUNT": "*"}], as_list=True,
+                        limit_page_length=0)
+    if or_filters:
+        count_kwargs["or_filters"] = or_filters
+    total = frappe.get_list(**count_kwargs)
+    total = cint(total[0][0]) if total else 0
+    frappe.cache().set_value(key, total, expires_in_sec=COUNT_CACHE_TTL)
+    return total
+
+
 @frappe.whitelist()
 def get_module_data(module_key, page=1, filters=None, search=None,
                     sort_field=None, sort_order=None):
@@ -254,14 +292,7 @@ def get_module_data(module_key, page=1, filters=None, search=None,
 
     rows = frappe.get_list(**kwargs)
 
-    # v16 forbids SQL functions as strings in SELECT; use the dict form.
-    count_kwargs = dict(doctype=module.ref_doctype, filters=applied,
-                        fields=[{"COUNT": "*"}], as_list=True,
-                        limit_page_length=0)
-    if or_filters:
-        count_kwargs["or_filters"] = or_filters
-    total = frappe.get_list(**count_kwargs)
-    total = cint(total[0][0]) if total else 0
+    total = _cached_count(module, applied, or_filters)
 
     return {
         "rows": rows,
