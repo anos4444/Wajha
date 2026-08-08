@@ -37,7 +37,7 @@
    "fieldname": "control",
    "fieldtype": "Select",
    "label": "نوع الأداة",
-   "options": "Text\nSelect\nLink\nNumber Range\nDate Range",
+   "options": "Text\nSelect\nMultiSelect\nLink\nNumber Range\nDate Range\nDatetime Range",
    "default": "Text",
    "in_list_view": 1,
    "columns": 2

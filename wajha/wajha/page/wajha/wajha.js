@@ -182,19 +182,58 @@ class WajhaShell {
 		(meta.filters || []).forEach((f) => {
 			const $f = $(`<div class="wj-field"><label>${frappe.utils.escape_html(f.label)}</label></div>`)
 				.appendTo($tools);
-			let $input;
-			if (f.control === 'Select') {
-				$input = $('<select><option value=""></option></select>');
-				(f.options || []).forEach((o) => $input.append(`<option value="${frappe.utils.escape_html(o)}">${frappe.utils.escape_html(o)}</option>`));
-			} else {
-				$input = $('<input type="text">');
-			}
-			$input.appendTo($f).on('change', () => {
-				this.state.filters[f.fieldname] = $input.val();
+			const commit = () => {
 				this.state.page_no = 1;
 				this.load_rows();
 				if (meta.map && meta.map.enabled) this.load_map();
-			});
+			};
+
+			if (f.control === 'Select') {
+				const $input = $('<select><option value=""></option></select>');
+				(f.options || []).forEach((o) => $input.append(`<option value="${frappe.utils.escape_html(o)}">${frappe.utils.escape_html(o)}</option>`));
+				$input.appendTo($f).on('change', () => {
+					this.state.filters[f.fieldname] = $input.val();
+					commit();
+				});
+			} else if (f.control === 'MultiSelect') {
+				const $input = $('<select multiple class="wj-multiselect"></select>');
+				(f.options || []).forEach((o) => $input.append(`<option value="${frappe.utils.escape_html(o)}">${frappe.utils.escape_html(o)}</option>`));
+				$input.appendTo($f).on('change', () => {
+					this.state.filters[f.fieldname] = $input.val() || [];
+					commit();
+				});
+			} else if (f.control === 'Number Range') {
+				const $lo = $(`<input type="number" placeholder="${__("Min")}">`);
+				const $hi = $(`<input type="number" placeholder="${__("Max")}">`);
+				$('<div class="wj-range"></div>').append($lo).append($hi).appendTo($f);
+				const update = () => {
+					const lo = $lo.val(), hi = $hi.val();
+					this.state.filters[f.fieldname] = (lo !== '' || hi !== '') ? [lo, hi] : '';
+					commit();
+				};
+				$lo.on('change', update);
+				$hi.on('change', update);
+			} else if (f.control === 'Date Range' || f.control === 'Datetime Range') {
+				const type = f.control === 'Datetime Range' ? 'datetime-local' : 'date';
+				const $lo = $(`<input type="${type}">`);
+				const $hi = $(`<input type="${type}">`);
+				$('<div class="wj-range"></div>').append($lo).append($hi).appendTo($f);
+				const update = () => {
+					const lo = $lo.val(), hi = $hi.val();
+					this.state.filters[f.fieldname] = (lo || hi) ? [lo, hi] : '';
+					commit();
+				};
+				$lo.on('change', update);
+				$hi.on('change', update);
+			} else {
+				// Text and Link both use a plain text box; Link matches on the
+				// exact document name (server-side "=" once a value is set).
+				const $input = $('<input type="text">');
+				$input.appendTo($f).on('change', () => {
+					this.state.filters[f.fieldname] = $input.val();
+					commit();
+				});
+			}
 		});
 
 		$(`<button class="wj-btn wj-ghost">${__("Clear")}</button>`).appendTo($tools).on('click', () => {
@@ -216,6 +255,9 @@ class WajhaShell {
 			<button class="wj-btn wj-ghost wj-next">${__("Next")}</button></span></div>`).appendTo($card);
 
 		const $tr = $card.find('thead tr');
+		if (meta.status_field) {
+			$(`<th class="wj-status-col">${__("Status")}</th>`).appendTo($tr);
+		}
 		(meta.columns || []).forEach((c) => {
 			$(`<th style="text-align:${c.align}${c.width ? ';width:' + c.width : ''}">${frappe.utils.escape_html(c.label)}</th>`)
 				.appendTo($tr)
@@ -251,13 +293,17 @@ class WajhaShell {
 		}).then((r) => {
 			const d = r.message || { rows: [], total: 0 };
 			const $tb = this.$body.find('tbody').empty();
+			const col_count = (meta.columns || []).length + (meta.status_field ? 1 : 0) || 1;
 			if (!d.rows.length) {
-				$tb.append(`<tr><td colspan="${(meta.columns || []).length || 1}">
+				$tb.append(`<tr><td colspan="${col_count}">
 					<div class="wj-empty">${__("No matching records.")}</div></td></tr>`);
 			}
 			d.rows.forEach((row) => {
 				const $tr = $('<tr></tr>').on('click', () =>
 					frappe.set_route('Form', d.doctype, row.name));
+				if (meta.status_field) {
+					$(`<td>${this.status_badge(row[meta.status_field])}</td>`).appendTo($tr);
+				}
 				(meta.columns || []).forEach((c) => {
 					$(`<td style="text-align:${c.align}">${this.fmt(row[c.fieldname], c.format)}</td>`).appendTo($tr);
 				});
@@ -280,8 +326,42 @@ class WajhaShell {
 			case 'Currency': return esc(frappe.format(v, { fieldtype: 'Currency' }));
 			case 'Date': return esc(frappe.datetime.str_to_user(v));
 			case 'Datetime': return esc(frappe.datetime.str_to_user(v));
+			case 'Duration': return esc(frappe.format(v, { fieldtype: 'Duration' }));
+			case 'Checkbox': return frappe.utils.cint(v) ? '✓' : '✗';
+			case 'Rating': {
+				const n = Math.round((frappe.utils.flt(v) || 0) * 5);
+				return '★'.repeat(n) + '☆'.repeat(Math.max(0, 5 - n));
+			}
+			case 'Attachment':
+				return `<a href="${esc(v)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${__("Open file")}</a>`;
+			case 'Image':
+				return `<img src="${esc(v)}" alt="" style="max-width:60px;max-height:40px;border-radius:4px;object-fit:cover">`;
+			case 'MultiSelectBadge': {
+				const parts = Array.isArray(v) ? v : String(v).split(',').map((s) => s.trim()).filter(Boolean);
+				return parts.map((p) => `<span class="wj-badge">${esc(p)}</span>`).join('');
+			}
+			case 'JSON': {
+				let text = v;
+				try { text = typeof v === 'string' ? JSON.stringify(JSON.parse(v), null, 1) : JSON.stringify(v, null, 1); }
+				catch (e) { text = String(v); }
+				return `<code class="wj-json">${esc(text)}</code>`;
+			}
+			case 'Geolocation': return esc(__("(location)"));
 			default: return esc(v);
 		}
+	}
+
+	status_badge(value) {
+		if (value === null || value === undefined || value === '') return '';
+		const labels = this.meta.docstatus_labels;
+		let text = String(value);
+		let cls = '';
+		if (labels && labels[String(value)] !== undefined) {
+			text = __(labels[String(value)]);
+			cls = String(value) === '1' ? 'wj-status-submitted'
+				: String(value) === '2' ? 'wj-status-cancelled' : 'wj-status-draft';
+		}
+		return `<span class="wj-status-badge ${cls}">${frappe.utils.escape_html(text)}</span>`;
 	}
 
 	// ------------------------------------------------------------------ map

@@ -302,6 +302,67 @@
 	background: color-mix(in srgb, var(--wj-primary) 10%, transparent);
 	color: var(--wj-primary);
 	white-space: nowrap;
+	margin-inline-end: 4px;
+}
+
+/* Draft/Submitted/Cancelled (or any custom status_field) badge, shown as a
+   leading column so native ERPNext submittable DocTypes read correctly
+   without extra per-DocType configuration. */
+.wj-status-col {
+	width: 96px;
+}
+
+.wj-status-badge {
+	display: inline-block;
+	padding: 2px 10px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 600;
+	white-space: nowrap;
+	background: color-mix(in srgb, var(--wj-muted-ink) 14%, transparent);
+	color: var(--wj-muted-ink);
+}
+
+.wj-status-badge.wj-status-draft {
+	background: color-mix(in srgb, var(--wj-warning) 16%, transparent);
+	color: var(--wj-warning);
+}
+
+.wj-status-badge.wj-status-submitted {
+	background: color-mix(in srgb, var(--wj-success) 16%, transparent);
+	color: var(--wj-success);
+}
+
+.wj-status-badge.wj-status-cancelled {
+	background: color-mix(in srgb, var(--wj-danger) 16%, transparent);
+	color: var(--wj-danger);
+}
+
+/* Two-input range filters (Number Range / Date Range / Datetime Range) */
+.wj-range {
+	display: flex;
+	gap: 6px;
+}
+
+.wj-range input {
+	min-width: 0;
+	flex: 1 1 0;
+}
+
+.wj-multiselect {
+	min-height: 40px;
+}
+
+.wj-json {
+	display: block;
+	max-width: 320px;
+	max-height: 4.5em;
+	overflow: auto;
+	white-space: pre-wrap;
+	font-size: 11px;
+	background: var(--wj-page-bg);
+	border-radius: 6px;
+	padding: 4px 6px;
 }
 
 .wj-empty {

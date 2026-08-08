@@ -38,7 +38,7 @@
    "fieldname": "format",
    "fieldtype": "Select",
    "label": "التنسيق",
-   "options": "Text\nBadge\nPercent\nCurrency\nDate\nDatetime\nLink\nInt\nFloat",
+   "options": "Text\nBadge\nPercent\nCurrency\nDate\nDatetime\nLink\nInt\nFloat\nCheckbox\nRating\nAttachment\nImage\nGeolocation\nMultiSelectBadge\nJSON\nDuration",
    "default": "Text",
    "in_list_view": 1,
    "columns": 2

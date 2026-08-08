@@ -30,6 +30,7 @@
   "sort_field",
   "sort_order",
   "search_fields",
+  "status_field",
   "sec_cols",
   "columns",
   "sec_filters",
@@ -160,6 +161,12 @@
    "fieldtype": "Small Text",
    "label": "حقول البحث",
    "description": "أسماء حقول مفصولة بفواصل تُستخدم في البحث الحر"
+  },
+  {
+   "fieldname": "status_field",
+   "fieldtype": "Data",
+   "label": "حقل الحالة",
+   "description": "اختياري. للمستندات القابلة للاعتماد يُستخدم docstatus تلقائيًا (مسودة/معتمد/ملغى) دون الحاجة لتعبئة هذا الحقل."
   },
   {
    "fieldname": "sec_cols",

@@ -12,6 +12,8 @@ import frappe
 from frappe.utils import cint
 
 CONFIG_CACHE_KEY = "wajha_config"
+FIELDS_CACHE_PREFIX = "wajha_fields_"
+FIELDS_CACHE_TTL = 300  # 5 minutes; cleared immediately on module save regardless
 
 TOKEN_FIELDS = [
     "primary", "primary_dark", "accent", "sidebar_bg", "sidebar_ink",
@@ -22,6 +24,10 @@ TOKEN_FIELDS = [
 ]
 
 MAX_PAGE_LENGTH = 200
+
+# Native ERPNext docstatus values, exposed to the client so it never has to
+# guess badge text/colour on its own.
+DOCSTATUS_LABELS = {0: "Draft", 1: "Submitted", 2: "Cancelled"}
 
 
 def has_app_permission():
@@ -103,22 +109,70 @@ def _get_module(module_key):
     return m
 
 
-def _allowed_fields(module):
-    """Configured fields only, and only those that really exist on the DocType."""
+def _compute_allowed_fields(module):
+    """Configured fields only, and only those that really exist on the DocType.
+
+    Child-table fields (fieldtype "Table"/"Table MultiSelect") cannot be
+    projected into a flat frappe.get_list() row, so they're dropped even if
+    someone configured one by hand (e.g. via a hand-edited fixture) rather
+    than through scaffold_module_from_doctype, which already filters them out.
+
+    For submittable native ERPNext DocTypes (Sales Order, Purchase Invoice,
+    Journal Entry, …) docstatus is always pulled in automatically — unless
+    the module explicitly names a different status_field — so the client can
+    render a Draft/Submitted/Cancelled badge without extra configuration.
+    """
     meta = frappe.get_meta(module.ref_doctype)
-    real = {df.fieldname for df in meta.fields}
+    by_name = {df.fieldname: df for df in meta.fields}
+    real = set(by_name.keys())
     real.update(["name", "modified", "creation", "owner"])
+    if meta.is_submittable:
+        real.add("docstatus")
+
     out = []
     for c in module.columns:
-        if c.fieldname in real and c.fieldname not in out:
+        df = by_name.get(c.fieldname)
+        if c.fieldname not in real:
+            continue
+        if df and df.fieldtype in ("Table", "Table MultiSelect"):
+            continue  # can't render a child table in a flat list cell
+        if c.fieldname not in out:
             out.append(c.fieldname)
+
     for extra in (module.map_lat_field, module.map_lon_field,
                   module.map_label_field, module.map_color_field):
         if extra and extra in real and extra not in out:
             out.append(extra)
+
+    status_field = (module.status_field or "").strip() or None
+    if not status_field and meta.is_submittable:
+        status_field = "docstatus"
+    if status_field and status_field not in real:
+        status_field = None  # configured field doesn't actually exist; drop it silently
+    if status_field and status_field not in out:
+        out.append(status_field)
+
     if "name" not in out:
         out.insert(0, "name")
-    return out, real
+    return out, real, status_field
+
+
+def _allowed_fields(module):
+    """Cached wrapper around _compute_allowed_fields.
+
+    DocType shape rarely changes between requests, so this is safe to cache
+    briefly; Shell Module's on_update/on_trash hooks clear it immediately on
+    save, so admins editing columns/filters never see stale results.
+    """
+    cache_key = FIELDS_CACHE_PREFIX + module.name
+    cached = frappe.cache().get_value(cache_key)
+    if cached:
+        fields, real, status_field = cached
+        return fields, set(real), status_field
+    fields, real, status_field = _compute_allowed_fields(module)
+    frappe.cache().set_value(cache_key, (fields, list(real), status_field),
+                              expires_in_sec=FIELDS_CACHE_TTL)
+    return fields, real, status_field
 
 
 def _build_filters(module, raw, real_fields):
@@ -139,13 +193,18 @@ def _build_filters(module, raw, real_fields):
                 filters.append([fieldname, "in", value])
             else:
                 filters.append([fieldname, "=", value])
+        elif control == "MultiSelect":
+            values = value if isinstance(value, list) else [value]
+            values = [v for v in values if v not in (None, "")]
+            if values:
+                filters.append([fieldname, "in", values])
         elif control == "Number Range":
             lo, hi = (value + [None, None])[:2] if isinstance(value, list) else (None, None)
             if lo not in (None, ""):
                 filters.append([fieldname, ">=", lo])
             if hi not in (None, ""):
                 filters.append([fieldname, "<=", hi])
-        elif control == "Date Range":
+        elif control in ("Date Range", "Datetime Range"):
             lo, hi = (value + [None, None])[:2] if isinstance(value, list) else (None, None)
             if lo:
                 filters.append([fieldname, ">=", lo])
@@ -168,7 +227,7 @@ def _search_filters(module, search, real_fields):
 def get_module_data(module_key, page=1, filters=None, search=None,
                     sort_field=None, sort_order=None):
     module = _get_module(module_key)
-    fields, real = _allowed_fields(module)
+    fields, real, _status_field = _allowed_fields(module)
 
     if isinstance(filters, str):
         filters = json.loads(filters or "{}")
@@ -219,6 +278,7 @@ def get_module_meta(module_key):
     module = _get_module(module_key)
     meta = frappe.get_meta(module.ref_doctype)
     by_name = {df.fieldname: df for df in meta.fields}
+    _fields, _real, status_field = _allowed_fields(module)
 
     columns = [{
         "fieldname": c.fieldname,
@@ -231,7 +291,7 @@ def get_module_meta(module_key):
     filters = []
     for f in module.filters:
         options = []
-        if f.control == "Select":
+        if f.control in ("Select", "MultiSelect"):
             if f.options:
                 options = [o for o in (f.options or "").split("\n") if o.strip()]
             elif f.fieldname in by_name:
@@ -252,6 +312,8 @@ def get_module_meta(module_key):
         "columns": columns,
         "filters": filters,
         "can_create": bool(frappe.has_permission(module.ref_doctype, "create")),
+        "status_field": status_field,
+        "docstatus_labels": DOCSTATUS_LABELS if status_field == "docstatus" else None,
         "map": {
             "enabled": bool(module.show_map),
             "lat": module.map_lat_field,
@@ -270,7 +332,7 @@ def get_map_points(module_key, filters=None, search=None, limit=2000):
     module = _get_module(module_key)
     if not module.show_map or not (module.map_lat_field and module.map_lon_field):
         return []
-    fields, real = _allowed_fields(module)
+    fields, real, _status_field = _allowed_fields(module)
     if isinstance(filters, str):
         filters = json.loads(filters or "{}")
     applied = _build_filters(module, filters, real)
@@ -301,9 +363,11 @@ def scaffold_module_from_doctype(doctype, module_key=None, label=None):
     doc.view_type = "List"
     doc.ref_doctype = doctype
     doc.sequence = 10
+    if meta.is_submittable:
+        doc.status_field = "docstatus"
 
     listed = [df for df in meta.fields if df.in_list_view and df.fieldtype not in
-              ("Section Break", "Column Break", "Table", "HTML")]
+              ("Section Break", "Column Break", "Table", "Table MultiSelect", "HTML")]
     for df in (listed or meta.fields[:5]):
         doc.append("columns", {"fieldname": df.fieldname, "label": df.label,
                                "format": _fmt_for(df.fieldtype)})
@@ -311,8 +375,7 @@ def scaffold_module_from_doctype(doctype, module_key=None, label=None):
         if df.in_standard_filter:
             doc.append("filters", {
                 "fieldname": df.fieldname, "label": df.label,
-                "control": "Select" if df.fieldtype == "Select"
-                else ("Link" if df.fieldtype == "Link" else "Text"),
+                "control": _control_for(df.fieldtype),
                 "options": df.options if df.fieldtype in ("Select", "Link") else None,
             })
     doc.search_fields = ",".join(
@@ -327,4 +390,27 @@ def _fmt_for(fieldtype):
         "Percent": "Percent", "Currency": "Currency", "Date": "Date",
         "Datetime": "Datetime", "Link": "Link", "Int": "Int",
         "Float": "Float", "Select": "Badge",
+        "Check": "Checkbox",
+        "Rating": "Rating",
+        "Attach": "Attachment",
+        "Attach Image": "Image",
+        "Image": "Image",
+        "Geolocation": "Geolocation",
+        "MultiSelectPill": "MultiSelectBadge",
+        "JSON": "JSON",
+        "Duration": "Duration",
     }.get(fieldtype, "Text")
+
+
+def _control_for(fieldtype):
+    if fieldtype == "Select":
+        return "Select"
+    if fieldtype == "Link":
+        return "Link"
+    if fieldtype in ("Int", "Float", "Currency", "Percent"):
+        return "Number Range"
+    if fieldtype == "Date":
+        return "Date Range"
+    if fieldtype == "Datetime":
+        return "Datetime Range"
+    return "Text"
