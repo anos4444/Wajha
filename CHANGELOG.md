@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.4.0 — 2026-08-08
+
+Extensibility pass on `scaffold_module_from_doctype` — the one-shot generator
+that turns an existing native ERPNext DocType into a working Shell Module.
+Live-validated with 10 checks (4 negative controls) against real DocTypes,
+including a throwaway custom "Wajha Geo Test" DocType built specifically to
+exercise the map auto-detect path.
+
+- **`field_include` / `field_exclude`**: new optional params (list or comma-separated string) to control exactly which fields become columns/filters, instead of only whatever the source DocType's own `in_list_view`/`in_standard_filter` flags happen to be. Useful when a native DocType's list-view config doesn't match what should actually show in the Wajha shell. `field_exclude` is applied last, so it can also trim an explicit `field_include` list.
+- **Map auto-detect**: scaffolding a DocType that has a conventional latitude/longitude field pair (`latitude`/`longitude`, `lat`/`lng`, `lat`/`lon`, `gps_latitude`/`gps_longitude`) now automatically sets `map_lat_field`, `map_lon_field` and enables `show_map` — map setup used to be a mandatory manual step after every scaffold even when the coordinates were right there. Excluding either half of the pair via `field_exclude` correctly suppresses auto-detect.
+- **Smarter default filters**: if the source DocType defines no `in_standard_filter` fields at all (common on custom DocTypes never wired up for the native list view), the scaffold now falls back to Select fields with a manageable option count (≤15) and Date/Datetime fields, so a scaffolded module isn't left with zero filters. DocTypes that DO define standard filters are untouched — the fallback only fires when there's nothing to use.
+
 ## 0.3.0 — 2026-08-08
 
 Performance & scalability pass. Measured live against a 100,000-row Sales Order

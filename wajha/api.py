@@ -376,17 +376,50 @@ def get_map_points(module_key, filters=None, search=None, limit=2000):
 
 
 # --------------------------------------------------------------------------- helper
+# Common naming conventions for a lat/lng field pair when a DocType doesn't
+# use Frappe's own combined `Geolocation` fieldtype. Checked in order; the
+# first pair where BOTH fieldnames exist on the DocType wins.
+_LATLNG_NAME_PAIRS = (
+    ("latitude", "longitude"),
+    ("lat", "lng"),
+    ("lat", "lon"),
+    ("gps_latitude", "gps_longitude"),
+)
+
+# Select fields tend to make good filters even when the DocType author never
+# flagged them `in_standard_filter` -- but only below a cardinality where a
+# dropdown is still usable. Above this, a Select filter becomes an unusable
+# 200-option dropdown, so it's skipped instead of forced in.
+_SELECT_FILTER_MAX_OPTIONS = 15
+
+
 @frappe.whitelist()
-def scaffold_module_from_doctype(doctype, module_key=None, label=None):
+def scaffold_module_from_doctype(doctype, module_key=None, label=None,
+                                  field_include=None, field_exclude=None):
     """Create a Shell Module pre-filled from a DocType's list-view fields.
 
     Convenience for setting up a new project quickly; requires Shell Manager.
+
+    field_include: optional list (or comma-separated string) of fieldnames.
+        When given, ONLY these fields are considered for columns/filters,
+        instead of whatever the DocType meta happens to flag as
+        in_list_view/in_standard_filter. Useful when the native DocType's
+        own list-view configuration doesn't match what should show in the
+        Wajha shell (e.g. a heavily-customized ERPNext DocType).
+    field_exclude: optional list (or comma-separated string) of fieldnames
+        to drop even if they would otherwise be picked up automatically
+        (from in_list_view / in_standard_filter / geolocation detection).
+        Applied after field_include, so it can also be used to trim an
+        explicit include list.
     """
     frappe.only_for(["Shell Manager", "System Manager"])
     meta = frappe.get_meta(doctype)
     key = (module_key or frappe.scrub(doctype)).lower()
     if frappe.db.exists("Shell Module", key):
         frappe.throw(f"الوحدة {key} موجودة مسبقًا")
+
+    include = _split_fieldnames(field_include)
+    exclude = set(_split_fieldnames(field_exclude))
 
     doc = frappe.new_doc("Shell Module")
     doc.module_key = key
@@ -397,23 +430,97 @@ def scaffold_module_from_doctype(doctype, module_key=None, label=None):
     if meta.is_submittable:
         doc.status_field = "docstatus"
 
-    listed = [df for df in meta.fields if df.in_list_view and df.fieldtype not in
-              ("Section Break", "Column Break", "Table", "Table MultiSelect", "HTML")]
-    for df in (listed or meta.fields[:5]):
+    fields_by_name = {df.fieldname: df for df in meta.fields}
+
+    if include:
+        # Explicit include list wins outright; preserve the caller's order.
+        listed = [fields_by_name[fn] for fn in include if fn in fields_by_name]
+    else:
+        listed = [df for df in meta.fields if df.in_list_view and df.fieldtype not in
+                  ("Section Break", "Column Break", "Table", "Table MultiSelect", "HTML")]
+        listed = listed or meta.fields[:5]
+    listed = [df for df in listed if df.fieldname not in exclude]
+    for df in listed:
         doc.append("columns", {"fieldname": df.fieldname, "label": df.label,
                                "format": _fmt_for(df.fieldtype)})
-    for df in meta.fields:
-        if df.in_standard_filter:
-            doc.append("filters", {
-                "fieldname": df.fieldname, "label": df.label,
-                "control": _control_for(df.fieldtype),
-                "options": df.options if df.fieldtype in ("Select", "Link") else None,
-            })
+
+    # Filters: start from whatever the DocType itself flags as a standard
+    # filter (respecting include/exclude same as columns). If the DocType
+    # doesn't define ANY standard filters -- common on custom DocTypes that
+    # were never wired up for the native list view -- fall back to a
+    # reasonable default: Select fields with a manageable option count, and
+    # Date/Datetime fields as ranges, so a scaffolded module isn't left with
+    # zero filters just because nobody configured them upstream.
+    filter_fields = [df for df in meta.fields
+                      if df.in_standard_filter and df.fieldname not in exclude
+                      and (not include or df.fieldname in include)]
+    if not filter_fields:
+        for df in meta.fields:
+            if include and df.fieldname not in include:
+                continue
+            if df.fieldname in exclude:
+                continue
+            if df.fieldtype == "Select" and df.options:
+                if 0 < len(df.options.splitlines()) <= _SELECT_FILTER_MAX_OPTIONS:
+                    filter_fields.append(df)
+            elif df.fieldtype in ("Date", "Datetime") and df.fieldname != "creation":
+                filter_fields.append(df)
+    for df in filter_fields:
+        doc.append("filters", {
+            "fieldname": df.fieldname, "label": df.label,
+            "control": _control_for(df.fieldtype),
+            "options": df.options if df.fieldtype in ("Select", "Link") else None,
+        })
+
     doc.search_fields = ",".join(
         [df.fieldname for df in meta.fields
          if df.fieldtype in ("Data", "Small Text") and df.in_list_view][:3]) or "name"
+
+    _autodetect_map_fields(doc, meta, fields_by_name, exclude)
+
     doc.insert()
     return doc.name
+
+
+def _split_fieldnames(value):
+    """Accept a list, a comma-separated string, or None -- normalize to a list."""
+    if not value:
+        return []
+    if isinstance(value, str):
+        return [v.strip() for v in value.split(",") if v.strip()]
+    return [v for v in value if v]
+
+
+def _autodetect_map_fields(doc, meta, fields_by_name, exclude):
+    """Pre-fill map_lat_field/map_lon_field and enable the map view when the
+    DocType clearly carries coordinates, instead of leaving map setup as a
+    mandatory manual step after every scaffold.
+
+    Two shapes are recognized: Frappe's own combined `Geolocation` fieldtype
+    (a single field holding GeoJSON), and a conventional separate lat/lng
+    field pair (checked against _LATLNG_NAME_PAIRS). Geolocation wins if
+    both are somehow present. Does nothing if neither shape is found, or if
+    either field was explicitly excluded via field_exclude.
+    """
+    geo_field = next((df for df in meta.fields
+                       if df.fieldtype == "Geolocation" and df.fieldname not in exclude), None)
+    if geo_field:
+        # Geolocation stores {lat, lng} as one JSON value; Wajha's map view
+        # expects two separate numeric fields, so this is flagged for the
+        # caller rather than silently mis-mapped. show_map is left off.
+        return
+
+    for lat_name, lng_name in _LATLNG_NAME_PAIRS:
+        if lat_name in exclude or lng_name in exclude:
+            continue
+        lat_df = fields_by_name.get(lat_name)
+        lng_df = fields_by_name.get(lng_name)
+        if lat_df and lng_df and lat_df.fieldtype in ("Float", "Data") \
+                and lng_df.fieldtype in ("Float", "Data"):
+            doc.map_lat_field = lat_name
+            doc.map_lon_field = lng_name
+            doc.show_map = 1
+            return
 
 
 def _fmt_for(fieldtype):
