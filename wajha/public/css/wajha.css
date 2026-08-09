@@ -423,10 +423,17 @@
 		justify-content: center;
 	}
 
+	/* Physical right/left here on purpose: `inset-inline-end` resolves to the
+	   LEFT edge in an RTL document, which docked the drawer opposite to the
+	   desktop sidebar and left part of it on screen once translated. The
+	   drawer must sit on the same side it occupies on desktop — the right in
+	   RTL, the left in LTR — and translate away from that edge. */
 	.wj-sidebar {
 		position: fixed;
 		inset-block: 0;
-		inset-inline-end: 0;
+		inset-inline-end: auto;
+		right: 0;
+		left: auto;
 		width: min(86vw, 320px);
 		height: 100vh;
 		z-index: 1030;
@@ -437,7 +444,10 @@
 
 	:root[dir="ltr"] .wj-sidebar,
 	[dir="ltr"] .wj-sidebar {
+		right: auto;
+		left: 0;
 		transform: translateX(-100%);
+		box-shadow: 6px 0 24px rgba(0, 0, 0, .18);
 	}
 
 	.wj-shell.wj-open .wj-sidebar {

@@ -320,13 +320,23 @@ class WajhaShell {
 	fmt(v, format) {
 		if (v === null || v === undefined || v === '') return '';
 		const esc = (x) => frappe.utils.escape_html(String(x));
+		// frappe.format() returns markup for the numeric fieldtypes (Currency,
+		// Percent and Int come back wrapped in an alignment <div>), so escaping
+		// its output directly would print that markup as visible text. Take the
+		// text content instead — <template> is inert, so nothing in the string
+		// can load or execute while we unwrap it.
+		const fmt_text = (value, fieldtype) => {
+			const tpl = document.createElement('template');
+			tpl.innerHTML = String(frappe.format(value, { fieldtype: fieldtype }));
+			return esc(tpl.content.textContent || '');
+		};
 		switch (format) {
 			case 'Badge': return `<span class="wj-badge">${esc(v)}</span>`;
-			case 'Percent': return esc(frappe.format(v, { fieldtype: 'Percent' }));
-			case 'Currency': return esc(frappe.format(v, { fieldtype: 'Currency' }));
+			case 'Percent': return fmt_text(v, 'Percent');
+			case 'Currency': return fmt_text(v, 'Currency');
 			case 'Date': return esc(frappe.datetime.str_to_user(v));
 			case 'Datetime': return esc(frappe.datetime.str_to_user(v));
-			case 'Duration': return esc(frappe.format(v, { fieldtype: 'Duration' }));
+			case 'Duration': return fmt_text(v, 'Duration');
 			case 'Checkbox': return frappe.utils.cint(v) ? '✓' : '✗';
 			case 'Rating': {
 				const n = Math.round((frappe.utils.flt(v) || 0) * 5);

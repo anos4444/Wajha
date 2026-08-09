@@ -496,20 +496,15 @@ def _autodetect_map_fields(doc, meta, fields_by_name, exclude):
     DocType clearly carries coordinates, instead of leaving map setup as a
     mandatory manual step after every scaffold.
 
-    Two shapes are recognized: Frappe's own combined `Geolocation` fieldtype
-    (a single field holding GeoJSON), and a conventional separate lat/lng
-    field pair (checked against _LATLNG_NAME_PAIRS). Geolocation wins if
-    both are somehow present. Does nothing if neither shape is found, or if
-    either field was explicitly excluded via field_exclude.
+    The map view needs two separate numeric fields, so a conventional lat/lng
+    field pair (checked against _LATLNG_NAME_PAIRS) is what we look for. A
+    combined `Geolocation` field cannot drive the view on its own and is
+    therefore ignored — it must not suppress a usable pair sitting alongside
+    it, which is exactly the shape ERPNext's own `Location` DocType has
+    (`latitude`/`longitude` Floats plus a `location` Geolocation field).
+    Does nothing if no usable pair is found, or if either half of the pair was
+    explicitly excluded via field_exclude.
     """
-    geo_field = next((df for df in meta.fields
-                       if df.fieldtype == "Geolocation" and df.fieldname not in exclude), None)
-    if geo_field:
-        # Geolocation stores {lat, lng} as one JSON value; Wajha's map view
-        # expects two separate numeric fields, so this is flagged for the
-        # caller rather than silently mis-mapped. show_map is left off.
-        return
-
     for lat_name, lng_name in _LATLNG_NAME_PAIRS:
         if lat_name in exclude or lng_name in exclude:
             continue

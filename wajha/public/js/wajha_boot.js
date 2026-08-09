@@ -92,12 +92,23 @@
 	}
 
 	// Mark the shell route so scoped Desk-chrome overrides apply only there.
-	function mark_route() {
-		const is_shell = (frappe.get_route_str && frappe.get_route_str() || '')
-			.startsWith('wajha');
-		document.body.classList.toggle('wj-route', !!is_shell);
+	function is_shell_route() {
+		const route = (frappe.get_route_str && frappe.get_route_str()) || '';
+		if (route) return route.startsWith('wajha');
+		// On a hard load the router has often not resolved the route yet by the
+		// time app_ready fires, and if it resolved before this listener was
+		// registered no 'change' event follows either — so the class would never
+		// be set and Frappe's app rail would keep squeezing the shell. Fall back
+		// to the URL, which is already correct at that point.
+		return /^\/(app|desk)\/wajha(\/|$)/.test(window.location.pathname);
 	}
 
+	function mark_route() {
+		if (!document.body) return;
+		document.body.classList.toggle('wj-route', is_shell_route());
+	}
+
+	mark_route();
 	$(document).on('app_ready', function () {
 		window.wajha.get_config();
 		mark_route();
