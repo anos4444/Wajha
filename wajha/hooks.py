@@ -10,6 +10,10 @@ app_include_css = "/assets/wajha/css/wajha.css"
 app_include_js = "/assets/wajha/js/wajha_boot.js"
 web_include_css = "/assets/wajha/css/wajha.css"
 
+# Ship the resolved shell config in Frappe's boot payload so the first paint
+# needs no extra request. wajha_boot.js still falls back to the HTTP call.
+boot_session = "wajha.boot.add_boot_data"
+
 after_migrate = ["wajha.install.after_migrate"]
 
 add_to_apps_screen = [

@@ -28,7 +28,11 @@ class ShellModule(Document):
         self._clear_cache()
 
     def _clear_cache(self):
-        frappe.cache().delete_value("wajha_config")
+        # The module list is part of the boot payload, so adding, renaming or
+        # disabling a module has to invalidate that too.
+        from wajha.boot import clear_boot_cache
+
+        clear_boot_cache()
         # Field allow-list is cached per module in wajha.api._allowed_fields();
         # drop it immediately so column/filter/status_field edits take effect
         # on the next request instead of waiting out the 5-minute TTL.

@@ -1,7 +1,8 @@
 from frappe.model.document import Document
 
+from wajha.boot import clear_boot_cache
+
 
 class ShellTheme(Document):
     def on_update(self):
-        import frappe
-        frappe.cache().delete_value('wajha_config')
+        clear_boot_cache()
