@@ -14,6 +14,7 @@ web_include_css = "/assets/wajha/css/wajha.css"
 # needs no extra request. wajha_boot.js still falls back to the HTTP call.
 boot_session = "wajha.boot.add_boot_data"
 
+after_install = "wajha.install.after_install"
 after_migrate = ["wajha.install.after_migrate"]
 
 add_to_apps_screen = [

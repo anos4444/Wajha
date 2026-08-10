@@ -46,7 +46,22 @@ PRESETS = [
 ]
 
 
+def after_install():
+    """Seed a freshly installed site.
+
+    Registered separately from after_migrate because `bench install-app` does
+    not run migrate hooks: without this, a fresh install left Shell Settings
+    with no active_theme and no Shell Theme records at all, so the shell
+    rendered untokenised until someone happened to run `bench migrate`.
+    """
+    _seed()
+
+
 def after_migrate():
+    _seed()
+
+
+def _seed():
     create_role()
     seed_themes()
     ensure_settings()
