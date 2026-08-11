@@ -1,5 +1,37 @@
 # Changelog
 
+## 0.4.2 — 2026-08-11
+
+Restores the boot-payload client reader that 0.4.1 accidentally reverted,
+and corrects three errors in the newly added `CLAUDE.md`.
+
+The 0.4.1 hotfix was prepared against a stale copy of `wajha_boot.js` that
+predated the boot-transport work, so shipping it silently dropped the
+`frappe.boot.wajha_config` reader and `wajha.refresh_config()` — the server
+kept building the payload on every boot while nothing consumed it, and
+`get_config()` fell back to the HTTP round trip the boot transport existed
+to remove. This release re-applies the null-route fix to the *current* file
+instead: `is_shell_route()` reads `frappe.router.current_route` directly
+(null-checked, with the URL-pathname fallback for the unresolved-router
+hard-load case) and never calls Frappe core's unguarded
+`frappe.get_route_str()`.
+
+Verified by running the real shipped file in a stubbed browser/frappe
+harness whose `get_route_str` is a faithful copy of core's unguarded
+implementation: 11/11 checks — the reported null-`current_route` hard-load
+no longer throws and the IIFE survives, URL fallback resolves the shell
+route both ways, boot config applies synchronously with zero HTTP requests,
+absence of boot config falls back to exactly one memoised HTTP call, and
+`refresh_config()` clears the boot copy and re-fetches. As a control, the
+pre-fix file was run through the same harness and crashes with the exact
+reported error.
+
+`CLAUDE.md` corrections: the install-seeding rationale was inverted (the
+`219bfde` bug was after_migrate-only registration, not after_install-only),
+a doctype path had an extra directory level, and the Python-version note now
+attributes the 3.14 pin to Frappe's own pyproject rather than implying
+wajha requires it (wajha declares `>=3.10`).
+
 ## 0.4.1 — 2026-08-11
 
 Hotfix: `wajha_boot.js` — which loads globally on every Desk page via

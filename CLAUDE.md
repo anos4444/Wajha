@@ -30,16 +30,23 @@ even legal for a given module before touching the DocType.
   Module from an existing DocType's list-view config). Field/count caching
   lives here (`_allowed_fields`, `_cached_count`).
 - `wajha/boot.py` — attaches the resolved `get_config()` payload to Frappe's
-  own boot response (`boot_session` hook) so the shell is themed before
-  first paint, no HTTP round trip. Fails soft (never breaks Desk boot on a
+  own boot response (`boot_session` hook); the client half in
+  `wajha_boot.js` reads `frappe.boot.wajha_config` and applies it
+  synchronously, so the shell is themed before first paint with no HTTP
+  round trip, keeping the `frappe.call` fallback for a boot that failed
+  soft and for `wajha.refresh_config()` mid-session. These two halves ship
+  together — a change that touches one must keep the other working (the
+  0.4.1 hotfix once reverted the client half by patching a stale copy of
+  the file; restored in 0.4.2). Fails soft (never breaks Desk boot on a
   half-migrated Shell Settings). `clear_boot_cache()` drops the per-user
   cached bootinfo; called from `on_update()` on Shell Settings/Shell Theme,
   and from Shell Module's own `_clear_cache()`.
 - `wajha/install.py` — idempotent seeding (4 theme presets, `Shell Manager`
   role, default `Shell Settings`). Registered on **both** `after_install`
   and `after_migrate` — `bench install-app` does not run migrate hooks, so
-  after_install-only seeding left fresh installs unthemed (see git history,
-  commit `219bfde`).
+  after_migrate-only seeding left fresh installs unthemed (the bug fixed in
+  `219bfde`; after_install-only would instead miss upgrades — both hooks
+  are needed).
 - `wajha/public/js/wajha_boot.js` — loads globally on **every** Desk page
   via `app_include_js`, not just `/app/wajha`. Publishes theme tokens as CSS
   custom properties, optionally applies font/colors Desk-wide. Because it's
@@ -47,7 +54,7 @@ even legal for a given module before touching the DocType.
 - `wajha/wajha/page/wajha/wajha.js` + `wajha/public/css/wajha.css` — the
   actual shell page: sidebar, list view, filters, map. No build step —
   plain JS/CSS, so the app installs on any v16 bench without Node.
-- `wajha/wajha/wajha/doctype/shell_module/shell_module.py` — on save,
+- `wajha/wajha/doctype/shell_module/shell_module.py` — on save,
   clears caches AND enqueues a background job (`add_filter_indexes`) that
   adds a DB index to any field used by a Number/Date/Datetime Range filter.
 - DocTypes: `Shell Settings` (single), `Shell Theme`, `Shell Module` +
@@ -75,11 +82,12 @@ everything.
 - **`frappe.get_route_str()` / `frappe.get_route()` are unsafe.** Frappe
   core does `frappe.router.current_route.join("/")` with no null guard, and
   `current_route` is genuinely `null` for a moment during some route
-  transitions. Since `wajha_boot.js` runs on every Desk page, calling either
-  of these unguarded can throw an uncaught `TypeError` that blanks out
-  whatever page happens to be transitioning at that moment. Read
-  `frappe.router.current_route` directly inside a try/catch instead (see
-  `mark_route()` in `wajha_boot.js`, fixed in `13742a3`).
+  transitions — including the moment `wajha_boot.js` runs its initial
+  `mark_route()` on a hard load. Since the script runs on every Desk page,
+  the uncaught `TypeError` killed the whole IIFE and blanked out whatever
+  page was loading. Read `frappe.router.current_route` directly and
+  null-check it, with the URL-pathname fallback for the unresolved-router
+  case (see `is_shell_route()` in `wajha_boot.js`).
 - **Desk caches Page doclists** — shipping a new `wajha.js` does not
   invalidate it; the Page record's `modified` timestamp has to change. Key
   that on a content hash, not a timestamp comparison across machines (clock
@@ -105,7 +113,10 @@ everything.
 
 ## Environment / deployment facts
 
-- Requires Frappe v16, which pins **Python 3.14 exactly**.
+- Requires Frappe v16, and Frappe v16's own pyproject pins **Python 3.14
+  exactly** — that constraint comes from Frappe, not from this app; wajha's
+  own `pyproject.toml` declares `requires-python = ">=3.10"` since the code
+  itself has no 3.14-only dependency.
 - No Node build step — plain CSS/JS by design; don't introduce a bundler
   without strong justification, since "installs on any v16 bench, even ones
   with no Node toolchain" is a stated feature, not an accident.
