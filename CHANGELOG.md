@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.4.1 — 2026-08-11
+
+Hotfix: `wajha_boot.js` — which loads globally on every Desk page via
+`app_include_js`, not just on the `/app/wajha` shell — could throw an
+uncaught `TypeError: Cannot read properties of null (reading 'join')`
+from inside Frappe core's own `router.js` (`frappe.get_route_str()` calls
+`frappe.router.current_route.join("/")` with no null guard), because
+`current_route` is genuinely `null` for a moment during some route
+transitions. Since this ran unguarded on `app_ready`/every router change,
+it could blank out ANY Desk page it fired on mid-transition — reported
+live as the Shell Settings single doctype rendering blank after install.
+
+Fixed by no longer calling `frappe.get_route_str()`/`frappe.get_route()`
+at all; `mark_route()` now reads `frappe.router.current_route` directly
+inside a try/catch and treats anything that isn't a proper route array as
+"not the shell route" instead of crashing. Verified against the exact
+reported failure mode (`current_route === null`, and `undefined` for good
+measure) plus positive/negative route-detection controls — 5/5 checks
+passed, including first confirming the *old* code really does throw the
+identical error message under the same condition (so the test is proven
+capable of catching the bug, not just capable of passing).
+
 ## 0.4.0 — 2026-08-08
 
 Extensibility pass on `scaffold_module_from_doctype` — the one-shot generator
