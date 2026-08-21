@@ -1,5 +1,85 @@
 # Changelog
 
+## 0.5.0 — 2026-08-21
+
+Closes the two remaining first-paint and stale-asset gaps, both borrowed from
+Solvronix-Desk and independently confirmed by Aurora's appearance layer.
+
+**Flash-free theming without the boot payload.** 0.4.2 made the first paint
+themed *when the boot payload carried the config*. It does not always: a boot
+that failed soft, a Guest session, or any page where `wajha_boot.js` is
+evaluated before `frappe.boot` is assigned all fall through to the HTTP call,
+which lands after first paint — a visible flash of unthemed Desk on every one
+of those loads. `wajha_boot.js` now keeps a last-known-good copy of the tokens
+in `localStorage` and applies it synchronously at the top of the IIFE, above
+the `typeof frappe` guard, so it does not depend on frappe existing yet. The
+authoritative config still overwrites it further down the same script, so a
+stale copy survives at most the span between two synchronous statements.
+
+The cached copy is stamped with the `user_id` cookie and ignored when that
+cookie no longer matches, so a shared browser never paints the previous user's
+theme. When the authoritative config comes back disabled, the applied
+properties are removed and the cache dropped — otherwise a shell that had been
+turned off would keep repainting its old colours on every load. On the shell
+route only, `<html>`'s background is stamped from `page_bg`, covering the gap
+before `.wj-shell` exists in the DOM; it is deliberately not stamped on other
+Desk pages, since this script loads on all of them.
+
+Verified by running the real shipped file under JavaScriptCore in a stubbed
+browser: 26 checks including negative controls for cache-absent (nothing
+paints early), a cache belonging to a different user (nothing paints),
+`localStorage` throwing as it does in private mode (no exception escapes), and
+a non-shell route (tokens still published, background *not* stamped). The
+0.4.1 null-`current_route` crash is covered in the same suite against a
+faithful copy of core's unguarded `get_route_str`. As a control the previous
+file was run through the identical harness: it fails exactly the 8 checks that
+describe the new behaviour and passes the other 18.
+
+**Whole-Desk theming that actually reaches the Desk.** `apply_theme_globally`
+mapped seven of Frappe's custom properties, which left list views, forms,
+modals, menus, controls and the awesomebar on core's default palette: turning
+it on branded the primary colour and little else. It now re-declares 37
+properties, confirmed present on a live Frappe 16.31.0 Desk, so the whole
+product follows the active Shell Theme without patching core — the stylesheet
+is appended at runtime and therefore lands after frappe's and erpnext's own
+bundles, winning on cascade order at equal specificity. Core derives further
+variables from `--primary` (`--progress-bar-bg` among them), so the repaint
+reaches more surfaces than the list length suggests. `apply_font_globally` now
+also publishes `--font-stack` rather than relying only on an `!important`
+selector list.
+
+The override is scoped to `:root:not([data-theme="dark"])`. Frappe's dark
+palette is declared on `[data-theme="dark"]` at the same specificity, so the
+previous unscoped `:root` block overrode it — dark chrome wearing light-mode
+inks. Every Shell Theme preset is a light palette, so dark mode is left to
+Frappe until Shell Theme can express a dark variant.
+
+Token values are now filtered before interpolation: they are admin-authored
+rather than attacker-supplied, but a stray brace or semicolon in one field
+would silently kill every rule after it, so anything outside the shape a
+colour, length or font stack takes falls back to the default.
+
+Verified on the live odoojo Desk by injecting the generated stylesheet into a
+real logged-in session: the primary action button moved from `rgb(23,23,23)`
+to `rgb(91,31,51)` and muted text from `#525252` to the theme's `#7A6B70`,
+with 7 of 8 watched core variables changing (the eighth, `--card-bg`, was
+already white in both). As a negative control the same page was flipped to
+`data-theme="dark"` with the stylesheet still installed: none of the overrides
+applied, while the *old* seven-property block was observed still bleeding into
+dark mode — the bug the new scoping fixes. The tab was restored afterwards and
+nothing was changed server-side.
+
+**Hash-versioned asset URLs.** `app_include_css`/`app_include_js`/
+`web_include_css` were bare paths under far-future caching, so browsers kept
+serving the CSS and JS they downloaded before an update — no error, just a
+shell that looks half-deployed until a hard reload. `hooks.py` now appends a
+short content hash (`?v=…`). Hashed rather than a hand-bumped counter, which
+is only as reliable as remembering to bump it, or an mtime, which differs per
+machine so a rebuilt-but-identical file would needlessly bust every cache.
+An unreadable file falls back to the bare path. Verified with 8 checks, 4 of
+them negative: editing the CSS moves its `?v=` while the untouched JS keeps
+its own, and a missing file degrades to the bare path instead of raising.
+
 ## 0.4.2 — 2026-08-11
 
 Restores the boot-payload client reader that 0.4.1 accidentally reverted,

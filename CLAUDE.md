@@ -51,6 +51,13 @@ even legal for a given module before touching the DocType.
   via `app_include_js`, not just `/app/wajha`. Publishes theme tokens as CSS
   custom properties, optionally applies font/colors Desk-wide. Because it's
   global, a bug here can break unrelated Desk pages (see Known sharp edges).
+  The top of the IIFE, above the `typeof frappe` guard, is the paint-critical
+  path: it applies a last-known-good copy of the tokens from `localStorage`
+  synchronously, for the loads the boot payload cannot cover (soft-failed
+  boot, Guest, or `frappe.boot` not yet assigned). It must keep running
+  without frappe, without a `<body>`, and without throwing. The cached copy
+  is keyed on the `user_id` cookie so a shared browser never paints the
+  previous user's theme.
 - `wajha/wajha/page/wajha/wajha.js` + `wajha/public/css/wajha.css` — the
   actual shell page: sidebar, list view, filters, map. No build step —
   plain JS/CSS, so the app installs on any v16 bench without Node.
@@ -93,7 +100,9 @@ everything.
   that on a content hash, not a timestamp comparison across machines (clock
   skew silently skips real deploys).
 - **Unversioned CSS paths with far-future caching** keep browsers on stale
-  styles after a deploy. Hash-version the asset path.
+  styles after a deploy. Hash-version the asset path — `_versioned()` in
+  `hooks.py` does this for the three `*_include_*` entries as of 0.5.0; any
+  new asset added there needs the same treatment.
 - **`inset-inline-end` in RTL** resolves to the *left* edge, not the right —
   bit the mobile drawer once (docked opposite the sidebar). Use physical
   `left`/`right` per direction instead of logical properties for anything
