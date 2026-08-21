@@ -1,0 +1,44 @@
+# Frappe site data — never commit
+sites/
+site_config.json
+common_site_config.json
+
+# Environments and secrets
+*.env
+.env*
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+
+# Database dumps and archives
+*.sql
+*.sql.gz
+*.sql.bz2
+*.dump
+*.zip
+*.tar
+*.tar.gz
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp

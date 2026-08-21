@@ -1,0 +1,269 @@
+{
+ "doctype": "DocType",
+ "name": "Shell Theme",
+ "module": "Wajha",
+ "custom": 0,
+ "istable": 0,
+ "issingle": 0,
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "allow_rename": 0,
+ "track_changes": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "field_order": [
+  "theme_name",
+  "is_preset",
+  "sec_colors",
+  "primary",
+  "primary_dark",
+  "accent",
+  "sidebar_bg",
+  "col_c4",
+  "sidebar_ink",
+  "sidebar_active_bg",
+  "sidebar_active_ink",
+  "page_bg",
+  "col_c8",
+  "surface_bg",
+  "ink",
+  "muted_ink",
+  "border",
+  "col_c12",
+  "danger",
+  "warning",
+  "success",
+  "info",
+  "sec_type",
+  "font_family",
+  "font_css_url",
+  "base_font_size",
+  "col_t1",
+  "radius",
+  "card_shadow",
+  "sidebar_width"
+ ],
+ "fields": [
+  {
+   "fieldname": "theme_name",
+   "fieldtype": "Data",
+   "label": "اسم السمة",
+   "reqd": 1,
+   "unique": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "is_preset",
+   "fieldtype": "Check",
+   "label": "سمة جاهزة",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "sec_colors",
+   "fieldtype": "Section Break",
+   "label": "الألوان"
+  },
+  {
+   "fieldname": "primary",
+   "fieldtype": "Color",
+   "label": "اللون الأساسي",
+   "default": "#013D28"
+  },
+  {
+   "fieldname": "primary_dark",
+   "fieldtype": "Color",
+   "label": "الأساسي الداكن",
+   "default": "#00291B"
+  },
+  {
+   "fieldname": "accent",
+   "fieldtype": "Color",
+   "label": "لون التمييز",
+   "default": "#D9A21B"
+  },
+  {
+   "fieldname": "sidebar_bg",
+   "fieldtype": "Color",
+   "label": "خلفية الشريط الجانبي",
+   "default": "#00543C"
+  },
+  {
+   "fieldname": "col_c4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sidebar_ink",
+   "fieldtype": "Color",
+   "label": "نص الشريط الجانبي",
+   "default": "#CFE3D8"
+  },
+  {
+   "fieldname": "sidebar_active_bg",
+   "fieldtype": "Color",
+   "label": "خلفية العنصر النشط",
+   "default": "#FFFFFF"
+  },
+  {
+   "fieldname": "sidebar_active_ink",
+   "fieldtype": "Color",
+   "label": "نص العنصر النشط",
+   "default": "#013D28"
+  },
+  {
+   "fieldname": "page_bg",
+   "fieldtype": "Color",
+   "label": "خلفية الصفحة",
+   "default": "#F2F3F1"
+  },
+  {
+   "fieldname": "col_c8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "surface_bg",
+   "fieldtype": "Color",
+   "label": "خلفية البطاقات",
+   "default": "#FFFFFF"
+  },
+  {
+   "fieldname": "ink",
+   "fieldtype": "Color",
+   "label": "لون النص",
+   "default": "#182620"
+  },
+  {
+   "fieldname": "muted_ink",
+   "fieldtype": "Color",
+   "label": "النص الثانوي",
+   "default": "#6B7C74"
+  },
+  {
+   "fieldname": "border",
+   "fieldtype": "Color",
+   "label": "لون الحدود",
+   "default": "#E2E6E0"
+  },
+  {
+   "fieldname": "col_c12",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "danger",
+   "fieldtype": "Color",
+   "label": "خطر",
+   "default": "#C0392B"
+  },
+  {
+   "fieldname": "warning",
+   "fieldtype": "Color",
+   "label": "تحذير",
+   "default": "#E07B1A"
+  },
+  {
+   "fieldname": "success",
+   "fieldtype": "Color",
+   "label": "نجاح",
+   "default": "#2E7D4F"
+  },
+  {
+   "fieldname": "info",
+   "fieldtype": "Color",
+   "label": "معلومة",
+   "default": "#00838F"
+  },
+  {
+   "fieldname": "sec_type",
+   "fieldtype": "Section Break",
+   "label": "الخطوط والشكل"
+  },
+  {
+   "fieldname": "font_family",
+   "fieldtype": "Data",
+   "label": "عائلة الخط",
+   "default": "'IBM Plex Sans Arabic', system-ui, sans-serif"
+  },
+  {
+   "fieldname": "font_css_url",
+   "fieldtype": "Data",
+   "label": "رابط ملف الخط (اختياري)",
+   "description": "اتركه فارغًا للشبكات المغلقة واستخدم خطًا مضمّنًا في تطبيقك"
+  },
+  {
+   "fieldname": "base_font_size",
+   "fieldtype": "Data",
+   "label": "حجم الخط الأساسي",
+   "default": "14px"
+  },
+  {
+   "fieldname": "col_t1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "radius",
+   "fieldtype": "Data",
+   "label": "استدارة الحواف",
+   "default": "10px"
+  },
+  {
+   "fieldname": "card_shadow",
+   "fieldtype": "Data",
+   "label": "ظل البطاقات",
+   "default": "0 1px 2px rgba(0,0,0,.06)"
+  },
+  {
+   "fieldname": "sidebar_width",
+   "fieldtype": "Data",
+   "label": "عرض الشريط الجانبي",
+   "default": "260px"
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "report": 1,
+   "share": 1
+  },
+  {
+   "role": "Shell Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "report": 1,
+   "share": 1
+  },
+  {
+   "role": "All",
+   "read": 1,
+   "write": 0,
+   "create": 0,
+   "delete": 0,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "report": 1,
+   "share": 1
+  }
+ ],
+ "owner": "Administrator",
+ "modified_by": "Administrator",
+ "creation": "2026-08-07 09:00:00.000000",
+ "modified": "2026-08-07 09:00:00.000000",
+ "idx": 0,
+ "links": [],
+ "states": [],
+ "autoname": "field:theme_name",
+ "naming_rule": "By fieldname",
+ "title_field": "theme_name"
+}
