@@ -68,7 +68,7 @@ Wajha owns presentation. Your app owns the domain: DocTypes, workflows, validati
 
 - All read endpoints go through `frappe.get_list`, so row-level permissions, user permissions and field-level (permlevel) rules all apply unchanged.
 - Filter fieldnames not declared in a module's Filters table are ignored rather than trusted.
-- `page_length` is capped server-side (200) regardless of what the client asks for.
+- `page_length` is capped server-side (500, ERPNext's own largest list page) regardless of what the client asks for.
 - `scaffold_module_from_doctype` is restricted to System Manager and Shell Manager.
 
 ## Deployment notes worth knowing
