@@ -19,6 +19,20 @@ class ShellModule(Document):
         if self.view_type == "Route Link" and not self.route:
             frappe.throw("أدخل المسار للوحدة من نوع رابط")
         self.status_field = (self.status_field or "").strip()
+        self.scope_field = (self.scope_field or "").strip()
+        if self.scope in ("Mine (User Field)", "Mine (Employee Field)") and not self.scope_field:
+            frappe.throw("أدخل حقل النطاق للوحدة المقيّدة بالمستخدم")
+        if self.scope == "Mine (Employee Field)" and not frappe.db.exists("DocType", "Employee"):
+            frappe.throw("نطاق الموظف يتطلب تثبيت HRMS (DocType Employee)")
+        self.detail_fields = ",".join(
+            f.strip() for f in (self.detail_fields or "").replace("\n", ",").split(",") if f.strip()
+        )
+        for row in self.actions:
+            row.value = (row.value or "").strip()
+            if row.action_type == "Set Value" and "=" not in row.value:
+                frappe.throw(f"الإجراء {row.label}: القيمة يجب أن تكون بصيغة fieldname=value")
+            if row.action_type == "Server Method" and "." not in row.value:
+                frappe.throw(f"الإجراء {row.label}: أدخل المسار الكامل للدالة (app.module.function)")
 
     def on_update(self):
         self._clear_cache()

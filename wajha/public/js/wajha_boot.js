@@ -312,7 +312,51 @@
 		apply_tokens(t);
 		apply_layout(t, cfg.layout);
 		stamp_page_bg(t);
+		apply_pwa(t, cfg.brand);
 		write_cache(cfg);
+	}
+
+	// "Add to Home Screen" as the client's own app, not as Frappe: on the
+	// shell route the page advertises a manifest generated from Shell
+	// Settings (name, logo, colours), and the browser chrome takes the
+	// theme's primary colour. Scoped to the shell route like stamp_page_bg —
+	// the rest of the Desk keeps whatever Frappe declares.
+	function apply_pwa(t, brand) {
+		if (!SHELL_ROUTE.test(window.location.pathname)) return;
+		const head = document.head || document.documentElement;
+		if (!head) return;
+		const meta = (name, content) => {
+			if (!content) return;
+			let el = document.querySelector(`meta[name="${name}"]`);
+			if (!el) {
+				el = document.createElement('meta');
+				el.setAttribute('name', name);
+				head.appendChild(el);
+			}
+			el.setAttribute('content', content);
+		};
+		meta('theme-color', t && t.primary);
+		meta('apple-mobile-web-app-capable', 'yes');
+		meta('mobile-web-app-capable', 'yes');
+		meta('apple-mobile-web-app-status-bar-style', 'default');
+		meta('apple-mobile-web-app-title', brand && brand.title);
+		let link = document.querySelector('link[rel="manifest"]');
+		if (!link) {
+			link = document.createElement('link');
+			link.rel = 'manifest';
+			head.appendChild(link);
+		}
+		link.href = '/api/method/wajha.api.manifest';
+		if (brand && brand.logo) {
+			let icon = document.getElementById('wj-touch-icon');
+			if (!icon) {
+				icon = document.createElement('link');
+				icon.id = 'wj-touch-icon';
+				icon.rel = 'apple-touch-icon';
+				head.appendChild(icon);
+			}
+			icon.href = brand.logo;
+		}
 	}
 
 	// Mark the shell route so scoped Desk-chrome overrides apply only there.

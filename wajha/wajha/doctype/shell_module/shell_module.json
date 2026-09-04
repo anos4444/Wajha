@@ -31,6 +31,13 @@
   "sort_order",
   "search_fields",
   "status_field",
+  "sec_scope",
+  "scope",
+  "scope_field",
+  "col_s1",
+  "detail_fields",
+  "show_in_mobile_bar",
+  "auto_actions",
   "sec_cols",
   "columns",
   "sec_filters",
@@ -44,7 +51,9 @@
   "map_color_field",
   "map_center_lat",
   "map_center_lon",
-  "map_zoom"
+  "map_zoom",
+  "sec_actions",
+  "actions"
  ],
  "fields": [
   {
@@ -253,6 +262,63 @@
    "label": "مستوى التقريب",
    "default": "10",
    "depends_on": "show_map"
+  },
+  {
+   "fieldname": "sec_scope",
+   "fieldtype": "Section Break",
+   "label": "النطاق والتفاصيل"
+  },
+  {
+   "fieldname": "scope",
+   "fieldtype": "Select",
+   "label": "نطاق السجلات",
+   "options": "All\nMine (Owner)\nMine (User Field)\nMine (Employee Field)",
+   "default": "All",
+   "description": "All: every record the user's roles allow. Mine: only the user's own records — by owner, by a field holding the user id, or by a field holding the Employee linked to the user. A self-service module for employees is a Mine module."
+  },
+  {
+   "fieldname": "scope_field",
+   "fieldtype": "Data",
+   "label": "حقل النطاق",
+   "depends_on": "eval:doc.scope && doc.scope !== 'All' && doc.scope !== 'Mine (Owner)'",
+   "mandatory_depends_on": "eval:doc.scope && doc.scope !== 'All' && doc.scope !== 'Mine (Owner)'",
+   "description": "The fieldname compared against the user (User Field) or the user's Employee (Employee Field), e.g. employee."
+  },
+  {
+   "fieldname": "col_s1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "detail_fields",
+   "fieldtype": "Small Text",
+   "label": "حقول بطاقة التفاصيل",
+   "description": "Comma-separated fieldnames shown on the record card, in order. Blank shows every readable, non-empty field grouped by the form's own sections."
+  },
+  {
+   "fieldname": "show_in_mobile_bar",
+   "fieldtype": "Check",
+   "label": "في شريط الجوال",
+   "default": "0",
+   "description": "Pin this module to the bottom bar on phones (the first four flagged modules; the first four modules when none is flagged)."
+  },
+  {
+   "fieldname": "auto_actions",
+   "fieldtype": "Check",
+   "label": "إجراءات تلقائية",
+   "default": "1",
+   "description": "Offer the record's workflow transitions, or Submit / Cancel when it has no workflow, on the record card. Frappe's own permissions decide who sees which."
+  },
+  {
+   "fieldname": "sec_actions",
+   "fieldtype": "Section Break",
+   "label": "إجراءات إضافية",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "actions",
+   "fieldtype": "Table",
+   "label": "الإجراءات",
+   "options": "Shell Module Action"
   }
  ],
  "permissions": [
@@ -296,7 +362,7 @@
  "owner": "Administrator",
  "modified_by": "Administrator",
  "creation": "2026-08-07 09:00:00.000000",
- "modified": "2026-08-07 09:00:00.000000",
+ "modified": "2026-09-05 09:00:00.000000",
  "idx": 0,
  "links": [],
  "states": [],
