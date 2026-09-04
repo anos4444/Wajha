@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.7.2 — 2026-09-04
+
+**Frappe's desk sidebar no longer sits beside the shell on v16.** On
+hub.tawasulcloud.com (frappe 16.25) `/app/wajha` showed two navigation
+columns: the v16 desk sidebar (app switcher, ⌘K search, workspace items) on
+the left and the shell's own on the right, with the breadcrumb bar still on
+top. The chrome-hiding rules keyed only on `body.wj-route`, the class our own
+`wajha_boot.js` sets, and targeted `.body-sidebar` — but v16 wraps the panel
+in `.body-sidebar-container`, whose `.body-sidebar-placeholder` reserves the
+220px even when the panel is hidden, and the marker was not in effect on that
+load. The rules now also key on `body[data-route="wajha"]`, which Frappe's
+own `views/container.js` stamps on every page change (hard load included), so
+they hold without depending on our script having run; they hide the whole
+container and `.page-head`. v15 selectors are kept.
+
 ## 0.7.1 — 2026-09-04
 
 **Upgrading to 0.7.0 no longer switches Swift Theme off.** The new `enabled`
@@ -105,6 +120,8 @@ Mechanics of the port, where it deliberately differs from upstream:
 - Upstream's 3.7k-line bench integration suite is not ported yet (it asserts
   the bundle structure this port replaces); the two Node-run contract suites
   are, live under `wajha/tests/`, and pass against the ported files.
+
+## 0.5.0 — 2026-08-21
 
 Closes the two remaining first-paint and stale-asset gaps, both borrowed from
 Solvronix-Desk and independently confirmed by Aurora's appearance layer.
