@@ -176,6 +176,19 @@ def _seed_settings():
             settings.set(fieldname, value)
             changed = True
 
+    # The master switch cannot go through the loop above. Document loading
+    # initialises an unset Check to 0, so a site that has never stored
+    # `enabled` reads exactly like a site that turned the theme off — and the
+    # loop, seeing 0 rather than None, left it there. Observed upgrading
+    # hub.tawasulcloud.com to 0.7.0: the field arrived and Swift went dark
+    # until someone ticked it. The stored row is the only place the two cases
+    # differ, and get_single_value reads that row directly (None when absent),
+    # so "never set" is seeded on while an explicit 0 is respected.
+    if settings.meta.has_field("enabled") and \
+            frappe.db.get_single_value("Swift Theme Settings", "enabled") is None:
+        settings.enabled = 1
+        changed = True
+
     changed = _repair_stale_selects(settings) or changed
 
     if changed:
