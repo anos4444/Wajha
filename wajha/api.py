@@ -194,11 +194,20 @@ def _build_filters(module, raw, real_fields):
         control = conf.control or "Text"
         if control == "Text":
             filters.append([fieldname, "like", f"%{value}%"])
-        elif control in ("Select", "Link"):
+        elif control == "Select":
             if isinstance(value, list):
                 filters.append([fieldname, "in", value])
             else:
                 filters.append([fieldname, "=", value])
+        elif control == "Link":
+            # A typed Link filter matches by "contains", not the exact name:
+            # the shell applies filters as you type, and an exact match meant
+            # the list emptied on every keystroke until the full name was in.
+            # A list (from a multi-value client) still means an exact set.
+            if isinstance(value, list):
+                filters.append([fieldname, "in", value])
+            else:
+                filters.append([fieldname, "like", f"%{value}%"])
         elif control == "MultiSelect":
             values = value if isinstance(value, list) else [value]
             values = [v for v in values if v not in (None, "")]
@@ -263,7 +272,7 @@ def _cached_count(module, applied, or_filters):
 
 @frappe.whitelist()
 def get_module_data(module_key, page=1, filters=None, search=None,
-                    sort_field=None, sort_order=None):
+                    sort_field=None, sort_order=None, page_length=None):
     module = _get_module(module_key)
     fields, real, _status_field = _allowed_fields(module)
 
@@ -274,7 +283,11 @@ def get_module_data(module_key, page=1, filters=None, search=None,
     or_filters = _search_filters(module, search, real)
 
     page = max(cint(page), 1)
-    page_length = min(cint(module.page_length) or 20, MAX_PAGE_LENGTH)
+    # The client may ask for more rows per page (the shell offers 20/50/100/
+    # 200); the module's own setting is the default and MAX_PAGE_LENGTH the
+    # ceiling either way, so a hand-edited request cannot pull the whole table.
+    page_length = min(cint(page_length) or cint(module.page_length) or 20, MAX_PAGE_LENGTH)
+    page_length = max(page_length, 1)
 
     sf = sort_field if sort_field in real else (module.sort_field or "modified")
     if sf not in real:

@@ -7,11 +7,26 @@ frappe.pages['wajha'].on_page_load = function (wrapper) {
 	new WajhaShell($(page.body), page);
 };
 
+const PAGE_LENGTHS = [20, 50, 100, 200];
+
+// The rows-per-page choice is a personal browsing preference, like a column
+// width, so it lives in this browser rather than on the module record: one
+// user reading 200 rows at a time must not change what everyone else sees.
+// Anything outside the offered set (a stale or edited value) falls back to
+// the default rather than reaching the server as a request it would clamp.
+function saved_page_length() {
+	try {
+		const n = parseInt(window.localStorage.getItem('wajha:page_length'), 10);
+		if (PAGE_LENGTHS.includes(n)) return n;
+	} catch (e) { /* storage disabled or private mode: default is fine */ }
+	return PAGE_LENGTHS[0];
+}
+
 class WajhaShell {
 	constructor($root, page) {
 		this.$root = $root.empty();
 		this.page = page;
-		this.state = { module: null, page_no: 1, filters: {}, search: '', sort: null, dir: null };
+		this.state = { module: null, page_no: 1, page_length: saved_page_length(), filters: {}, search: '', sort: null, dir: null };
 		window.wajha.get_config().then((cfg) => {
 			this.cfg = cfg;
 			if (!cfg || !cfg.enabled) return this.render_disabled();
@@ -140,7 +155,7 @@ class WajhaShell {
 		this.$nav.find('.wj-link').removeAttr('aria-current');
 		this.$nav.find(`.wj-link[data-key="${m.module_key}"]`).attr('aria-current', 'page');
 		this.$title.text(m.module_label || '');
-		this.state = { module: m, page_no: 1, filters: {}, search: '', sort: null, dir: null };
+		this.state = { module: m, page_no: 1, page_length: saved_page_length(), filters: {}, search: '', sort: null, dir: null };
 
 		if (m.view_type === 'Route Link') {
 			this.$body.html(`<div class="wj-card wj-empty">${__("Opening…")}</div>`);
@@ -228,11 +243,17 @@ class WajhaShell {
 			} else {
 				// Text and Link both use a plain text box; Link matches on the
 				// exact document name (server-side "=" once a value is set).
+				// Applied as you type, like the free-text search, rather than on
+				// Enter/blur: typing into a filter and seeing nothing happen read
+				// as broken. Debounced so a fast typist costs one request, not one
+				// per keystroke. The server matches Text and Link with "contains"
+				// (see _build_filters), so a half-typed name already narrows the
+				// list instead of emptying it until the exact value is complete.
 				const $input = $('<input type="text">');
-				$input.appendTo($f).on('change', () => {
+				$input.appendTo($f).on('input', frappe.utils.debounce(() => {
 					this.state.filters[f.fieldname] = $input.val();
 					commit();
-				});
+				}, 350));
 			}
 		});
 
@@ -248,11 +269,20 @@ class WajhaShell {
 				.on('click', () => frappe.new_doc(meta.doctype));
 		}
 
+		// One pager above the table and one below, kept in step. The bottom-only
+		// pager sat under a full page of rows, so Previous/Next were out of view
+		// and the list looked like it stopped at the first page. The rows-per-page
+		// choice mirrors ERPNext's list view; the server clamps it (200).
+		const pager = (pos) => `<div class="wj-pager wj-pager-${pos}"><span class="wj-count"></span>
+			<span class="wj-pager-controls">
+			<label class="wj-pagesize">${__("Rows per page")}
+			<select class="wj-page-length">${PAGE_LENGTHS.map((n) => `<option value="${n}">${n}</option>`).join('')}</select></label>
+			<button class="wj-btn wj-ghost wj-prev">${__("Previous")}</button>
+			<button class="wj-btn wj-ghost wj-next">${__("Next")}</button></span></div>`;
+		$(pager('top')).appendTo($card);
 		$(`<div class="wj-table-wrap"><table class="wj-table">
-			<thead><tr></tr></thead><tbody></tbody></table></div>
-			<div class="wj-pager"><span class="wj-count"></span>
-			<span><button class="wj-btn wj-ghost wj-prev">${__("Previous")}</button>
-			<button class="wj-btn wj-ghost wj-next">${__("Next")}</button></span></div>`).appendTo($card);
+			<thead><tr></tr></thead><tbody></tbody></table></div>`).appendTo($card);
+		$(pager('bottom')).appendTo($card);
 
 		const $tr = $card.find('thead tr');
 		if (meta.status_field) {
@@ -275,6 +305,14 @@ class WajhaShell {
 			this.state.page_no++;
 			this.load_rows();
 		});
+		$card.find('.wj-page-length').val(String(this.state.page_length)).on('change', (e) => {
+			const n = parseInt($(e.currentTarget).val(), 10);
+			this.state.page_length = PAGE_LENGTHS.includes(n) ? n : PAGE_LENGTHS[0];
+			$card.find('.wj-page-length').val(String(this.state.page_length));
+			try { window.localStorage.setItem('wajha:page_length', String(this.state.page_length)); } catch (err) { /* ignore */ }
+			this.state.page_no = 1;
+			this.load_rows();
+		});
 
 		if (meta.map && meta.map.enabled) {
 			$('<div class="wj-card"><div class="wj-map" id="wj-map"></div></div>').appendTo(this.$body);
@@ -286,6 +324,7 @@ class WajhaShell {
 		frappe.call('wajha.api.get_module_data', {
 			module_key: this.state.module.module_key,
 			page: this.state.page_no,
+			page_length: this.state.page_length,
 			filters: JSON.stringify(this.state.filters || {}),
 			search: this.state.search || '',
 			sort_field: this.state.sort || '',
