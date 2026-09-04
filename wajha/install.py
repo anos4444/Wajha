@@ -94,5 +94,14 @@ def ensure_settings():
     if not s.brand_title:
         s.brand_title = "نظام الإدارة"
         changed = True
+    # 0.9.0 added show_desk_link. A Check that was never stored loads as 0
+    # (Document init fills unset Checks), so `not s.show_desk_link` cannot
+    # tell "never set" from "turned off" — the same trap the Swift master
+    # switch hit in 0.7.0. The stored row can: get_single_value is None only
+    # when the field was never saved. Never set -> on; an explicit 0 stays.
+    if s.meta.has_field("show_desk_link") and \
+            frappe.db.get_single_value("Shell Settings", "show_desk_link") is None:
+        s.show_desk_link = 1
+        changed = True
     if changed:
         s.save(ignore_permissions=True)

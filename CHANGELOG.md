@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.9.0 — 2026-09-05
+
+**A way back to the rest of the Desk.** The shell hides Frappe's own sidebar
+and its app switcher on its route (by design), which left an admin with no
+visible route to any other app — only a Route Link someone had happened to
+configure, or a typed URL. The sidebar now ends with a **↩ العودة إلى Frappe
+/ Frappe Desk** button that opens the Home workspace, where the full Desk and
+its switcher are back. Governed by a new `Shell Settings.show_desk_link`
+(on by default; seeded on for existing sites by reading the stored row, so an
+unset Check is not mistaken for "off"; an absent field — a site not yet
+migrated — also counts as on, because the exit must never vanish by
+accident). Turn it off for a deployment that should look closed on the
+shell. Bumps the Page `modified` so the new script reaches browsers.
+
 ## 0.8.1 — 2026-09-05
 
 **The shell sets its own Desk-chrome marker.** 0.7.2 keyed the chrome-hiding
