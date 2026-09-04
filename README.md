@@ -12,7 +12,7 @@ It is **configuration, not code**. Adding a module to the sidebar means creating
 
 Frappe's Desk is excellent for data work but always looks like Frappe. Public-sector and enterprise clients frequently need a system that looks like *their* system — their identity, their language, their vocabulary — while keeping everything that makes Frappe worth using: the permission model, workflows, validation, audit trail, and reports.
 
-Wajha sits on top rather than replacing any of it. Browsing and navigation happen in the shell; opening a record hands you to the standard Frappe form, so nothing about permissions or workflow is reimplemented.
+Wajha sits on top rather than replacing any of it. Browsing, navigation and the record card happen in the shell; every query and every action goes through Frappe's own permission and workflow machinery, so nothing about either is reimplemented. The standard Frappe form stays one tap away for editing.
 
 ## Highlights
 
@@ -20,7 +20,10 @@ Wajha sits on top rather than replacing any of it. Browsing and navigation happe
 - **Themes as data.** `Shell Theme` records hold the full token set — colours, font, radius, shadow, sidebar width. Four presets ship with the app; duplicate one and change it to match a client's brand.
 - **No build step.** Plain CSS and vanilla JavaScript. Installs on any v16 bench, including servers with no Node toolchain, and works offline apart from the optional map tiles.
 - **Permission-safe by construction.** The browser never names a DocType, a field or an operator. It names a *module key*; the server loads that module's saved configuration and builds the query from it, then Frappe's permission layer applies on top. A user cannot request data their roles forbid, even by editing the request.
-- **Responsive.** Persistent sidebar on desktop; off-canvas drawer with backdrop, Escape-to-close and 44px targets on phones and tablets.
+- **A real phone app.** Below 700px the list becomes cards (title, subtitle, status chip), filters live in a bottom sheet with a count badge, the list grows as you scroll, and up to four modules sit in a bottom bar within thumb reach. Add to Home Screen installs the client's own name, logo and colours.
+- **Record card with actions.** Tap a record and the shell shows only the fields that hold a value, grouped by the form's sections, plus child tables, attachments and comments — and the actions this user may take right now: workflow transitions, Submit/Cancel, or actions you configure (set a field, call a whitelisted method, jump to a route). Desktop gets a side panel, phones the full screen.
+- **"Mine" modules.** A module scoped to the user's own records — by owner, by a user field, or by the Employee linked to the login — is a self-service app for employees with no extra code; an admin's browse module and an employee's "my leave" can point at the same DocType.
+- **Responsive.** Persistent sidebar on desktop; off-canvas drawer with backdrop, Escape-to-close and 44px targets on tablets.
 - **Optional map view.** Point any module at latitude/longitude fields and get a filtered map alongside the table.
 
 ## Install
@@ -42,6 +45,10 @@ Requires Frappe v16 (Python 3.14). No Node build step is needed.
    - `module_label` / `module_label_en` — what the user reads
    - `view_type` — `List` (browse a DocType) or `Route Link` (jump to any page)
    - `ref_doctype`, then the **Columns** and **Filters** child tables
+   - `scope` — `All`, or one of the `Mine` scopes with `scope_field` for a self-service module
+   - `detail_fields` (optional) — the fields on the record card; blank shows every non-empty readable field by section
+   - `show_in_mobile_bar` — pin the module to the phone's bottom bar
+   - **Actions** (optional) — extra buttons on the record card; workflow transitions and Submit/Cancel appear on their own
    - optionally enable the map and name the lat/lon/label/colour fields
 3. Open `/app/wajha`.
 
@@ -70,6 +77,7 @@ Wajha owns presentation. Your app owns the domain: DocTypes, workflows, validati
 - Filter fieldnames not declared in a module's Filters table are ignored rather than trusted.
 - `page_length` is capped server-side (500, ERPNext's own largest list page) regardless of what the client asks for.
 - `scaffold_module_from_doctype` is restricted to System Manager and Shell Manager.
+- The record card (`wajha.records`) loads through `frappe.get_doc` and `check_permission`, serialises only fields at a permlevel the user may read, and refuses a record outside a Mine module's scope with the same message as a missing one. Actions re-check submit/cancel/write permission server-side; Set Value also checks the field's permlevel; Server Method only calls whitelisted functions.
 
 ## Deployment notes worth knowing
 

@@ -242,6 +242,69 @@
 	margin-bottom: 12px;
 }
 
+.wj-search-row {
+	display: flex;
+	gap: 10px;
+	align-items: flex-end;
+	flex: 1 1 260px;
+	min-width: 0;
+}
+
+.wj-search-row .wj-search-field {
+	flex: 1 1 200px;
+}
+
+.wj-filter-btn {
+	display: none;
+	position: relative;
+	gap: 6px;
+	align-items: center;
+}
+
+.wj-filter-count {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 20px;
+	height: 20px;
+	padding: 0 6px;
+	border-radius: 999px;
+	background: var(--wj-primary);
+	color: #fff;
+	font-size: 11px;
+	font-weight: 700;
+}
+
+.wj-filters {
+	display: contents;
+}
+
+.wj-filter-fields {
+	display: contents;
+}
+
+.wj-sheet-head {
+	display: none;
+}
+
+/* Active-filter chips: only worth the space where the inputs are out of
+   sight (the phone sheet); on desktop the inputs already show their state. */
+.wj-active {
+	display: none;
+	gap: 6px;
+	flex-wrap: wrap;
+	margin: 0 0 10px;
+}
+
+.wj-active-chip {
+	border: 0;
+	font-family: inherit;
+	cursor: pointer;
+	background: color-mix(in srgb, var(--wj-primary) 12%, transparent);
+	color: var(--wj-primary);
+	min-height: 32px;
+}
+
 .wj-field {
 	display: flex;
 	flex-direction: column;
@@ -458,6 +521,463 @@
 	margin-top: 12px;
 }
 
+/* ---------------------------------------------------------------- phone cards */
+/* The card list replaces the table below 700px: one record per full-width
+   row — title, a one-line subtitle from the next two columns, the status
+   chip, a chevron. No horizontal scrolling, ever. */
+.wj-cards {
+	display: none;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.wj-rowcard {
+	appearance: none;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	width: 100%;
+	min-height: 64px;
+	padding: 12px 14px;
+	border: 1px solid var(--wj-border);
+	border-radius: var(--wj-radius);
+	background: var(--wj-surface-bg);
+	color: var(--wj-ink);
+	font-family: inherit;
+	text-align: start;
+	cursor: pointer;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.wj-rowcard:active {
+	background: color-mix(in srgb, var(--wj-primary) 8%, var(--wj-surface-bg));
+}
+
+.wj-rowcard-main {
+	flex: 1 1 auto;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+}
+
+.wj-rowcard-title {
+	font-size: 16px;
+	font-weight: 600;
+	line-height: 1.4;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.wj-rowcard-sub {
+	font-size: 13px;
+	color: var(--wj-muted-ink);
+	line-height: 1.4;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.wj-rowcard-sub i {
+	font-style: normal;
+	opacity: .5;
+	margin: 0 4px;
+}
+
+.wj-rowcard-sub .wj-badge {
+	font-size: 12px;
+	padding: 0 8px;
+}
+
+.wj-rowcard-status {
+	flex: none;
+}
+
+.wj-chev {
+	flex: none;
+	color: var(--wj-muted-ink);
+	opacity: .7;
+}
+
+[dir="ltr"] .wj-chev {
+	transform: scaleX(-1);
+}
+
+/* Skeleton rows while the first page is in flight, so the list never
+   starts as a blank card. */
+.wj-cards.wj-skeleton::before,
+.wj-cards.wj-skeleton::after {
+	content: "";
+	display: block;
+	height: 64px;
+	border-radius: var(--wj-radius);
+	background: linear-gradient(90deg, var(--wj-page-bg) 25%, var(--wj-border) 50%, var(--wj-page-bg) 75%);
+	background-size: 200% 100%;
+	animation: wj-shimmer 1.2s linear infinite;
+}
+
+@keyframes wj-shimmer {
+	from { background-position: 200% 0; }
+	to { background-position: -200% 0; }
+}
+
+.wj-sentinel {
+	height: 1px;
+}
+
+/* ---------------------------------------------------------------- record card */
+/* Desktop: a panel docked at the inline end (left in RTL) over a backdrop.
+   Phone: the whole screen, with the actions pinned within thumb reach. */
+.wj-detail {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: auto;
+	width: min(100vw, 560px);
+	z-index: 1031;
+	display: flex;
+	flex-direction: column;
+	background: var(--wj-surface-bg);
+	color: var(--wj-ink);
+	font-family: var(--wj-font);
+	direction: rtl;
+	box-shadow: 6px 0 28px rgba(0, 0, 0, .2);
+	animation: wj-slide-in .2s ease;
+}
+
+[dir="ltr"] .wj-detail {
+	left: auto;
+	right: 0;
+	direction: ltr;
+	box-shadow: -6px 0 28px rgba(0, 0, 0, .2);
+}
+
+@keyframes wj-slide-in {
+	from { opacity: .4; transform: translateX(-24px); }
+	to { opacity: 1; transform: none; }
+}
+
+[dir="ltr"] .wj-detail {
+	animation-name: wj-slide-in-ltr;
+}
+
+@keyframes wj-slide-in-ltr {
+	from { opacity: .4; transform: translateX(24px); }
+	to { opacity: 1; transform: none; }
+}
+
+.wj-shell.wj-detail-open .wj-backdrop {
+	display: block;
+}
+
+.wj-detail-head {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 12px 14px;
+	padding-top: max(12px, env(safe-area-inset-top));
+	border-bottom: 1px solid var(--wj-border);
+	background: var(--wj-surface-bg);
+}
+
+.wj-back {
+	appearance: none;
+	flex: none;
+	width: 44px;
+	height: 44px;
+	border: 1px solid var(--wj-border);
+	border-radius: 10px;
+	background: var(--wj-surface-bg);
+	color: var(--wj-ink);
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.wj-back .wj-chev {
+	transform: scaleX(-1);
+	opacity: 1;
+	color: inherit;
+}
+
+[dir="ltr"] .wj-back .wj-chev {
+	transform: none;
+}
+
+.wj-detail-title {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.wj-detail-title h3 {
+	margin: 0;
+	font-size: 17px;
+	font-weight: 700;
+	line-height: 1.35;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.wj-detail-title small {
+	display: block;
+	font-size: 12px;
+	color: var(--wj-muted-ink);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.wj-detail-status {
+	flex: none;
+}
+
+.wj-detail-body {
+	flex: 1 1 auto;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	-webkit-overflow-scrolling: touch;
+	padding: 6px 14px 20px;
+	background: var(--wj-page-bg);
+}
+
+.wj-dsec {
+	background: var(--wj-surface-bg);
+	border: 1px solid var(--wj-border);
+	border-radius: var(--wj-radius);
+	padding: 12px 14px;
+	margin-top: 10px;
+}
+
+.wj-dsec h4 {
+	margin: 0 0 8px;
+	font-size: 13px;
+	font-weight: 700;
+	color: var(--wj-muted-ink);
+	letter-spacing: .01em;
+}
+
+.wj-dl {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 10px 16px;
+	margin: 0;
+}
+
+.wj-dl-row {
+	min-width: 0;
+}
+
+.wj-dl-row.wj-wide {
+	grid-column: 1 / -1;
+}
+
+.wj-dl dt {
+	font-size: 12px;
+	color: var(--wj-muted-ink);
+	margin: 0 0 2px;
+}
+
+.wj-dl dd {
+	margin: 0;
+	font-size: 15px;
+	line-height: 1.5;
+	overflow-wrap: anywhere;
+}
+
+.wj-dl dd a {
+	color: var(--wj-primary);
+	text-decoration: underline;
+	text-decoration-color: color-mix(in srgb, var(--wj-primary) 40%, transparent);
+}
+
+.wj-rich {
+	font-size: 14px;
+	line-height: 1.7;
+}
+
+.wj-rich img {
+	max-width: 100%;
+	height: auto;
+}
+
+.wj-dimg {
+	max-width: 100%;
+	max-height: 240px;
+	border-radius: 8px;
+	object-fit: contain;
+}
+
+.wj-swatch {
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	border-radius: 4px;
+	border: 1px solid var(--wj-border);
+	vertical-align: middle;
+}
+
+.wj-subtable {
+	font-size: 13px;
+}
+
+.wj-subtable th {
+	cursor: default;
+}
+
+.wj-muted {
+	color: var(--wj-muted-ink);
+	font-size: 12px;
+	font-weight: 400;
+}
+
+.wj-files {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.wj-files a {
+	color: var(--wj-primary);
+	font-size: 14px;
+	line-height: 1.6;
+}
+
+.wj-comment-list {
+	list-style: none;
+	margin: 0 0 10px;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.wj-comment-list li {
+	background: var(--wj-page-bg);
+	border-radius: 8px;
+	padding: 8px 10px;
+	font-size: 14px;
+	line-height: 1.6;
+}
+
+.wj-comment-meta {
+	font-size: 12px;
+	color: var(--wj-muted-ink);
+	margin-bottom: 2px;
+}
+
+.wj-comment-box {
+	display: flex;
+	gap: 8px;
+	align-items: flex-end;
+}
+
+.wj-comment-box textarea {
+	flex: 1 1 auto;
+	min-width: 0;
+	font-family: inherit;
+	font-size: 14px;
+	padding: 8px 10px;
+	border: 1px solid var(--wj-border);
+	border-radius: 8px;
+	background: var(--wj-surface-bg);
+	color: var(--wj-ink);
+	resize: vertical;
+}
+
+.wj-detail-actions {
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+	padding: 10px 14px;
+	padding-bottom: max(10px, env(safe-area-inset-bottom));
+	border-top: 1px solid var(--wj-border);
+	background: var(--wj-surface-bg);
+}
+
+.wj-detail-actions .wj-btn {
+	flex: 1 1 auto;
+	min-height: 44px;
+}
+
+.wj-detail-actions .wj-open-desk {
+	flex: 0 0 auto;
+}
+
+.wj-btn.wj-danger {
+	background: var(--wj-danger);
+	border-color: var(--wj-danger);
+}
+
+.wj-btn:disabled {
+	opacity: .55;
+	cursor: default;
+}
+
+/* ---------------------------------------------------------------- phone bottom bar */
+.wj-tabbar {
+	display: none;
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 1028;
+	height: calc(58px + env(safe-area-inset-bottom));
+	padding-bottom: env(safe-area-inset-bottom);
+	background: var(--wj-surface-bg);
+	border-top: 1px solid var(--wj-border);
+	box-shadow: 0 -2px 12px rgba(0, 0, 0, .06);
+	direction: rtl;
+	font-family: var(--wj-font);
+}
+
+[dir="ltr"] .wj-tabbar {
+	direction: ltr;
+}
+
+.wj-tab {
+	appearance: none;
+	flex: 1 1 0;
+	min-width: 0;
+	border: 0;
+	background: transparent;
+	color: var(--wj-muted-ink);
+	font-family: inherit;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 2px;
+	padding: 6px 2px;
+	cursor: pointer;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.wj-tab-icon {
+	font-size: 20px;
+	line-height: 1.2;
+}
+
+.wj-tab-label {
+	font-size: 11px;
+	line-height: 1.3;
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.wj-tab[aria-current="page"] {
+	color: var(--wj-primary);
+	font-weight: 700;
+}
+
 /* ---------------------------------------------------------------- drawer */
 .wj-burger {
 	display: none;
@@ -532,6 +1052,241 @@
 
 	.wj-head {
 		padding: 12px;
+	}
+}
+
+/* ---------------------------------------------------------------- phones */
+@media (max-width: 700px) {
+	.wj-shell {
+		min-height: 100dvh;
+	}
+
+	/* The bottom bar takes over module switching; the burger goes. */
+	.wj-burger {
+		display: none;
+	}
+
+	.wj-tabbar {
+		display: flex;
+	}
+
+	.wj-chips {
+		display: none;
+	}
+
+	.wj-head {
+		position: sticky;
+		top: 0;
+		z-index: 5;
+		padding: 10px 12px;
+		padding-top: max(10px, env(safe-area-inset-top));
+	}
+
+	.wj-head h2 {
+		font-size: 18px;
+	}
+
+	.wj-body {
+		padding: 10px 10px calc(72px + env(safe-area-inset-bottom));
+	}
+
+	.wj-list-card {
+		padding: 10px;
+		background: transparent;
+		border: 0;
+		box-shadow: none;
+	}
+
+	/* 16px inputs: below that iOS zooms the page on focus. */
+	.wj-field input,
+	.wj-field select,
+	.wj-comment-box textarea {
+		font-size: 16px;
+		min-height: 44px;
+	}
+
+	.wj-search-field label {
+		display: none;
+	}
+
+	.wj-search-row {
+		flex: 1 1 100%;
+		align-items: stretch;
+	}
+
+	.wj-filter-btn {
+		display: inline-flex;
+		min-height: 44px;
+		padding-inline: 12px;
+	}
+
+	.wj-new {
+		min-height: 44px;
+		padding-inline: 12px;
+		white-space: nowrap;
+	}
+
+	.wj-active {
+		display: flex;
+	}
+
+	/* Filters as a bottom sheet. */
+	.wj-filters {
+		display: block;
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 1030;
+		max-height: min(80vh, 80dvh);
+		overflow-y: auto;
+		overscroll-behavior: contain;
+		background: var(--wj-surface-bg);
+		border-radius: 18px 18px 0 0;
+		box-shadow: 0 -8px 30px rgba(0, 0, 0, .22);
+		padding: 0 14px calc(14px + env(safe-area-inset-bottom));
+		transform: translateY(105%);
+		transition: transform .22s ease;
+	}
+
+	.wj-shell.wj-sheet-open .wj-filters {
+		transform: none;
+	}
+
+	.wj-shell.wj-sheet-open .wj-backdrop {
+		display: block;
+	}
+
+	.wj-sheet-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		position: sticky;
+		top: 0;
+		background: var(--wj-surface-bg);
+		padding: 14px 0 10px;
+		font-size: 16px;
+	}
+
+	.wj-sheet-head::before {
+		content: "";
+		position: absolute;
+		top: 6px;
+		left: 50%;
+		width: 40px;
+		height: 4px;
+		margin-left: -20px;
+		border-radius: 2px;
+		background: var(--wj-border);
+	}
+
+	.wj-filter-fields {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	}
+
+	.wj-filter-fields .wj-field {
+		min-width: 0;
+	}
+
+	.wj-filter-fields .wj-clear {
+		min-height: 44px;
+	}
+
+	/* Cards instead of the table. */
+	.wj-table-wrap {
+		display: none;
+	}
+
+	.wj-cards {
+		display: flex;
+	}
+
+	/* One count line and a Load More; the page-size buttons and
+	   Previous/Next are desktop ideas. */
+	.wj-pager-top .wj-pager-controls,
+	.wj-pager-bottom .wj-pagesize,
+	.wj-pager-bottom .wj-prev,
+	.wj-pager-bottom .wj-next {
+		display: none;
+	}
+
+	.wj-pager-bottom {
+		justify-content: center;
+	}
+
+	.wj-pager-bottom .wj-more {
+		min-height: 44px;
+	}
+
+	.wj-pager-bottom .wj-count {
+		display: none;
+	}
+
+	.wj-pager-top {
+		margin-bottom: 6px;
+		font-size: 12px;
+	}
+
+	/* The record card fills the screen. */
+	.wj-detail,
+	[dir="ltr"] .wj-detail {
+		width: 100vw;
+		left: 0;
+		right: 0;
+		box-shadow: none;
+		animation-name: wj-rise;
+	}
+
+	@keyframes wj-rise {
+		from { opacity: .6; transform: translateY(16px); }
+		to { opacity: 1; transform: none; }
+	}
+
+	.wj-dl {
+		grid-template-columns: 1fr;
+		gap: 10px;
+	}
+
+	.wj-dl-row {
+		display: flex;
+		justify-content: space-between;
+		gap: 12px;
+		padding-bottom: 8px;
+		border-bottom: 1px solid var(--wj-border);
+	}
+
+	.wj-dl-row:last-child {
+		border-bottom: 0;
+		padding-bottom: 0;
+	}
+
+	.wj-dl-row.wj-wide {
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	.wj-dl dt {
+		flex: 0 0 38%;
+		margin: 0;
+		font-size: 13px;
+	}
+
+	.wj-dl dd {
+		flex: 1 1 auto;
+		text-align: end;
+		font-size: 15px;
+	}
+
+	.wj-dl-row.wj-wide dd {
+		text-align: start;
+	}
+
+	.wj-detail-actions .wj-open-desk {
+		flex: 1 1 100%;
+		order: 9;
+		min-height: 40px;
 	}
 }
 
