@@ -150,6 +150,18 @@ def _seed_settings():
     if not frappe.db.exists("DocType", "Swift Theme Settings"):
         return
 
+    # On the first migrate that both creates this DocType and runs the seeding,
+    # the meta can still be the empty pre-creation copy cached earlier in the
+    # same request — so `settings.meta.has_field(...)` below returns False for
+    # every field, the loop skips all of them, nothing is marked changed, and
+    # the single is never saved. A fresh site then comes up with Swift Theme
+    # Settings blank (no active_preset, switcher off, login layout unset) until
+    # a *second* migrate happens to run with a warm meta. Observed live on a
+    # first install onto an existing bench. Dropping the doctype's cached meta
+    # forces the get_single below to load it from the rows migrate just synced,
+    # so the has_field guards see the real fields. Idempotent and cheap.
+    frappe.clear_cache(doctype="Swift Theme Settings")
+
     settings = frappe.get_single("Swift Theme Settings")
 
     # Only fill in what the admin hasn't set, so migrate never clobbers choices.
