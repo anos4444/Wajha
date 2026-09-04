@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.6.1 — 2026-09-04
+
+**Swift Theme Settings now seeds on the first migrate.** On a first install
+where one `bench migrate` both creates the `Swift Theme Settings` DocType and
+runs `wajha.swift.install.after_migrate`, the doctype's meta could still be the
+empty pre-creation copy cached earlier in the same request. `_seed_settings`
+gates every default on `settings.meta.has_field(...)`, so with a stale meta it
+skipped all of them, marked nothing changed, and never saved — the single came
+up blank (no `active_preset`, switcher off, login layout unset) until a second
+migrate happened to run with a warm meta. Found deploying 0.6.0 onto the
+hub.tawasulcloud.com bench: the Shell presets seeded but Swift Theme Settings
+stayed empty until seeded by hand. `_seed_settings` now drops the doctype's
+cached meta (`frappe.clear_cache(doctype="Swift Theme Settings")`) before
+reading the single, so the `has_field` guards see the fields migrate just
+synced. Idempotent; no effect on a site whose settings are already populated.
+
 ## 0.6.0 — 2026-09-04
 
 **The whole of Swift Theme, as a module of Wajha.** Ported from
