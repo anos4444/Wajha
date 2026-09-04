@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.8.1 — 2026-09-05
+
+**The shell sets its own Desk-chrome marker.** 0.7.2 keyed the chrome-hiding
+rules on `body[data-route="wajha"]` as well as `body.wj-route`, and the v16
+sidebar went — but the breadcrumb bar (`.page-head`) was still seen on the
+shell, which means neither marker was on `<body>` at that moment (v16 puts
+every breadcrumb in the page's own `.page-head`, which the rule targets). The
+page's `on_page_show` is the one hook guaranteed to run whenever the shell is
+on screen, so it now adds `wj-route` itself and hides its own `.page-head`
+with Frappe's `.hide`; `on_page_hide` removes the marker so other pages keep
+their chrome. Also bumps the Page record's `modified`, which had never moved
+since 0.1 — Desk caches the Page script keyed on it, so the 0.8.0 filter and
+paging changes could otherwise be served stale.
+
 ## 0.8.0 — 2026-09-05
 
 **Filters apply as you type, and paging works like ERPNext's list.** Two
