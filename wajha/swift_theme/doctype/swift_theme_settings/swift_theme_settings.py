@@ -345,13 +345,18 @@ class SwiftThemeSettings(Document):
         somewhere it had never been. The old value is parked under our own key
         so we never have to guess it.
         """
-        if not self.has_value_changed("enable_home_page"):
+        # The master switch counts too: turning Swift off must hand the
+        # landing back, and turning it on again restores the page if the home
+        # page option is still ticked. Absent `enabled` (pre-field row) is on.
+        if not (self.has_value_changed("enable_home_page")
+                or self.has_value_changed("enabled")):
             return
 
         PREV = "swift:prev_home_page"
         current = frappe.db.get_default("desktop:home_page")
+        enabled = True if self.get("enabled") is None else bool(int(self.enabled or 0))
 
-        if int(self.enable_home_page or 0):
+        if enabled and int(self.enable_home_page or 0):
             if current != "swift-home":
                 frappe.db.set_default(PREV, current or "")
             frappe.db.set_default("desktop:home_page", "swift-home")

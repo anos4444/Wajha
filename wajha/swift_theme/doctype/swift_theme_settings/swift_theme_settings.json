@@ -5,6 +5,7 @@
  "engine": "InnoDB",
  "field_order": [
   "colour_tab",
+  "enabled",
   "color_mode_section",
   "color_mode",
   "active_preset",
@@ -78,6 +79,13 @@
    "fieldname": "colour_tab",
    "fieldtype": "Tab Break",
    "label": "Colour"
+  },
+  {
+   "default": "1",
+   "description": "Master switch. Off: the desk, login page and landing page fall back to plain Frappe (or to the Wajha Shell's own theming) and every Swift preference is ignored. Site-wide; per-user picks are kept for when it is turned back on.",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enable Swift Theme"
   },
   {
    "fieldname": "color_mode_section",
@@ -445,7 +453,7 @@
    "label": "Heading"
   },
   {
-   "default": "Unlock your ERP potential \u2014 build feature-rich dashboards, automate approvals and see every number in one place.",
+   "default": "Unlock your ERP potential — build feature-rich dashboards, automate approvals and see every number in one place.",
    "fieldname": "login_description",
    "fieldtype": "Small Text",
    "label": "Description"

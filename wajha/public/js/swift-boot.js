@@ -142,7 +142,18 @@
         if (storedRoles) cachedRoles = JSON.parse(storedRoles);
     } catch (e) { cachedRoles = null; }
 
-    applyColors({
+    // The master switch (Swift Theme Settings > Enable Swift Theme). The
+    // last-known-good copy in localStorage exists so a preset paints before
+    // the boot payload arrives; with the switch off that same copy would
+    // repaint a theme the site has turned off, on every load, until something
+    // cleared it. So an explicit `enabled: 0` from the server wins over the
+    // cache: paint nothing, strip every data-swift-* attribute, and let
+    // applyColors({}) blank the stored identifiers so the next load has no
+    // cache to resurrect. Absent (older payload, website page, no boot yet)
+    // means on, exactly as before.
+    var swiftOff = !!(serverBoot && serverBoot.enabled === 0);
+
+    applyColors(swiftOff ? {} : {
         preset: (serverBoot && serverBoot.preset) || get("preset") || "",
         primary: (serverBoot && serverBoot.primary) || get("primary") || "",
         secondary: (serverBoot && serverBoot.secondary) || get("secondary") || "",
@@ -153,24 +164,31 @@
         mode: serverBoot && serverBoot.custom_mode,
         strength: serverBoot && serverBoot.custom_strength,
     });
-    applyAttr("density",          get("density")     || "");
-    applyAttr("radius",           get("radius")      || "");
-    applyAttr("font",             get("font_family") || "");
-    applyAttr("font-scale",       get("font_scale")  || "");
-    applyAttr("navbar",           get("navbar")      || "");
-    applyAttr("sidebar-variant",  get("sidebar")     || "");
-    applyAttr("sidebar-fill",     get("sidebarFill") || "");
-    applyAttr("sidebar-texture",  get("sidebarTexture") || "");
-    applyAttr("sidebar-gradient", get("sidebarGradient") || "");
-    // The home page's own look. "Follow Theme" is the absence of a preset,
-    // so it is stored as "" and paints from the theme tokens as before.
-    applyAttr("home-preset",      get("homePreset")     || "");
-    if (get("perf")      !== "off") applyAttr("perf", "on");
-    if (get("anim")      === "off") applyAttr("anim", "off");
-    if (get("scrollbar") !== "off") applyAttr("scrollbar", "on");
-    if (get("toast")     !== "off") applyAttr("toast", "on");
-    if (get("focus")     === "on")  applyAttr("focus", "on");
-    if (get("reading")   === "on")  applyAttr("reading", "on");
+    if (swiftOff) {
+        ["density", "radius", "font", "font-scale", "navbar", "sidebar-variant",
+         "sidebar-fill", "sidebar-texture", "sidebar-gradient", "home-preset",
+         "perf", "anim", "scrollbar", "toast", "focus", "reading"
+        ].forEach(function (a) { applyAttr(a, null); });
+    } else {
+        applyAttr("density",          get("density")     || "");
+        applyAttr("radius",           get("radius")      || "");
+        applyAttr("font",             get("font_family") || "");
+        applyAttr("font-scale",       get("font_scale")  || "");
+        applyAttr("navbar",           get("navbar")      || "");
+        applyAttr("sidebar-variant",  get("sidebar")     || "");
+        applyAttr("sidebar-fill",     get("sidebarFill") || "");
+        applyAttr("sidebar-texture",  get("sidebarTexture") || "");
+        applyAttr("sidebar-gradient", get("sidebarGradient") || "");
+        // The home page's own look. "Follow Theme" is the absence of a preset,
+        // so it is stored as "" and paints from the theme tokens as before.
+        applyAttr("home-preset",      get("homePreset")     || "");
+        if (get("perf")      !== "off") applyAttr("perf", "on");
+        if (get("anim")      === "off") applyAttr("anim", "off");
+        if (get("scrollbar") !== "off") applyAttr("scrollbar", "on");
+        if (get("toast")     !== "off") applyAttr("toast", "on");
+        if (get("focus")     === "on")  applyAttr("focus", "on");
+        if (get("reading")   === "on")  applyAttr("reading", "on");
+    }
 
     // ---- Colour scheme ----
     // Two modes, mirroring Swift Theme Settings:
