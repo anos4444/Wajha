@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.8.0 — 2026-09-05
+
+**Filters apply as you type, and paging works like ERPNext's list.** Two
+things asked for after the first real session on hub.tawasulcloud.com:
+
+- The free-text Search already filtered as you typed, but the per-field
+  filter boxes (Company, Full Name, Branch…) only committed on Enter/blur,
+  so typing into one and seeing nothing happen read as broken. Text and Link
+  filter inputs now apply on `input`, debounced 350 ms like the search box.
+  Link filters match by *contains* server-side instead of the exact document
+  name — with an exact match, a list would empty on every keystroke until the
+  full name was in. (A list value from a multi-value client still means an
+  exact set.)
+- The only pager sat *below* a full page of rows, so Previous/Next were out
+  of view and the list looked like it stopped at the first page. There is
+  now a pager above the table as well as below, kept in step, and both carry
+  a **rows per page** choice (20 / 50 / 100 / 200), mirroring ERPNext's list
+  view. The choice is a personal browsing preference, so it lives in the
+  browser (`localStorage`), not on the module record; the server clamps any
+  request at `MAX_PAGE_LENGTH` (200) as before, so a hand-edited request
+  still cannot pull a whole table. `get_module_data` gains an optional
+  `page_length` argument; the module's own setting remains the default.
+
 ## 0.7.2 — 2026-09-04
 
 **Frappe's desk sidebar no longer sits beside the shell on v16.** On

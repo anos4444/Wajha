@@ -372,6 +372,38 @@
 	line-height: 1.9;
 }
 
+.wj-pager.wj-pager-top {
+	margin-top: 0;
+	margin-bottom: 10px;
+}
+
+.wj-pager-controls {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+.wj-pagesize {
+	display: flex;
+	gap: 6px;
+	align-items: center;
+	font-size: 12px;
+	color: var(--wj-muted-ink);
+	margin: 0;
+}
+
+.wj-pagesize select {
+	font-family: inherit;
+	font-size: 13px;
+	min-height: 36px;
+	padding: 6px 8px;
+	border: 1px solid var(--wj-border);
+	border-radius: 8px;
+	color: inherit;
+	background: transparent;
+}
+
 .wj-pager {
 	display: flex;
 	gap: 10px;
