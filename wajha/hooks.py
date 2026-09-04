@@ -35,16 +35,80 @@ def _versioned(url: str) -> str:
 
 
 # Plain CSS/JS — no bundler, so the app installs on any v16 bench without Node.
-app_include_css = _versioned("/assets/wajha/css/wajha.css")
-app_include_js = _versioned("/assets/wajha/js/wajha_boot.js")
-web_include_css = _versioned("/assets/wajha/css/wajha.css")
+#
+# The swift-* files are the Swift Theme module (ported from
+# its-alikhokher/swift_theme, MIT). Upstream shipped them as .bundle.scss /
+# .bundle.js import lists purely for cache busting; here each file is listed
+# individually and _versioned() provides the hash, keeping the no-Node rule.
+# ORDER IS LOAD-BEARING: it reproduces the upstream bundle order — several of
+# these stylesheets deliberately settle cascade ties by coming later, and
+# swift-boot.js must run first among the scripts because it writes the theme
+# attributes onto <html> before Frappe paints.
+app_include_css = [
+    _versioned("/assets/wajha/css/wajha.css"),
+    _versioned("/assets/wajha/css/swift-fonts.css"),
+    _versioned("/assets/wajha/css/swift-base.css"),
+    _versioned("/assets/wajha/css/swift-preset-base.css"),
+    _versioned("/assets/wajha/css/swift-backdrops.css"),
+    _versioned("/assets/wajha/css/swift-layout.css"),
+    _versioned("/assets/wajha/css/swift-density.css"),
+    _versioned("/assets/wajha/css/swift-desk.css"),
+    _versioned("/assets/wajha/css/swift-sidebar.css"),
+    _versioned("/assets/wajha/css/swift-home.css"),
+    _versioned("/assets/wajha/css/swift-preset-accents.css"),
+    _versioned("/assets/wajha/css/swift-glass.css"),
+    _versioned("/assets/wajha/css/swift-scrollbar.css"),
+    _versioned("/assets/wajha/css/swift-toast.css"),
+    _versioned("/assets/wajha/css/swift-perf.css"),
+]
+app_include_js = [
+    _versioned("/assets/wajha/js/wajha_boot.js"),
+    _versioned("/assets/wajha/js/swift-boot.js"),
+    _versioned("/assets/wajha/js/swift-mode-observer.js"),
+    _versioned("/assets/wajha/js/swift-theme-dialog.js"),
+    _versioned("/assets/wajha/js/swift-palette.js"),
+    _versioned("/assets/wajha/js/swift-sidebar.js"),
+    _versioned("/assets/wajha/js/swift-focus.js"),
+    _versioned("/assets/wajha/js/swift-perf.js"),
+    _versioned("/assets/wajha/js/swift-sounds.js"),
+]
+web_include_css = [
+    _versioned("/assets/wajha/css/wajha.css"),
+    _versioned("/assets/wajha/css/swift-fonts.css"),
+    _versioned("/assets/wajha/css/swift-base.css"),
+    _versioned("/assets/wajha/css/swift-preset-base.css"),
+    _versioned("/assets/wajha/css/swift-backdrops.css"),
+    _versioned("/assets/wajha/css/swift-glass.css"),
+    _versioned("/assets/wajha/css/swift-website.css"),
+    _versioned("/assets/wajha/css/swift-login.css"),
+    _versioned("/assets/wajha/css/swift-scrollbar.css"),
+]
+web_include_js = [
+    _versioned("/assets/wajha/js/swift-boot.js"),
+    _versioned("/assets/wajha/js/swift-website.js"),
+]
+
+# The Swift theme fields this app adds to User are only editable when the
+# server would accept a change; the script keeps the form honest about that.
+doctype_js = {"User": "public/js/user_form.js"}
 
 # Ship the resolved shell config in Frappe's boot payload so the first paint
 # needs no extra request. wajha_boot.js still falls back to the HTTP call.
 boot_session = "wajha.boot.add_boot_data"
 
-after_install = "wajha.install.after_install"
-after_migrate = ["wajha.install.after_migrate"]
+# Swift Theme preferences ride in bootinfo too, under their own key
+# (frappe.boot.swift_theme). extend_bootinfo alone is enough; also registering
+# boot_session for it would compute the same preferences twice per desk load.
+extend_bootinfo = "wajha.swift.boot.extend_bootinfo"
+
+after_install = [
+    "wajha.install.after_install",
+    "wajha.swift.install.after_install",
+]
+after_migrate = [
+    "wajha.install.after_migrate",
+    "wajha.swift.install.after_migrate",
+]
 
 add_to_apps_screen = [
     {

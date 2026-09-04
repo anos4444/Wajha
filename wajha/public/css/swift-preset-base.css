@@ -1,0 +1,296 @@
+/* Swift Theme — Preset scaffolding
+
+   Shared desk styling for any active colour scheme. Applies whenever
+   <html> carries data-swift-themed, which boot.js sets for both
+   "Theme Preset" and "Custom Colors" modes.
+
+   The colour values themselves come from either css/themes/<slug>.css
+   (preset mode) or inline custom properties (custom-colour mode). */
+
+html[data-swift-themed] {
+  background: var(--bg-color) !important;
+}
+html[data-swift-themed] body,
+html[data-swift-themed] .desk-body,
+html[data-swift-themed] .layout-main,
+html[data-swift-themed] .layout-main-section-wrapper {
+  background: transparent !important;
+}
+/* The ambient wash sits behind everything on its own negative layer.
+   It used to be z-index:0 with the desk lifted above it via
+   `.layout-main, .desk-body > * { position: relative; z-index: 1 }`.
+   That lift created a stacking context, and anything Frappe positions
+   fixed *inside* the desk — most visibly an open child-table row, which is
+   `position: fixed` behind a z-index 1040 backdrop — was trapped under it and
+   rendered behind the freeze overlay. Painting behind instead of lifting in
+   front keeps the effect without capping any descendant. */
+html[data-swift-themed] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--swift-ambient, none), var(--bg-color);
+  background-attachment: fixed;
+  /* Still by default. Motion belongs to whichever backdrop asks for it in
+     swift-backdrops.css; animating here as well meant a static backdrop such
+     as Mesh or Grain inherited a drift it never asked for. */
+}
+
+/* Page title gets a subtle accent gradient — premium magazine feel */
+html[data-swift-themed] .page-title h1,
+html[data-swift-themed] .page-head .title-text {
+  background: linear-gradient(135deg,
+    var(--heading-color) 40%,
+    color-mix(in oklab, var(--swift-accent) 65%, var(--heading-color)));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+}
+
+/* Cards / form sections — refined surfaces with hairline border */
+html[data-swift-themed] .frappe-card,
+html[data-swift-themed] .form-section {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+}
+
+/* The page area is not a card. Painting it as one covered the viewport on
+   every route, which is why no backdrop was ever visible: it was drawn
+   correctly and then hidden behind a full-page opaque slab. Frappe itself only
+   paints this on Workspaces and leaves the page showing through everywhere
+   else, so yielding here is both the stock behaviour and the one that lets a
+   backdrop be seen. The border stays — it is what gave the area its shape. */
+html[data-swift-themed]:not([data-swift-backdrop="none"]) .layout-main-section {
+  background: transparent;
+  border: 1px solid var(--border-color);
+}
+
+/* No backdrop to show, so keep the surface it used to have. */
+html[data-swift-themed][data-swift-backdrop="none"] .layout-main-section {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+}
+
+/* Force our accent onto Frappe primary tokens */
+html[data-swift-themed] {
+  --primary:            var(--swift-accent);
+  --primary-color:      var(--swift-accent);
+  --btn-primary:        var(--swift-accent);
+  --btn-primary-hover:  var(--swift-accent-hover);
+  --focus-default:      var(--swift-accent);
+}
+
+/* Premium buttons — real gradient fill + shine sweep on hover */
+html[data-swift-themed] .btn-primary {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg,
+    color-mix(in oklab, var(--swift-accent) 90%, white),
+    var(--swift-accent) 60%,
+    var(--swift-accent-hover)) !important;
+  border-color: var(--swift-accent) !important;
+  color: var(--swift-accent-fg) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.18),
+    inset 0 -1px 0 rgba(0,0,0,0.10),
+    0 1px 2px rgba(0,0,0,0.20),
+    0 4px 14px -4px color-mix(in oklab, var(--swift-accent) 45%, transparent);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+html[data-swift-themed] .btn-primary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg,
+    transparent 30%,
+    rgba(255,255,255,0.22) 45%,
+    rgba(255,255,255,0.35) 50%,
+    rgba(255,255,255,0.22) 55%,
+    transparent 70%);
+  transform: translateX(-120%);
+  transition: transform 700ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  pointer-events: none;
+}
+html[data-swift-themed] .btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.22),
+    0 8px 22px -6px color-mix(in oklab, var(--swift-accent) 55%, transparent);
+}
+html[data-swift-themed] .btn-primary:hover::after {
+  transform: translateX(120%);
+}
+
+/* Theme cross-fade — smooth transition when the user switches theme.
+   The selector was [data-swift-theme]; the attribute we actually set is
+   data-swift-themed, so this never applied. Opening a child-table row is
+   excluded, otherwise the editor and its backdrop fade in slowly and the
+   whole screen looks like it is dissolving. */
+html[data-swift-themed] *:not(#freeze):not(.form-in-grid):not(.form-in-grid *) {
+  transition:
+    background-color 220ms ease,
+    color 220ms ease,
+    border-color 220ms ease,
+    box-shadow 220ms ease;
+}
+
+html[data-swift-themed] .btn {
+  transition: all 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Refined form controls */
+html[data-swift-themed] .form-control {
+  background: var(--control-bg);
+  border-color: var(--border-color);
+  color: var(--text-color);
+  transition: all 160ms ease;
+}
+html[data-swift-themed] .form-control:focus {
+  border-color: var(--swift-accent);
+  box-shadow: 0 0 0 3px var(--swift-accent-soft);
+}
+
+/* Typography — tighter tracking on headings for premium feel */
+html[data-swift-themed] .page-title h1,
+html[data-swift-themed] .page-head .title-text,
+html[data-swift-themed] h1,
+html[data-swift-themed] h2,
+html[data-swift-themed] h3 {
+  letter-spacing: -0.02em;
+  color: var(--heading-color);
+  font-weight: 600;
+}
+
+/* ========================================================================
+   Full-theme scoped: Navbar force-paint (fixes cases where Frappe's own
+   navbar rules paint over the theme). Glassy + accent underline on hover.
+   ======================================================================== */
+html[data-swift-themed] .navbar {
+  background: color-mix(in oklab, var(--fg-color) 78%, transparent) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.03), 0 8px 24px -12px rgba(0,0,0,0.35);
+}
+
+/* ...and the three navbar_variant choices, which have to outrank the force-paint
+   directly above. They belong in this file rather than swift-layout.css because
+   this one is imported by both the desk and the portal bundles, and .navbar is
+   the portal's header — shipped only to the desk, the setting could never do
+   anything on the portal at all. The extra attribute wins the tie by
+   specificity; !important is needed because the rule above has it. */
+html[data-swift-themed][data-swift-navbar="Solid"] .navbar {
+  background: var(--fg-color) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+html[data-swift-themed][data-swift-navbar="Glass"] .navbar {
+  background: color-mix(in oklab, var(--fg-color) 72%, transparent) !important;
+  border-bottom: 1px solid color-mix(in oklab, var(--border-color) 60%, transparent) !important;
+}
+
+html[data-swift-themed][data-swift-navbar="Transparent"] .navbar {
+  background: transparent !important;
+  border-bottom: 1px solid color-mix(in oklab, var(--border-color) 40%, transparent) !important;
+  box-shadow: none;
+}
+html[data-swift-themed] .navbar .navbar-brand,
+html[data-swift-themed] .navbar .app-logo,
+html[data-swift-themed] .navbar .nav-link {
+  color: var(--text-color) !important;
+}
+html[data-swift-themed] .navbar .nav-link:hover,
+html[data-swift-themed] .navbar .navbar-nav > .nav-item.active > a {
+  color: var(--swift-accent) !important;
+}
+html[data-swift-themed] .navbar .navbar-brand::after {
+  content: "";
+  display: inline-block;
+  width: 6px; height: 6px; margin-left: 8px;
+  border-radius: 50%;
+  background: var(--swift-accent);
+  box-shadow: 0 0 12px var(--swift-accent);
+  animation: swift-brand-pulse 2.4s ease-in-out infinite;
+  vertical-align: middle;
+}
+@keyframes swift-brand-pulse {
+  0%,100% { opacity: 0.7; transform: scale(1); }
+  50%     { opacity: 1;   transform: scale(1.25); }
+}
+
+/* ========================================================================
+   Full-theme scoped: Dashboard widgets — premium multi-color cards
+   (Override the neutral accent-mode gradient with theme-specific saturation)
+   ======================================================================== */
+html[data-swift-themed] .widget,
+html[data-swift-themed] .number-card,
+html[data-swift-themed] .dashboard-graph {
+  background: color-mix(in oklab, var(--card-bg) 92%, var(--swift-accent) 8%);
+  box-shadow: 0 8px 24px -18px color-mix(in oklab, var(--swift-accent) 60%, transparent);
+}
+html[data-swift-themed] .widget:hover,
+html[data-swift-themed] .number-card:hover {
+  box-shadow: 0 20px 40px -20px color-mix(in oklab, var(--swift-accent) 70%, transparent);
+  border-color: var(--swift-accent);
+}
+html[data-swift-themed] .number-card .widget-body .number {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Multi-color number card cycle (theme mode) — richer, glowing */
+/* Number-card figures used to cycle through six hardcoded gradients here —
+   violet, green, amber, pink, sky, red — regardless of the active theme. That
+   contradicts the whole point of a palette, and it now sits on top of a card
+   that swift-desk.css already fills with the theme's own pair, so the text
+   fought its own background. The card styling there covers this. */
+
+/* ========================================================================
+   Full-theme scoped: List / Report / Kanban premium look
+   ======================================================================== */
+html[data-swift-themed] .list-row-container:hover {
+  background: color-mix(in oklab, var(--swift-accent) 12%, transparent) !important;
+}
+html[data-swift-themed] .dt-header {
+  background: color-mix(in oklab, var(--card-bg) 80%, var(--swift-accent) 20%) !important;
+  border-bottom: 2px solid var(--swift-accent) !important;
+}
+html[data-swift-themed] .kanban-column {
+  background: color-mix(in oklab, var(--card-bg) 96%, var(--swift-accent) 4%);
+}
+html[data-swift-themed] .kanban-card {
+  background: var(--card-bg);
+  border: 1px solid color-mix(in oklab, var(--border-color) 70%, var(--swift-accent) 30%);
+}
+
+/* Promotional banner — glassy accent card */
+html[data-swift-themed] .promotional-banner {
+  background: linear-gradient(135deg,
+    color-mix(in oklab, var(--swift-accent) 22%, transparent),
+    transparent 70%),
+    color-mix(in oklab, var(--card-bg) 80%, transparent);
+  border: 1px solid color-mix(in oklab, var(--swift-accent) 40%, var(--border-color));
+  box-shadow: 0 12px 30px -18px color-mix(in oklab, var(--swift-accent) 70%, transparent);
+}
+
+/* User dropdown / notifications — accent glow border */
+html[data-swift-themed] .dropdown-navbar-user.expanded,
+html[data-swift-themed] .user-menu-active .dropdown-navbar-user,
+html[data-swift-themed] .dropdown-notifications,
+html[data-swift-themed] .dropdown-background-tasks {
+  border-color: color-mix(in oklab, var(--swift-accent) 40%, var(--border-color)) !important;
+  box-shadow: 0 20px 40px -18px color-mix(in oklab, var(--swift-accent) 60%, transparent),
+              var(--swift-shadow-lg) !important;
+}
+
+/* Awesomebar (global search) — theme-strength focus */
+html[data-swift-themed] .search-bar,
+html[data-swift-themed] .awesomebar-input-row {
+  background: color-mix(in oklab, var(--card-bg) 85%, transparent) !important;
+  border: 1px solid color-mix(in oklab, var(--border-color) 70%, var(--swift-accent) 30%) !important;
+}
+html[data-swift-themed] .search-bar:focus-within,
+html[data-swift-themed] .awesomebar-input-row:focus-within {
+  border-color: var(--swift-accent) !important;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--swift-accent) 25%, transparent) !important;
+}

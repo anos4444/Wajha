@@ -1,0 +1,879 @@
+/* Swift Theme — Sidebar
+
+   Everything that styles the navigation sidebar, in one file.
+
+   It used to be spread across swift-preset-base.css, swift-layout.css and
+   swift-desk.css, and that split caused real bugs rather than just untidiness:
+   a dead `.selected` rule sat in one file while the live `.active-sidebar` one
+   sat in another, and an inset edge hairline set in a third quietly drew a
+   seam down a panel the second file had made float. Answering "what draws the
+   sidebar's edge?" meant tracing three files in load order.
+
+   Loaded after swift-desk.css, which is where the last of these rules used to
+   live — so ties still resolve the way they did before the move.
+
+   The mobile override for .layout-side-section is at the bottom, in the same
+   media query it came from.
+   ========================================================================= */
+
+/* Sidebar hairline glow line at accent color — high-end SaaS touch */
+html[data-swift-themed] .layout-side-section {
+  box-shadow: inset -1px 0 0 0 var(--border-color),
+              1px 0 24px -8px color-mix(in oklab, var(--swift-accent) 25%, transparent);
+}
+
+/* The active sidebar item is styled in swift-desk.css, against the class
+   Frappe actually sets (`active-sidebar`). The rule that stood here keyed off
+   `.selected` and `.desk-sidebar-item` — neither of which the sidebar ever
+   renders — so it had never applied, and it contradicted the live rule. */
+
+/* Glassy navbar for premium themes */
+html[data-swift-themed] .navbar {
+  background: var(--navbar-bg) !important;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Sidebar tint */
+html[data-swift-themed] .layout-side-section {
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border-color);
+}
+
+/* ========================================================================
+   Full-theme scoped: Body Sidebar premium (v16 verified classes)
+   ======================================================================== */
+html[data-swift-themed] .body-sidebar-container,
+html[data-swift-themed] .body-sidebar {
+  background: color-mix(in oklab, var(--fg-color) 82%, transparent) !important;
+  border-right: 1px solid color-mix(in oklab, var(--border-color) 60%, var(--swift-accent) 40%);
+  box-shadow: inset -1px 0 0 rgba(255,255,255,0.02),
+              4px 0 24px -14px color-mix(in oklab, var(--swift-accent) 60%, transparent);
+}
+
+/* Active item — theme-strength gradient pill */
+html[data-swift-themed] .active-sidebar,
+html[data-swift-themed] .standard-sidebar-item.active-sidebar,
+html[data-swift-themed] .item-anchor.active {
+  background: linear-gradient(90deg,
+    color-mix(in oklab, var(--swift-accent) 26%, transparent),
+    color-mix(in oklab, var(--swift-accent) 6%, transparent) 70%,
+    transparent
+  ) !important;
+  box-shadow:
+    inset 3px 0 0 var(--swift-accent),
+    0 0 24px -8px color-mix(in oklab, var(--swift-accent) 60%, transparent) !important;
+  color: var(--swift-accent) !important;
+}
+
+/* Section headings (like "Modules", "Domains") — subtle accent tint */
+html[data-swift-themed] .body-sidebar .section-item > .item-anchor {
+  color: color-mix(in oklab, var(--text-muted) 60%, var(--swift-accent) 40%);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Suffix badges */
+html[data-swift-themed] .sidebar-item-suffix {
+  color: var(--swift-accent);
+}
+
+/* -------- Sidebar variants -------- */
+/* -------- Sidebar variants --------
+
+   These target `.body-sidebar` — the navigation sidebar — rather than
+   `.layout-side-section`, which is the filter panel inside a list or form.
+   Pointed at the latter, none of the three did anything a user would
+   recognise as "the sidebar".
+
+   Frappe collapses the sidebar to an icon rail on its own and expands it on
+   demand, so these change how the rail *looks*, not whether it collapses. */
+
+/* Butted against the window edge with a dividing rule — Frappe's own look. */
+html[data-swift-sidebar-variant="Attached"] .body-sidebar {
+  margin: 0;
+  border-radius: 0;
+  border-right: 1px solid var(--border-color);
+}
+
+/* How much of the panel's own width the rows may take.
+   Collapsed there is next to none to spare: 50px of panel, 8px of padding a
+   side, and an icon that wants 30px of the 34px left over. Expanded there is
+   220px, and the inset is what lifts the active row off the edge as a pill.
+
+   This lives on one element on purpose. The collapsed budget and the brand
+   fill's pill inset used to be set by two separate rules, and the brand one
+   scored a class higher, so it silently won and squeezed the collapsed icons
+   down to 14px — the sidebar looked empty. One token, one number per state. */
+.body-sidebar {
+  --swift-sidebar-inset: 2px;
+  --swift-sidebar-pill-x: 2px;
+}
+
+html[data-swift-sidebar-variant="Floating"] .body-sidebar {
+  border-radius: 0 var(--swift-radius-lg, 14px) var(--swift-radius-lg, 14px) 0;
+  border: none;
+  box-shadow: var(--swift-shadow-md);
+}
+
+/* Labels hidden until you point at it. The width itself is Frappe's to
+   animate, so nothing here touches it — overriding that is what once made
+   the sidebar jump on hover. */
+html[data-swift-sidebar-variant="Icon-only"] .body-sidebar .sidebar-item-label,
+html[data-swift-sidebar-variant="Icon-only"] .body-sidebar .keyboard-shortcut {
+  display: none;
+}
+
+html[data-swift-sidebar-variant="Icon-only"] .body-sidebar:hover .sidebar-item-label {
+  display: inline;
+}
+
+/* ==========================================================================
+   BRAND COLOUR SIDEBAR
+
+   Opt-in, from "Brand Colour Sidebar" in Swift Theme Settings: the navigation
+   sidebar becomes a floating panel filled with the theme's own colour.
+
+   Every label, icon and rule on it takes --swift-accent-fg — the contrast
+   colour each preset already computes for text sitting on its primary, and
+   which the stylesheet generator checks against a 4.5:1 floor. That is what
+   makes one set of rules work on Venom's near-white primary and on Hulk's
+   lime alike, with no per-preset rule anywhere.
+
+   Off by default: it is a strong look, and switching it on for everyone would
+   change how every existing install appears after an upgrade.
+   ========================================================================== */
+/* ---- Gradient Sidebar (Custom Colors only) ----
+   Custom Colors is the one mode where the user picks two colours, and until
+   now the second never reached the panel: the fill ran Primary into a darkened
+   Primary, exactly as a preset does. Here it runs Primary into the Secondary
+   instead, which is what gives custom mode a panel no preset produces.
+
+   The far end is the blend pulled a little towards black rather than the raw
+   Secondary. Two arbitrary hexes can sit at any lightness, and the panel's
+   text colour is derived from the Primary alone - anchoring the end darker is
+   what keeps that text readable whatever pair is chosen.
+
+   The server only sends this when no preset is active, so a preset can never
+   have its own pair overridden. */
+html[data-swift-sidebar-gradient="on"][data-swift-sidebar-fill="brand"] .body-sidebar {
+  --swift-sidebar-fill-start: var(--swift-primary, var(--swift-accent));
+  --swift-sidebar-fill-end: color-mix(
+    in oklab,
+    color-mix(in oklab, var(--swift-secondary, var(--swift-primary)) 62%,
+              var(--swift-primary, var(--swift-accent))) 88%,
+    #000
+  );
+}
+
+html[data-swift-sidebar-fill="brand"] .body-sidebar {
+  /* No gutter: the panel runs the full height of the window and meets its top,
+     bottom and left edges. Frappe's own height:100vh is left to stand, so
+     nothing here can push the user card at the bottom out of view. The rounding
+     is on the right only — the one edge that borders the content. */
+  border-radius: 0 16px 16px 0;
+  border: none;
+
+  /* Frappe transitions `all` on this element, so every property set here —
+     margin, height, radius, shadow — animated too, and the panel visibly
+     shifted whenever any of them changed. Only the width should move, which
+     is the expand and collapse the sidebar is meant to animate. */
+  transition-property: width;
+  /* The themed default draws an inset hairline down the right edge and throws
+     its shadow sideways — correct for a panel butted against the content, and
+     wrong for one that floats: the hairline reads as a seam on a rounded
+     corner, and a one-directional shadow makes the card look stuck to the
+     edge it is no longer touching. Replaced with a shadow that falls evenly. */
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.10),
+    0 12px 32px -16px rgba(0, 0, 0, 0.45);
+  /* Deepening towards the bottom gives the panel a light source; flat fill
+     reads as a slab. */
+  background:
+    linear-gradient(180deg,
+      var(--swift-sidebar-fill-start, var(--swift-primary, var(--swift-accent))) 0%,
+      var(--swift-sidebar-fill-end,
+          color-mix(in oklab, var(--swift-primary, var(--swift-accent)) 84%, #000)) 100%) !important;
+  color: var(--swift-sidebar-fg, var(--swift-sidebar-fg, var(--swift-accent-fg)));
+  /* The collapse control sits on the panel's edge, so nothing may clip it. */
+  overflow: visible;
+  position: relative;
+}
+
+@media (max-width: 575.98px) {
+  html[data-swift-sidebar-fill="brand"] .body-sidebar {
+    overflow: hidden;
+  }
+}
+
+/* Expanded there is room for the pill inset the mock-up shows. */
+html[data-swift-sidebar-fill="brand"] .body-sidebar-container.expanded .body-sidebar {
+  --swift-sidebar-inset: 10px;
+  --swift-sidebar-pill-x: 7px;
+}
+
+html[data-swift-sidebar-fill="brand"] .body-sidebar-container {
+  background: transparent !important;
+  border-right: none;
+}
+
+/* ---- Sidebar Texture (Navigation setting) ----
+   Contour lines flowing out of the bottom-left, the pattern from the mock-up.
+   Three decisions worth keeping:
+
+   * it is a flex child of .body-sidebar-top, not an overlay on the panel.
+     That element is `flex: 1 1`, so this takes exactly the space the nav items
+     leave over - it cannot run behind a row, and when the items fill the
+     sidebar it collapses to nothing on its own. A percentage height on the
+     panel would have had to guess, and guessed wrong on a long menu.
+   * it is drawn through `mask-image` with `background-color: currentColor`, so
+     the lines are cut from the panel's own text colour: white on a dark brand
+     panel, dark on a light one, with no per-preset rule.
+   * the fade to the right lives inside the SVG as a gradient mask, so it does
+     not depend on `mask-composite`, which is the patchiest part of masking. */
+html[data-swift-sidebar-texture="on"] .body-sidebar {
+  /* Behind a variable so a supplied asset can replace the drawn one without
+     touching anything else: point --swift-sidebar-texture-art at a url() of a
+     transparent PNG or SVG and the sizing, colour and placement still apply,
+     because the artwork is only ever used as a mask. */
+  --swift-sidebar-texture-art: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27300%27%20height%3D%27230%27%20viewBox%3D%270%200%20300%20230%27%20preserveAspectRatio%3D%27none%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27f%27%20x1%3D%270%27%20y1%3D%271%27%20x2%3D%270%27%20y2%3D%270%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%271%27%2F%3E%3Cstop%20offset%3D%270.55%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%270.7%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%270%27%2F%3E%3C%2FlinearGradient%3E%3Cmask%20id%3D%27m%27%3E%3Crect%20width%3D%27300%27%20height%3D%27230%27%20fill%3D%27url%28%23f%29%27%2F%3E%3C%2Fmask%3E%3C%2Fdefs%3E%3Cg%20mask%3D%27url%28%23m%29%27%20fill%3D%27none%27%20stroke%3D%27%23fff%27%20stroke-width%3D%271.6%27%20stroke-linecap%3D%27round%27%3E%3Cpath%20d%3D%27M-8%20234.0%20C%2054%20223.0%2C%20108%20239.5%2C%20156%20224.9%20S%20240%20218.4%2C%20308%20208.0%27%2F%3E%3Cpath%20d%3D%27M-8%20212.0%20C%2054%20198.8%2C%20108%20218.6%2C%20156%20201.8%20S%20240%20194.6%2C%20308%20183.0%27%2F%3E%3Cpath%20d%3D%27M-8%20190.0%20C%2054%20174.6%2C%20108%20197.7%2C%20156%20178.8%20S%20240%20170.8%2C%20308%20158.0%27%2F%3E%3Cpath%20d%3D%27M-8%20168.0%20C%2054%20150.4%2C%20108%20176.8%2C%20156%20155.8%20S%20240%20147.0%2C%20308%20133.0%27%2F%3E%3Cpath%20d%3D%27M-8%20146.0%20C%2054%20126.2%2C%20108%20155.9%2C%20156%20132.7%20S%20240%20123.2%2C%20308%20108.0%27%2F%3E%3Cpath%20d%3D%27M-8%20124.0%20C%2054%20102.0%2C%20108%20135.0%2C%20156%20109.7%20S%20240%2099.4%2C%20308%2083.0%27%2F%3E%3Cpath%20d%3D%27M-8%20102.0%20C%2054%2077.8%2C%20108%20114.1%2C%20156%2086.6%20S%20240%2075.6%2C%20308%2058.0%27%2F%3E%3Cpath%20d%3D%27M-8%2080.0%20C%2054%2053.6%2C%20108%2093.2%2C%20156%2063.5%20S%20240%2051.8%2C%20308%2033.0%27%2F%3E%3Cpath%20d%3D%27M-8%2058.0%20C%2054%2029.4%2C%20108%2072.3%2C%20156%2040.5%20S%20240%2028.0%2C%20308%208.0%27%2F%3E%3Cpath%20d%3D%27M-8%2036.0%20C%2054%205.2%2C%20108%2051.4%2C%20156%2017.5%20S%20240%204.2%2C%20308%20-17.0%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+}
+
+/* It sits on the panel, absolutely placed, and NOT inside .body-sidebar-top.
+   That element is `overflow-y: auto` - a scroll container - so a flex child
+   there was pushed below the fold the moment the menu was long enough to
+   scroll, which is why the texture appeared to do nothing at all. On the panel
+   it is always where the mock-up puts it: across the full width, hard against
+   the bottom-left corner, running out towards the top. */
+html[data-swift-sidebar-texture="on"] .body-sidebar::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 46%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.3;
+
+  background-color: currentColor;
+  -webkit-mask-image: var(--swift-sidebar-texture-art);
+  mask-image: var(--swift-sidebar-texture-art);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: left bottom;
+  mask-position: left bottom;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+/* Soft light sweeping across the lower half — the texture in the mock-up.
+   Built from the theme's own contrast colour rather than a shipped image, so
+   it costs no request and follows every preset. */
+html[data-swift-sidebar-fill="brand"] .body-sidebar::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 46%;
+  border-radius: 0 0 16px 0;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 60% at -10% 100%,
+      color-mix(in oklab, var(--swift-sidebar-fg, var(--swift-accent-fg)) 9%, transparent), transparent 60%),
+    radial-gradient(110% 55% at 120% 85%,
+      color-mix(in oklab, var(--swift-sidebar-fg, var(--swift-accent-fg)) 7%, transparent), transparent 62%),
+    radial-gradient(90% 40% at 40% 120%,
+      color-mix(in oklab, var(--swift-sidebar-fg, var(--swift-accent-fg)) 6%, transparent), transparent 64%);
+}
+
+/* ---- Text ----
+   Frappe gives .item-anchor an explicit `color: var(--ink-gray-6)`, so the
+   label cannot inherit the panel's colour: it has to be overridden here or
+   every row is mid-grey text on a saturated brand panel — present, correct,
+   and unreadable. */
+html[data-swift-sidebar-fill="brand"] .body-sidebar .sidebar-item-label,
+html[data-swift-sidebar-fill="brand"] .body-sidebar .item-anchor,
+html[data-swift-sidebar-fill="brand"] .body-sidebar a,
+html[data-swift-sidebar-fill="brand"] .body-sidebar .avatar-name-email span {
+  color: var(--swift-sidebar-fg, var(--swift-accent-fg));
+}
+
+/* ---- Icons ----
+   Frappe hangs `text-ink-gray-7 current-color` on the svg itself, so the icon
+   takes its own dark colour rather than the row's. Both paint channels have to
+   be claimed: stroke for the line icons, fill for the solid ones. */
+html[data-swift-sidebar-fill="brand"] .body-sidebar .sidebar-item-icon svg,
+html[data-swift-sidebar-fill="brand"] .body-sidebar .item-anchor svg,
+html[data-swift-sidebar-fill="brand"] .body-sidebar .sidebar-item-icon.text-ink-gray-7,
+html[data-swift-sidebar-fill="brand"] .body-sidebar svg.current-color {
+  stroke: var(--swift-sidebar-fg, var(--swift-accent-fg));
+  color: var(--swift-sidebar-fg, var(--swift-accent-fg));
+}
+
+html[data-swift-sidebar-fill="brand"] .body-sidebar .sidebar-item-icon svg [fill]:not([fill="none"]) {
+  fill: var(--swift-sidebar-fg, var(--swift-accent-fg));
+}
+
+/* Secondary text sits back rather than switching colour.
+   `!important` because .text-secondary is a Bootstrap utility and those carry
+   it - without it the user's email stayed Frappe's #7c7c7c grey on the panel,
+   which measured 1.9:1 against the card behind it. */
+html[data-swift-sidebar-fill="brand"] .body-sidebar .avatar-name-email .text-secondary,
+html[data-swift-sidebar-fill="brand"] .body-sidebar .text-secondary,
+html[data-swift-sidebar-fill="brand"] .body-sidebar .section-item .sidebar-item-label {
+  color: color-mix(in oklab, var(--swift-sidebar-fg, var(--swift-accent-fg)) 72%, transparent) !important;
+}
+
+/* ---- Rows ---- */
+html[data-swift-sidebar-fill="brand"] .body-sidebar .standard-sidebar-item {
+  border-radius: 10px;
+  margin: 2px var(--swift-sidebar-inset);
+}
+
+html[data-swift-sidebar-fill="brand"] .body-sidebar .standard-sidebar-item:hover {
+  background: color-mix(in oklab, var(--swift-sidebar-fg, var(--swift-accent-fg)) 14%, transparent) !important;
+  color: var(--swift-sidebar-fg, var(--swift-accent-fg)) !important;
+}
+
+/* The active row inverts into a solid pill — that contrast is what makes it
+   read as selected against a filled panel, where a tint would not. */
+html[data-swift-sidebar-fill="brand"] .body-sidebar .standard-sidebar-item.active-sidebar {
+  background: var(--swift-surface, var(--card-bg)) !important;
+  background-image: none;
+  box-shadow: 0 2px 10px -4px rgba(0, 0, 0, 0.35);
+}
+
+html[data-swift-sidebar-fill="brand"] .body-sidebar .standard-sidebar-item.active-sidebar .item-anchor,
+html[data-swift-sidebar-fill="brand"] .body-sidebar .standard-sidebar-item.active-sidebar .sidebar-item-label {
+  color: var(--swift-primary, var(--swift-accent));
+  font-weight: 600;
+}
+
+html[data-swift-sidebar-fill="brand"] .body-sidebar .standard-sidebar-item.active-sidebar .sidebar-item-icon svg {
+  stroke: var(--swift-primary, var(--swift-accent));
+}
+
+/* ---- The Ctrl+K hint and the notification count ---- */
+html[data-swift-sidebar-fill="brand"] .body-sidebar .sidebar-item-suffix {
+  background: none;
+  color: inherit;
+}
+
+html[data-swift-sidebar-fill="brand"] .body-sidebar .keyboard-shortcut {
+  background: color-mix(in oklab, var(--swift-sidebar-fg, var(--swift-accent-fg)) 16%, transparent);
+  color: color-mix(in oklab, var(--swift-sidebar-fg, var(--swift-accent-fg)) 85%, transparent);
+  border-radius: 6px;
+  padding: 2px var(--swift-sidebar-pill-x);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* Only the count. .sidebar-item-suffix is the container Frappe puts any
+   suffix in — including the "Ctrl + K" hint next to Search — so painting it
+   as a badge gave that hint a white panel, and the hint's own text is near
+   white: white on white, an unreadable blank pill. */
+html[data-swift-sidebar-fill="brand"] .body-sidebar .sidebar-notification-count {
+  background: var(--swift-surface, var(--card-bg));
+  color: var(--swift-primary, var(--swift-accent));
+  border: none;
+  border-radius: 999px;
+  min-width: 20px;
+  padding: 1px var(--swift-sidebar-pill-x);
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ---- The workspace switcher at the top ----
+   Frappe dresses this for its own light sidebar through two bare class
+   selectors it toggles from JS: `.hover` on mouseover, and `.active-sidebar`
+   while the panel is expanded. `.active-sidebar` resolves to
+   --sidebar-active-color, which is pure white, and the header's text already
+   inherits the panel's near-white colour from the rules above - so on a brand
+   panel the top washed out on hover and vanished outright when active. Both
+   states are reclaimed here as tints, matching the rows. */
+html[data-swift-sidebar-fill="brand"] .body-sidebar .sidebar-header {
+  border-radius: 10px;
+  margin: 0 var(--swift-sidebar-inset);
+  background: transparent;
+}
+
+/* !important throughout this block, for the same reason the row rules carry
+   it: the generic `html[data-swift-themed] .active-sidebar` rule further down
+   is itself !important, and !important beats specificity. Without it the
+   header took the generic accent gradient — accent over an accent panel. */
+html[data-swift-sidebar-fill="brand"] .body-sidebar .sidebar-header.hover,
+html[data-swift-sidebar-fill="brand"] .body-sidebar .sidebar-header:hover {
+  background: color-mix(in oklab, var(--swift-sidebar-fg, var(--swift-accent-fg)) 14%, transparent) !important;
+  box-shadow: none !important;
+}
+
+/* 14% again, not more: every extra point of white lightens the panel and eats
+   the contrast the white label needs. The active state is marked with a ring
+   instead, which costs the text nothing. */
+html[data-swift-sidebar-fill="brand"] .body-sidebar .sidebar-header.active-sidebar {
+  background: color-mix(in oklab, var(--swift-sidebar-fg, var(--swift-accent-fg)) 14%, transparent) !important;
+  background-image: none !important;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--swift-sidebar-fg, var(--swift-accent-fg)) 30%, transparent) !important;
+}
+
+/* ---- The chevron on rows that expand ----
+   Frappe renders it with its own ink scale, which no preset defines, so on a
+   brand panel it stayed a mid grey against saturated colour - present, but
+   reading as disabled. It takes the panel's foreground, held back so it does
+   not compete with the label beside it. */
+html[data-swift-sidebar-fill="brand"] .body-sidebar .drop-icon,
+html[data-swift-sidebar-fill="brand"] .body-sidebar .drop-icon svg,
+html[data-swift-sidebar-fill="brand"] .body-sidebar .sidebar-item-control svg {
+  color: color-mix(in oklab, var(--swift-sidebar-fg, var(--swift-accent-fg)) 70%, transparent);
+  stroke: color-mix(in oklab, var(--swift-sidebar-fg, var(--swift-accent-fg)) 70%, transparent);
+}
+
+html[data-swift-themed]:not([data-swift-sidebar-fill="brand"]) .body-sidebar .drop-icon,
+html[data-swift-themed]:not([data-swift-sidebar-fill="brand"]) .body-sidebar .drop-icon svg,
+html[data-swift-themed]:not([data-swift-sidebar-fill="brand"]) .body-sidebar .sidebar-item-control svg {
+  color: var(--text-muted);
+  stroke: var(--text-muted);
+}
+
+/* ---- The online dot on the user's avatar ----
+   Frappe renders no indicator here at all - get_avatar() emits the frame and
+   nothing else - so it is drawn on the avatar itself. The ring is the panel
+   colour, which is what separates the dot from the avatar behind it. */
+html[data-swift-themed] .sidebar-user-button .avatar {
+  position: relative;
+}
+
+html[data-swift-themed] .sidebar-user-button .avatar::after {
+  content: "";
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--swift-success, #22c55e);
+  box-shadow: 0 0 0 2px var(--swift-sidebar-fill-end, var(--fg-color));
+  pointer-events: none;
+}
+
+/* ---- The two tiles: the workspace icon and the user's avatar ----
+   Frappe paints both from palettes meant for a light UI, and writes the
+   result inline - the icon through `utils.js desktop_icon()` (#7B808A grey at
+   10%, grey glyph) and the avatar through `get_palette()`. Inline styles beat
+   any selector, so both need !important, and both are re-cut from the panel's
+   own foreground: a 14% tile with a solid glyph, the same 14% every other
+   surface on this panel uses. */
+html[data-swift-sidebar-fill="brand"] .body-sidebar .header-logo-container,
+html[data-swift-sidebar-fill="brand"] .body-sidebar .sidebar-header .sidebar-item-icon,
+html[data-swift-sidebar-fill="brand"] .body-sidebar .sidebar-header .icon-container,
+html[data-swift-sidebar-fill="brand"] .body-sidebar .sidebar-user-button .avatar-frame {
+  background-color: color-mix(in oklab, var(--swift-sidebar-fg, var(--swift-accent-fg)) 14%, transparent) !important;
+  color: var(--swift-sidebar-fg, var(--swift-accent-fg)) !important;
+}
+
+html[data-swift-sidebar-fill="brand"] .body-sidebar .sidebar-header .icon-container svg,
+html[data-swift-sidebar-fill="brand"] .body-sidebar .sidebar-header .desktop-alphabet {
+  color: var(--swift-sidebar-fg, var(--swift-accent-fg)) !important;
+  fill: currentColor !important;
+}
+
+/* A real logo image keeps its own artwork - only the tile behind it is ours. */
+html[data-swift-sidebar-fill="brand"] .body-sidebar .sidebar-header .header-logo:has(img) {
+  background-color: transparent !important;
+}
+
+/* ---- The person at the bottom ---- */
+html[data-swift-sidebar-fill="brand"] .body-sidebar .sidebar-user-button {
+  background: color-mix(in oklab, var(--swift-sidebar-fg, var(--swift-accent-fg)) 13%, transparent);
+  border-radius: 12px;
+  padding: 8px;
+}
+
+/* Frappe greys the wrapper (.nav-item.dropdown-navbar-user), not the card
+   inside it. Painting the wrapper fixed the colour but not the shape: the
+   wrapper is 10px wider on each side than the card, so the highlight sat proud
+   of it. The grey is cancelled on the wrapper and the card itself is painted,
+   which makes the hover box exactly the resting box.
+
+   The wrapper's own 8px padding goes too — Frappe's .nav-item adds it on top
+   of the card's 8px, one box more than every row above has, which pushed the
+   avatar ~9px right of every icon in the list. */
+html[data-swift-sidebar-fill="brand"] .body-sidebar .dropdown-navbar-user {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+html[data-swift-sidebar-fill="brand"] .body-sidebar .dropdown-navbar-user:hover {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+html[data-swift-sidebar-fill="brand"] .body-sidebar .dropdown-navbar-user:hover .sidebar-user-button,
+html[data-swift-sidebar-fill="brand"] .body-sidebar .sidebar-user-button:hover {
+  background-color: color-mix(in oklab, var(--swift-sidebar-fg, var(--swift-accent-fg)) 14%, transparent) !important;
+  background-image: none !important;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--swift-sidebar-fg, var(--swift-accent-fg)) 30%, transparent) !important;
+}
+
+html[data-swift-sidebar-fill="brand"] .body-sidebar .dropdown-navbar-user:hover .avatar-name-email span {
+  color: var(--swift-sidebar-fg, var(--swift-accent-fg)) !important;
+}
+
+/* "Getting Started" and the promo banners are plain anchors, so Frappe's
+   global a:hover repaints them in a link colour that was never meant to sit on
+   a saturated panel. They get the same tint as every other row instead. */
+html[data-swift-sidebar-fill="brand"] .body-sidebar .onboarding-sidebar,
+html[data-swift-sidebar-fill="brand"] .body-sidebar .promotional-banner {
+  border-radius: 10px;
+  margin: 0 var(--swift-sidebar-inset);
+  padding: 6px var(--swift-sidebar-pill-x);
+  color: var(--swift-sidebar-fg, var(--swift-accent-fg));
+}
+
+html[data-swift-sidebar-fill="brand"] .body-sidebar .onboarding-sidebar:hover,
+html[data-swift-sidebar-fill="brand"] .body-sidebar .promotional-banner:hover {
+  background: color-mix(in oklab, var(--swift-sidebar-fg, var(--swift-accent-fg)) 14%, transparent);
+  color: var(--swift-sidebar-fg, var(--swift-accent-fg));
+  text-decoration: none;
+}
+
+/* ---- The control that closes the sidebar ----
+   Frappe leaves it inline at the bottom of the panel, where it reads as
+   another menu row. On the panel's edge it reads as what it is: the handle
+   that closes the thing it sits on. */
+html[data-swift-sidebar-fill="brand"] .body-sidebar .collapse-sidebar-link {
+  position: absolute;
+  top: 22px;
+  right: -13px;
+  z-index: 2;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--swift-surface, var(--card-bg));
+  color: var(--swift-primary, var(--swift-accent));
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.28);
+}
+
+html[data-swift-sidebar-fill="brand"] .body-sidebar .collapse-sidebar-link svg {
+  stroke: var(--swift-primary, var(--swift-accent));
+}
+
+html[data-swift-sidebar-fill="brand"] .body-sidebar .collapse-sidebar-link:hover {
+  background: var(--swift-primary, var(--swift-accent));
+  color: var(--swift-sidebar-fg, var(--swift-accent-fg));
+}
+
+html[data-swift-sidebar-fill="brand"] .body-sidebar .collapse-sidebar-link:hover svg {
+  stroke: var(--swift-sidebar-fg, var(--swift-accent-fg));
+}
+
+html[data-swift-sidebar-fill="brand"] .body-sidebar .divider {
+  border-color: color-mix(in oklab, var(--swift-sidebar-fg, var(--swift-accent-fg)) 18%, transparent);
+}
+
+/* ============================================
+   SIDEBAR FIXES - No Dancing, Smooth Transitions
+   ============================================ */
+.layout-side-section {
+    transition: width var(--swift-sidebar-transition), transform var(--swift-sidebar-transition) !important;
+}
+
+/* Sidebar variants live in swift-layout.css under [data-swift-sidebar-variant].
+   The lowercase [data-swift-sidebar] rules that used to sit here were never
+   set by any script, and collided with the "off" value below on the same
+   attribute. The generic :hover width override that lived here forced every
+   sidebar to jump to 240px on hover — that was the "sidebar dance". */
+
+/* ---- Hidden sidebar (Alt+B / palette toggle) ---- */
+html[data-swift-sidebar="off"] .layout-side-section,
+html[data-swift-sidebar="off"] .body-sidebar-container {
+    display: none !important;
+}
+
+html[data-swift-sidebar="off"] .layout-main-section-wrapper,
+html[data-swift-sidebar="off"] .layout-main-section {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 1 1 100% !important;
+}
+
+/* Floating button to bring the sidebar back */
+.swift-sidebar-restore {
+    position: fixed;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1030;
+    width: 22px;
+    height: 52px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-left: none;
+    border-radius: 0 8px 8px 0;
+    background: var(--card-bg, var(--fg-color, #fff));
+    color: var(--text-muted, #64748b);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1;
+}
+
+.swift-sidebar-restore:hover {
+    color: var(--swift-accent, #4f46e5);
+    width: 26px;
+}
+
+/* Sidebar items — smooth hover, no jump.
+   These used --accent-color, which nothing defines, so every theme got the
+   same hardcoded blue here. */
+.standard-sidebar-item {
+    transition: background 0.15s ease, color 0.15s ease;
+    border-radius: 8px;
+    margin: 2px 8px;
+}
+
+/* Collapsed, the rail is only as wide as an icon, and 8px of margin either
+   side pushed the icon out of it — which is why the collapsed sidebar showed
+   clipped glyphs instead of icons. */
+.body-sidebar-container:not(.expanded) .standard-sidebar-item {
+    margin: 2px var(--swift-sidebar-inset);
+}
+
+/* No transform on hover. It nudged the row 3px and, in doing so, made the row
+   a containing block and a stacking context for its own descendants — and the
+   notifications dropdown lives inside one of these rows, so it opened clipped
+   and mispositioned. Colour is enough of a hover cue. */
+html[data-swift-themed] .standard-sidebar-item:hover {
+    background: var(--swift-accent-soft) !important;
+    color: var(--swift-accent) !important;
+}
+
+/* The item you are on. Frappe marks it `active-sidebar` (sidebar.js:389) —
+   these rules used to key off `.selected`, which nothing in the sidebar ever
+   sets, and `.desk-sidebar-item`, which Frappe does not render at all. So the
+   whole active state had never once applied. */
+html[data-swift-themed] .standard-sidebar-item.active-sidebar,
+html[data-swift-themed] .sidebar-item-container.active-sidebar > .standard-sidebar-item {
+    background: linear-gradient(100deg,
+        color-mix(in oklab, var(--swift-primary, var(--swift-accent)) 22%, transparent),
+        color-mix(in oklab, var(--swift-secondary, var(--swift-accent-hover)) 14%, transparent) 70%,
+        transparent);
+    font-weight: 600;
+    /* The rail carries the preset's own mark, the same two tokens the card
+       headers and kanban columns use — so the sidebar says which theme is
+       active rather than just borrowing its accent colour. */
+    background-image:
+        var(--swift-head-accent,
+            linear-gradient(180deg,
+                var(--swift-primary, var(--swift-accent)),
+                var(--swift-secondary, var(--swift-accent-hover))));
+    background-repeat: no-repeat;
+    background-size: var(--swift-head-accent-size, 3px 100%);
+    background-position: left top;
+}
+
+html[data-swift-themed] .standard-sidebar-item.active-sidebar .item-anchor,
+html[data-swift-themed] .standard-sidebar-item.active-sidebar .sidebar-item-label {
+    color: var(--swift-accent);
+}
+
+/* Frappe paints the icons with its own ink scale, which no preset defines, so
+   they stayed the same grey under every theme. */
+html[data-swift-themed] .standard-sidebar-item .sidebar-item-icon svg {
+    stroke: var(--text-muted);
+}
+
+html[data-swift-themed] .standard-sidebar-item:hover .sidebar-item-icon svg,
+html[data-swift-themed] .standard-sidebar-item.active-sidebar .sidebar-item-icon svg {
+    stroke: var(--swift-accent);
+}
+
+/* A "Section Break" row is a heading between groups of items, not an item —
+   the rule that tried to style it targeted .standard-sidebar-section-title,
+   which Frappe never renders. */
+html[data-swift-themed] .section-item .item-anchor.section-break .sidebar-item-label {
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 10.5px;
+    font-weight: 600;
+}
+
+/* ---- Top and bottom of the panel ----
+   Frappe dresses both ends for its own white sidebar, through two rules that
+   nothing here had ever claimed:
+
+     .hover                      sidebar_header.js adds it on mouseover
+     .dropdown-navbar-user:hover the wrapper around the user card
+
+   Both resolve to `--sidebar-hover-color: #f3f3f3`, a near-white grey. On a
+   themed panel that lands as a grey slab and takes the light text down with
+   it. `.active-sidebar` is already covered by the generic rule near the top of
+   this file; these are the halves that were missing.
+
+   Scoped away from the brand panel: it has its own, more specific set below,
+   and an `!important` here would otherwise outrank it and repaint the header
+   in the accent colour — accent text on an accent tint, i.e. nothing. */
+html[data-swift-themed]:not([data-swift-sidebar-fill="brand"]) .sidebar-header.hover,
+html[data-swift-themed]:not([data-swift-sidebar-fill="brand"]) .sidebar-header:hover {
+    background: var(--swift-accent-soft) !important;
+    border-radius: var(--swift-radius-sm, 8px);
+}
+
+html[data-swift-themed]:not([data-swift-sidebar-fill="brand"]) .sidebar-header.hover .header-title,
+html[data-swift-themed]:not([data-swift-sidebar-fill="brand"]) .sidebar-header.hover .header-subtitle,
+html[data-swift-themed]:not([data-swift-sidebar-fill="brand"]) .sidebar-header:hover .header-title,
+html[data-swift-themed]:not([data-swift-sidebar-fill="brand"]) .sidebar-header:hover .header-subtitle {
+    color: var(--text-color);
+}
+
+/* The workspace icon and the user avatar are painted inline from Frappe's
+   light-UI palettes (utils.js desktop_icon / get_palette), so they need
+   !important and the preset's own tokens. */
+html[data-swift-themed]:not([data-swift-sidebar-fill="brand"]) .sidebar-header .header-logo-container,
+html[data-swift-themed]:not([data-swift-sidebar-fill="brand"]) .sidebar-header .sidebar-item-icon,
+html[data-swift-themed]:not([data-swift-sidebar-fill="brand"]) .sidebar-header .icon-container,
+html[data-swift-themed]:not([data-swift-sidebar-fill="brand"]) .sidebar-user-button .avatar-frame {
+    background-color: color-mix(in oklab, var(--swift-accent) 14%, transparent) !important;
+    color: var(--swift-accent) !important;
+}
+
+/* The avatar's initials are text, not a glyph, so they take the readable ink
+   rather than the accent - accent on an accent tint only clears the 3:1 bar
+   that graphics are held to, not the 4.5:1 one text is. */
+html[data-swift-themed]:not([data-swift-sidebar-fill="brand"]) .sidebar-user-button .avatar-frame {
+    color: var(--text-color) !important;
+}
+
+/* Same Bootstrap utility, same fix, on a themed but unfilled panel. */
+html[data-swift-themed]:not([data-swift-sidebar-fill="brand"]) .body-sidebar .avatar-name-email .text-secondary {
+    color: var(--text-muted) !important;
+}
+
+html[data-swift-themed]:not([data-swift-sidebar-fill="brand"]) .sidebar-header .icon-container svg,
+html[data-swift-themed]:not([data-swift-sidebar-fill="brand"]) .sidebar-header .desktop-alphabet {
+    color: var(--swift-accent) !important;
+    fill: currentColor !important;
+}
+
+html[data-swift-themed]:not([data-swift-sidebar-fill="brand"]) .sidebar-header .header-logo:has(img) {
+    background-color: transparent !important;
+}
+
+/* The person at the bottom, and the collapse arrow beside it. */
+/* Geometry, so the three blocks hang off one edge. The rows sit at
+   `margin: 2px 8px` (the .standard-sidebar-item rule below), and the top and
+   bottom blocks have to match that or the icons stagger. Frappe's .nav-item
+   wrapper adds a second 8px box around the user card, which is one more than
+   any row has - that goes, and the card carries the inset itself. */
+html[data-swift-themed]:not([data-swift-sidebar-fill="brand"]) .dropdown-navbar-user {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+html[data-swift-themed]:not([data-swift-sidebar-fill="brand"]) .sidebar-header,
+html[data-swift-themed]:not([data-swift-sidebar-fill="brand"]) .sidebar-user-button {
+    margin-left: 8px !important;
+    margin-right: 8px !important;
+}
+
+html[data-swift-themed]:not([data-swift-sidebar-fill="brand"]) .sidebar-user-button {
+    padding: 8px !important;
+    border-radius: var(--swift-radius-sm, 8px);
+}
+
+html[data-swift-themed]:not([data-swift-sidebar-fill="brand"]) .dropdown-navbar-user:hover {
+    background: transparent !important;
+}
+
+html[data-swift-themed]:not([data-swift-sidebar-fill="brand"]) .dropdown-navbar-user:hover .sidebar-user-button,
+html[data-swift-themed]:not([data-swift-sidebar-fill="brand"]) .sidebar-user-button:hover {
+    background-color: var(--swift-accent-soft) !important;
+    border-radius: var(--swift-radius-sm, 8px);
+}
+
+/* "Getting Started" and the promo banners are plain anchors, so Frappe's
+   global a:hover repaints them in a link colour the preset never chose. */
+html[data-swift-themed]:not([data-swift-sidebar-fill="brand"]) .onboarding-sidebar:hover,
+html[data-swift-themed]:not([data-swift-sidebar-fill="brand"]) .promotional-banner:hover {
+    background: var(--swift-accent-soft);
+    border-radius: var(--swift-radius-sm, 8px);
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+html[data-swift-themed] .collapse-sidebar-link {
+    color: var(--text-muted);
+}
+
+html[data-swift-themed] .collapse-sidebar-link:hover {
+    color: var(--swift-accent);
+}
+
+html[data-swift-themed] .sidebar-resize-handle:hover {
+    background: var(--swift-accent-soft);
+}
+
+/* ========================================================================
+   POLISH
+
+   The pieces above decide what each thing *is*; this decides how finished it
+   looks. Deliberately no `transform` anywhere in here — a hover lift would
+   make the widget a containing block and a stacking context for its own
+   descendants, and each of these has a dropdown inside its header. That is
+   the exact bug that once trapped the notifications panel inside a sidebar
+   row (see the note above .standard-sidebar-item:hover), so depth is done
+   with shadow and border alone.
+   ======================================================================== */
+
+/* A KPI figure is the one number a person actually reads on a dashboard, and
+   it was rendering in the body font at body spacing. Tabular figures stop the
+   digits shifting as values update, and negative tracking keeps a large number
+   from looking loose. */
+html[data-swift-themed] .number-card .number,
+html[data-swift-themed] .number-widget-box .number {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1, "lnum" 1;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+}
+
+/* The hamburger beside them, which Frappe leaves on its own icon colour. */
+html[data-swift-themed] .sidebar-toggle-btn {
+    color: var(--text-muted);
+    border-radius: var(--swift-radius-sm, 6px);
+    transition: color 0.15s ease, background 0.15s ease;
+}
+
+html[data-swift-themed] .sidebar-toggle-btn:hover {
+    color: var(--swift-accent);
+    background: var(--swift-accent-soft);
+}
+
+html[data-swift-themed] .sidebar-toggle-btn svg {
+    stroke: currentColor;
+}
+
+
+/* Narrow screens: the sidebar slides in over the content instead of taking a
+   column from it. Lifted out of the shared media block in swift-desk.css,
+   which also held kanban rules. */
+@media (max-width: 768px) {
+    .layout-side-section {
+        position: fixed;
+        z-index: 1000;
+        transform: translateX(-100%);
+    }
+
+    .layout-side-section.show {
+        transform: translateX(0);
+    }
+}
