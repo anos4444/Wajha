@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.10.1 — 2026-09-05
+
+**The 0.10.0 seeding probe crashed `after_migrate`.** `never_stored()` read
+the `tabSingles` row through `frappe.db.get_value("Singles", {...})`, which
+appends its default `ORDER BY creation` — and `tabSingles` has no `creation`
+column. On v16 that raised `(1054, "Unknown column 'creation' in 'ORDER BY'")`
+from inside the migrate hook on hub.tawasulcloud.com (existing rows were
+untouched; only the seeding step died). Both seeders now read the row with a
+plain `select … limit 1`, which cannot be reordered.
+
 ## 0.10.0 — 2026-09-05
 
 **A themed Desk out of the box.** A fresh install already enabled the shell,
