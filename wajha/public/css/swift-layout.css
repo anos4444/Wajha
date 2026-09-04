@@ -1,0 +1,54 @@
+/* Swift Theme — Top bar and sidebar variants
+
+   Both settings used to point at elements the v16 desk does not render, so
+   neither did anything where a user would look for it:
+
+   * Navbar Variant styled `.navbar`. The v16 desk has no such element — the
+     only `.navbar` in Frappe is the website/portal header and a decorative
+     swatch inside the theme-switcher dialog. The desk's top bar is
+     `.page-head`, which is what these rules take now. The portal header is
+     kept alongside it, since that one is real.
+
+   * Sidebar Variant styled `.layout-side-section`, which is the per-page
+     filter panel inside a list or form — not the navigation sidebar people
+     mean by "the sidebar". That is `.body-sidebar`.
+
+   Frappe already gives the top bar `background: var(--bg-color)` and a bottom
+   border, so "Solid" is what the desk does untouched: these variants change
+   it, they do not create it from nothing.
+   ========================================================================= */
+
+/* -------- Top bar -------- */
+/* Every rule here carries [data-swift-themed] and !important on the paint, and
+   that is load-bearing rather than defensive. Two generic rules used to settle
+   this instead of the variant:
+
+     swift-desk.css    html[data-swift-themed] .page-head { background: transparent }
+     swift-sidebar.css html[data-swift-themed] .navbar    { background: ... !important }
+
+   Both match at the same specificity as a bare [data-swift-navbar] rule, and
+   both are imported after this file, so the later one won every tie. All three
+   variants resolved to exactly the same paint, and the setting did nothing at
+   all. The extra attribute puts these one class ahead, which settles it by
+   specificity rather than by import order. */
+html[data-swift-themed][data-swift-navbar="Solid"] .page-head {
+  background: var(--fg-color) !important;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Translucent, so whatever scrolls under it stays faintly visible. Only the
+   colour is softened — no backdrop-filter, which would make the bar a
+   containing block for anything positioned inside it. */
+html[data-swift-themed][data-swift-navbar="Glass"] .page-head {
+  background: color-mix(in oklab, var(--fg-color) 72%, transparent) !important;
+  border-bottom: 1px solid color-mix(in oklab, var(--border-color) 60%, transparent);
+}
+
+html[data-swift-themed][data-swift-navbar="Transparent"] .page-head {
+  background: transparent !important;
+  border-bottom: 1px solid color-mix(in oklab, var(--border-color) 40%, transparent);
+}
+
+/* The .navbar variants live in swift-preset-base.css, not here: this file is
+   only in the desk bundle, and .navbar is the portal's header. They also have
+   to sit next to the generic navbar force-paint they must outrank. */

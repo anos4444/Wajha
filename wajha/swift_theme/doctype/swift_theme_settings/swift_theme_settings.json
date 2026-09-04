@@ -1,0 +1,558 @@
+{
+ "actions": [],
+ "creation": "2026-08-24 14:36:40.314869",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "colour_tab",
+  "color_mode_section",
+  "color_mode",
+  "active_preset",
+  "custom_colors_section",
+  "primary_color",
+  "secondary_color",
+  "custom_mode",
+  "custom_strength",
+  "custom_sidebar_gradient",
+  "backdrop",
+  "desk_tab",
+  "defaults_section",
+  "default_density",
+  "default_radius",
+  "default_font_scale",
+  "default_font_family",
+  "sidebar_section",
+  "navbar_variant",
+  "sidebar_variant",
+  "sidebar_brand_fill",
+  "sidebar_texture",
+  "home_section",
+  "enable_home_page",
+  "home_preset",
+  "home_greeting",
+  "home_shortcuts",
+  "home_cards_break",
+  "home_cards",
+  "features_tab",
+  "features_section",
+  "enable_switcher",
+  "enable_command_palette",
+  "enable_focus_mode",
+  "enable_backdrops",
+  "show_backdrop_through",
+  "enable_perf_mode",
+  "enable_styled_scrollbar",
+  "enable_toast_theming",
+  "enable_print_theming",
+  "print_font_family",
+  "brand_tab",
+  "brand_section",
+  "brand_name",
+  "brand_favicon",
+  "brand_logo",
+  "brand_logo_dark",
+  "login_tab",
+  "login_section",
+  "login_layout",
+  "login_tagline",
+  "login_bg_image",
+  "login_panel_section",
+  "login_show_brand_panel",
+  "login_heading",
+  "login_description",
+  "login_points",
+  "login_stat_value",
+  "login_stat_label",
+  "extras_tab",
+  "auto_dark_section",
+  "enable_auto_dark",
+  "auto_dark_start",
+  "auto_dark_end",
+  "sounds_section",
+  "enable_sounds",
+  "volume_level",
+  "sound_events"
+ ],
+ "fields": [
+  {
+   "fieldname": "colour_tab",
+   "fieldtype": "Tab Break",
+   "label": "Colour"
+  },
+  {
+   "fieldname": "color_mode_section",
+   "fieldtype": "Section Break",
+   "label": "Color Mode"
+  },
+  {
+   "default": "Theme Preset",
+   "description": "Pick a ready-made preset, or set your own primary and secondary colours.",
+   "fieldname": "color_mode",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Color Mode",
+   "options": "Theme Preset\nCustom Colors",
+   "reqd": 1
+  },
+  {
+   "default": "Iron Man",
+   "depends_on": "eval:doc.color_mode=='Theme Preset'",
+   "description": "Each preset ships its own stylesheet; only the selected one is loaded.",
+   "fieldname": "active_preset",
+   "fieldtype": "Select",
+   "label": "Active Preset",
+   "mandatory_depends_on": "eval:doc.color_mode=='Theme Preset'",
+   "options": "Iron Man\nCaptain America\nDoctor Strange\nStar-Lord\nVision\nScarlet Witch\nBlack Panther\nLoki\nHulk\nThanos\nVenom\nWinter Soldier"
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "eval:doc.color_mode=='Custom Colors'",
+   "fieldname": "custom_colors_section",
+   "fieldtype": "Section Break",
+   "label": "Custom Colors"
+  },
+  {
+   "depends_on": "eval:doc.color_mode=='Custom Colors'",
+   "description": "Buttons, links and highlights.",
+   "fieldname": "primary_color",
+   "fieldtype": "Color",
+   "label": "Primary Color",
+   "mandatory_depends_on": "eval:doc.color_mode=='Custom Colors'"
+  },
+  {
+   "depends_on": "eval:doc.color_mode=='Custom Colors'",
+   "description": "Gradients and hover states.",
+   "fieldname": "secondary_color",
+   "fieldtype": "Color",
+   "label": "Secondary Color",
+   "mandatory_depends_on": "eval:doc.color_mode=='Custom Colors'"
+  },
+  {
+   "default": "Dark",
+   "depends_on": "eval:doc.color_mode=='Custom Colors'",
+   "description": "Two hex codes cannot say whether you want a light or a dark desk.",
+   "fieldname": "custom_mode",
+   "fieldtype": "Select",
+   "label": "Custom Mode",
+   "options": "Dark\nLight"
+  },
+  {
+   "default": "Subtle",
+   "depends_on": "eval:doc.color_mode=='Custom Colors'",
+   "description": "Subtle keeps cards neutral and puts the colour in accents. Bold gives the cards the brand tone.",
+   "fieldname": "custom_strength",
+   "fieldtype": "Select",
+   "label": "Colour Strength",
+   "options": "Subtle\nBold"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.color_mode=='Custom Colors'",
+   "description": "Run the sidebar from the Primary colour into the Secondary one. Without it the panel is Primary shading into its own darker end, so the Secondary colour never reaches the sidebar at all. Presets keep their own hand-picked pair and are not affected.",
+   "fieldname": "custom_sidebar_gradient",
+   "fieldtype": "Check",
+   "label": "Gradient Sidebar"
+  },
+  {
+   "depends_on": "eval:doc.color_mode==\"Custom Colors\" && doc.enable_backdrops==1",
+   "description": "Applies to Custom Colors only. In Theme Preset mode each preset brings its own backdrop, so this is ignored.",
+   "fieldname": "backdrop",
+   "fieldtype": "Select",
+   "label": "Backdrop",
+   "options": "\nAurora\nMesh\nGrain\nFacets\nSilk\nNone"
+  },
+  {
+   "fieldname": "desk_tab",
+   "fieldtype": "Tab Break",
+   "label": "Desk"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "defaults_section",
+   "fieldtype": "Section Break",
+   "label": "Desk Defaults"
+  },
+  {
+   "default": "Comfortable",
+   "fieldname": "default_density",
+   "fieldtype": "Select",
+   "label": "Default Density",
+   "options": "\nCompact\nComfortable\nCozy"
+  },
+  {
+   "default": "Rounded",
+   "fieldname": "default_radius",
+   "fieldtype": "Select",
+   "label": "Default Shape",
+   "options": "\nSharp\nRounded\nPill"
+  },
+  {
+   "default": "M",
+   "fieldname": "default_font_scale",
+   "fieldtype": "Select",
+   "label": "Default Font Scale",
+   "options": "\nS\nM\nL\nXL"
+  },
+  {
+   "default": "Inter",
+   "fieldname": "default_font_family",
+   "fieldtype": "Select",
+   "label": "Default Font Family",
+   "options": "\nInter\nPoppins\nManrope\nRoboto\nSystem"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sidebar_section",
+   "fieldtype": "Section Break",
+   "label": "Navigation"
+  },
+  {
+   "default": "Solid",
+   "fieldname": "navbar_variant",
+   "fieldtype": "Select",
+   "label": "Navbar Variant",
+   "options": "Solid\nGlass\nTransparent"
+  },
+  {
+   "default": "Floating",
+   "description": "Icon-only collapses the sidebar to icons and expands it on hover.",
+   "fieldname": "sidebar_variant",
+   "fieldtype": "Select",
+   "label": "Sidebar Variant",
+   "options": "Attached\nFloating\nIcon-only"
+  },
+  {
+   "default": "0",
+   "description": "Fill the sidebar with the theme's own colour instead of the neutral surface. Text and icons switch to the contrast colour that preset already computes.",
+   "fieldname": "sidebar_brand_fill",
+   "fieldtype": "Check",
+   "label": "Brand Colour Sidebar"
+  },
+  {
+   "default": "0",
+   "description": "Draw a faint contour pattern across the lower half of the sidebar. It is cut from the sidebar's own text colour, so it follows every preset and stays legible on a light or a dark panel.",
+   "fieldname": "sidebar_texture",
+   "fieldtype": "Check",
+   "label": "Sidebar Texture"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "home_section",
+   "fieldtype": "Section Break",
+   "label": "Home Page"
+  },
+  {
+   "default": "0",
+   "description": "Land on a Swift home page instead of the default workspace. It shows the apps this user is allowed to open, so nothing appears here that they could not already reach. Turn it off and the desk goes straight back to Frappe's own landing.",
+   "fieldname": "enable_home_page",
+   "fieldtype": "Check",
+   "label": "Custom Home Page"
+  },
+  {
+   "default": "Aurora",
+   "depends_on": "enable_home_page",
+   "description": "A whole design for the landing: each one decides the palette, which blocks appear, how they are arranged and what is painted behind them. It applies only while the landing is on screen - no other desk page is touched.",
+   "fieldname": "home_preset",
+   "fieldtype": "Select",
+   "label": "Desk Preset",
+   "options": "Aurora\nDune\nNebula\nAbyss\nPulse\nHorizon\nEclipse\nHoneycomb"
+  },
+  {
+   "default": "1",
+   "depends_on": "eval:doc.enable_home_page==1",
+   "description": "The greeting line at the top, by time of day.",
+   "fieldname": "home_greeting",
+   "fieldtype": "Check",
+   "label": "Show Greeting"
+  },
+  {
+   "default": "1",
+   "depends_on": "eval:doc.enable_home_page==1",
+   "description": "Create New, Reports and Notifications, beside the greeting.",
+   "fieldname": "home_shortcuts",
+   "fieldtype": "Check",
+   "label": "Show Shortcuts"
+  },
+  {
+   "fieldname": "home_cards_break",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.enable_home_page==1",
+   "description": "Number Cards to show as figures across the top - sales, invoices, payments, whatever you pick. Each card is only drawn for a user who can read its doctype, and its figure is counted through the same permissions, so User Permissions (company, territory) narrow it automatically. Leave empty for no figures.",
+   "fieldname": "home_cards",
+   "fieldtype": "Table MultiSelect",
+   "label": "Home Cards",
+   "options": "Swift Home Card"
+  },
+  {
+   "fieldname": "features_tab",
+   "fieldtype": "Tab Break",
+   "label": "Features"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "features_section",
+   "fieldtype": "Section Break",
+   "label": "Features"
+  },
+  {
+   "default": "1",
+   "description": "Show the Theme chip in the navbar so users can switch theme themselves.",
+   "fieldname": "enable_switcher",
+   "fieldtype": "Check",
+   "label": "Enable Theme Switcher"
+  },
+  {
+   "default": "1",
+   "description": "Ctrl+Shift+T opens the Swift command palette.",
+   "fieldname": "enable_command_palette",
+   "fieldtype": "Check",
+   "label": "Enable Command Palette"
+  },
+  {
+   "default": "1",
+   "description": "F toggles focus mode, R toggles reading mode.",
+   "fieldname": "enable_focus_mode",
+   "fieldtype": "Check",
+   "label": "Enable Focus / Reading Mode"
+  },
+  {
+   "default": "1",
+   "description": "Draw the preset's own background behind the desk. Turn this off for a plain, flat background.",
+   "fieldname": "enable_backdrops",
+   "fieldtype": "Check",
+   "label": "Enable Backdrops"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.enable_backdrops==1",
+   "description": "Let the background show through cards, the sidebar and table headers instead of being hidden behind them.",
+   "fieldname": "show_backdrop_through",
+   "fieldtype": "Check",
+   "label": "Show Backdrop Through Panels"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_perf_mode",
+   "fieldtype": "Check",
+   "label": "Enable Performance Mode"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_styled_scrollbar",
+   "fieldtype": "Check",
+   "label": "Enable Styled Scrollbar"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_toast_theming",
+   "fieldtype": "Check",
+   "label": "Enable Toast Theming"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_print_theming",
+   "fieldtype": "Check",
+   "label": "Enable Print Theming"
+  },
+  {
+   "default": "Inter",
+   "depends_on": "eval:doc.enable_print_theming==1",
+   "fieldname": "print_font_family",
+   "fieldtype": "Select",
+   "label": "Print Font Family",
+   "options": "\nInter\nPoppins\nManrope\nRoboto\nSystem"
+  },
+  {
+   "fieldname": "brand_tab",
+   "fieldtype": "Tab Break",
+   "label": "Brand"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "brand_section",
+   "fieldtype": "Section Break",
+   "label": "Branding"
+  },
+  {
+   "fieldname": "brand_name",
+   "fieldtype": "Data",
+   "label": "Brand Name"
+  },
+  {
+   "fieldname": "brand_favicon",
+   "fieldtype": "Attach Image",
+   "label": "Brand Favicon"
+  },
+  {
+   "fieldname": "brand_logo",
+   "fieldtype": "Attach Image",
+   "label": "Brand Logo"
+  },
+  {
+   "description": "Used when the viewer is in dark mode. Falls back to Brand Logo.",
+   "fieldname": "brand_logo_dark",
+   "fieldtype": "Attach Image",
+   "label": "Brand Logo (Dark)"
+  },
+  {
+   "fieldname": "login_tab",
+   "fieldtype": "Tab Break",
+   "label": "Login Page"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "login_section",
+   "fieldtype": "Section Break",
+   "label": "Login Page"
+  },
+  {
+   "default": "Split",
+   "fieldname": "login_layout",
+   "fieldtype": "Select",
+   "label": "Login Layout",
+   "options": "Split\nCentered\nMinimal"
+  },
+  {
+   "description": "Shown under the login heading.",
+   "fieldname": "login_tagline",
+   "fieldtype": "Data",
+   "label": "Login Tagline"
+  },
+  {
+   "fieldname": "login_bg_image",
+   "fieldtype": "Attach Image",
+   "label": "Login Background Image"
+  },
+  {
+   "fieldname": "login_panel_section",
+   "fieldtype": "Section Break",
+   "label": "Brand Panel"
+  },
+  {
+   "default": "1",
+   "description": "The panel beside the sign-in form. Turn it off for a plain, centred form.",
+   "fieldname": "login_show_brand_panel",
+   "fieldtype": "Check",
+   "label": "Show Brand Panel"
+  },
+  {
+   "default": "Streamline Your\nBusiness Operations",
+   "description": "One line per row. Each row becomes its own line in the heading.",
+   "fieldname": "login_heading",
+   "fieldtype": "Small Text",
+   "label": "Heading"
+  },
+  {
+   "default": "Unlock your ERP potential \u2014 build feature-rich dashboards, automate approvals and see every number in one place.",
+   "fieldname": "login_description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "default": "Role-based access control\nEncrypted sessions and audit trails\nSingle sign-on ready",
+   "description": "One per line. Each gets a tick. Leave empty to show none.",
+   "fieldname": "login_points",
+   "fieldtype": "Small Text",
+   "label": "Bullet Points"
+  },
+  {
+   "default": "300+",
+   "fieldname": "login_stat_value",
+   "fieldtype": "Data",
+   "label": "Highlight Figure"
+  },
+  {
+   "default": "implementations delivered. Be our next success story.",
+   "fieldname": "login_stat_label",
+   "fieldtype": "Data",
+   "label": "Highlight Caption"
+  },
+  {
+   "fieldname": "extras_tab",
+   "fieldtype": "Tab Break",
+   "label": "Extras"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "auto_dark_section",
+   "fieldtype": "Section Break",
+   "label": "Auto Dark Mode"
+  },
+  {
+   "default": "0",
+   "description": "Switch the desk to dark mode between the times below.",
+   "fieldname": "enable_auto_dark",
+   "fieldtype": "Check",
+   "label": "Enable Auto Dark"
+  },
+  {
+   "default": "19:00:00",
+   "depends_on": "eval:doc.enable_auto_dark==1",
+   "fieldname": "auto_dark_start",
+   "fieldtype": "Time",
+   "label": "Dark Mode Starts"
+  },
+  {
+   "default": "07:00:00",
+   "depends_on": "eval:doc.enable_auto_dark==1",
+   "fieldname": "auto_dark_end",
+   "fieldtype": "Time",
+   "label": "Dark Mode Ends"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sounds_section",
+   "fieldtype": "Section Break",
+   "label": "Sounds"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_sounds",
+   "fieldtype": "Check",
+   "label": "Enable Sounds"
+  },
+  {
+   "default": "50",
+   "depends_on": "eval:doc.enable_sounds==1",
+   "fieldname": "volume_level",
+   "fieldtype": "Int",
+   "label": "Volume Level (%)",
+   "non_negative": 1
+  },
+  {
+   "depends_on": "eval:doc.enable_sounds==1",
+   "description": "Attach a sound file per event key (save, submit, error, success, delete, click). Events without a file stay silent.",
+   "fieldname": "sound_events",
+   "fieldtype": "Table",
+   "label": "Sound Events",
+   "options": "Swift Theme Sound Event"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "make_attachments_public": 1,
+ "modified": "2026-08-25 07:00:43.434834",
+ "modified_by": "Administrator",
+ "module": "Swift Theme",
+ "name": "Swift Theme Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

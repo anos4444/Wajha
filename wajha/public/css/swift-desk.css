@@ -1,0 +1,1241 @@
+/* Swift Theme - Premium Desk Styles for Frappe v16 */
+/* Fixes: Sidebar dance, Gradient Fallback, Premium Views */
+
+/* ============================================
+   ROOT VARIABLES & GRADIENT FALLBACK
+   ============================================ */
+:root {
+    --swift-default-gradient-start: #0f172a;
+    --swift-default-gradient-end: #1e293b;
+    --swift-sidebar-transition: 0.2s ease;
+}
+
+/* Fallback canvas for when no Swift colour scheme is active at all.
+   Keyed on data-swift-themed, which boot.js sets for both colour modes —
+   the old [data-swift-theme] attribute no longer exists. */
+html:not([data-swift-themed]) {
+    background: linear-gradient(135deg, var(--swift-default-gradient-start) 0%, var(--swift-default-gradient-end) 100%);
+}
+
+html:not([data-swift-themed]) body {
+    background: transparent !important;
+}
+
+@media (prefers-color-scheme: light) {
+    html:not([data-swift-themed]) {
+        --swift-default-gradient-start: #f8fafc;
+        --swift-default-gradient-end: #e2e8f0;
+    }
+}
+
+.sidebar-inner, .standard-sidebar-section {
+    transition: opacity var(--swift-sidebar-transition) !important;
+}
+
+/* ============================================
+   THEMED DESK VIEWS
+
+   Everything below is scoped to [data-swift-themed], which boot.js sets for
+   both colour modes, and reads only variables the active theme actually
+   defines. The previous rules used --accent-color / --accent-light / --bg-light,
+   which no theme and no Frappe stylesheet ever set, so list rows, report
+   headers, kanban and dashboards stayed the same hardcoded blue whatever
+   preset was chosen — and the light greys made dark themes unreadable.
+   ============================================ */
+
+/* ---------------- List view ---------------- */
+html[data-swift-themed] .list-row-container,
+html[data-swift-themed] .filter-section,
+html[data-swift-themed] .report-summary {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--swift-radius, 12px);
+    box-shadow: var(--swift-shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.06));
+    overflow: hidden;
+}
+
+html[data-swift-themed] .filter-section,
+html[data-swift-themed] .report-summary {
+    padding: 12px;
+    margin-bottom: 16px;
+}
+
+/* The card look above sets `overflow: hidden` so the list's rounded corners
+   clip its rows. The filter bar is not a list of rows - it holds the filter and
+   sort dropdowns, and those open downward, out of the box. Clipped there, the
+   sort menu was cut off mid-item with no way to reach the rest of it. */
+html[data-swift-themed] .filter-section {
+    overflow: visible;
+}
+
+html[data-swift-themed] .list-row {
+    transition: background 0.15s ease;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+
+html[data-swift-themed] .list-row:hover {
+    background: var(--swift-accent-soft) !important;
+}
+
+html[data-swift-themed] .list-row-checkbox,
+html[data-swift-themed] input[type="checkbox"] {
+    accent-color: var(--swift-accent);
+}
+
+html[data-swift-themed] .list-count-badge,
+html[data-swift-themed] .list-stats-label {
+    background: var(--swift-accent);
+    color: var(--swift-accent-fg);
+    border-radius: 999px;
+    padding: 3px 11px;
+    font-weight: 600;
+}
+
+html[data-swift-themed] .list-subject a,
+html[data-swift-themed] .list-row-col a {
+    color: var(--text-color);
+}
+
+html[data-swift-themed] .list-row:hover .list-subject a {
+    color: var(--swift-accent);
+}
+
+html[data-swift-themed] .indicator-pill,
+html[data-swift-themed] .indicator-pill-right {
+    border-radius: 6px;
+    padding: 3px 9px;
+    font-size: 11.5px;
+    font-weight: 600;
+}
+
+/* ---------------- Report view (datatable) ---------------- */
+html[data-swift-themed] .dt-scrollable,
+html[data-swift-themed] .datatable {
+    background: var(--card-bg);
+    border-radius: var(--swift-radius, 12px);
+    overflow: hidden;
+}
+
+html[data-swift-themed] .dt-header,
+html[data-swift-themed] .dt-row-header {
+    background: linear-gradient(100deg,
+        var(--swift-primary, var(--swift-accent)),
+        var(--swift-secondary, var(--swift-accent-hover))) !important;
+    color: var(--swift-accent-fg) !important;
+    border: none;
+}
+
+html[data-swift-themed] .dt-header .dt-cell,
+html[data-swift-themed] .dt-row-header .dt-cell,
+html[data-swift-themed] .dt-cell--header .dt-cell__content {
+    background: transparent !important;
+    color: var(--swift-accent-fg) !important;
+    font-weight: 600;
+}
+
+html[data-swift-themed] .dt-dropdown__toggle,
+html[data-swift-themed] .dt-cell--header .dt-dropdown svg {
+    color: var(--swift-accent-fg) !important;
+    fill: currentColor;
+}
+
+/* Body cells follow the theme surface, not a fixed light grey */
+html[data-swift-themed] .dt-cell {
+    background: var(--card-bg);
+    color: var(--text-color);
+    border-color: var(--border-color);
+    transition: background 0.15s ease;
+}
+
+html[data-swift-themed] .dt-row:nth-child(even) .dt-cell {
+    background: var(--subtle-fg);
+}
+
+html[data-swift-themed] .dt-row:hover .dt-cell,
+html[data-swift-themed] .dt-cell--highlight {
+    background: var(--swift-accent-soft) !important;
+    color: var(--text-color) !important;
+}
+
+html[data-swift-themed] .dt-cell--focus {
+    box-shadow: inset 0 0 0 2px var(--swift-accent);
+}
+
+html[data-swift-themed] .dt-toast,
+html[data-swift-themed] .dt-paste-target {
+    background: var(--card-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+html[data-swift-themed] .dt-scrollable::-webkit-scrollbar-thumb {
+    background: var(--swift-accent-soft);
+}
+
+/* ---------------- Kanban ----------------
+
+   The board container is `.kanban`. The rules here used to target
+   `.kanban-board`, which Frappe does not render — so none of them applied and
+   the board kept its stock look however the theme was set.
+
+   Frappe writes the column's status colour as an *inline* background
+   (`style="background-color: var(--bg-orange)"` in kanban_column.html), which
+   floods the whole column in a pastel from its own palette — that is what made
+   one column peach and the next green regardless of the theme. Inline styles
+   outrank a stylesheet, so !important is the only way to reach it. The status
+   colour is not lost: the `.indicator-pill` dot in each column header already
+   carries it, which is what that dot is for. */
+html[data-swift-themed] .kanban {
+    /* Transparent, so the preset's backdrop shows behind the board rather
+       than a flat slab sitting on top of it. */
+    background: transparent;
+    gap: 12px;
+    padding: 4px;
+}
+
+html[data-swift-themed] .kanban .kanban-column {
+    /* The same per-preset mark the card headers carry, from the two custom
+       properties swift-preset-accents.css defines — Iron Man's armour
+       plating, Loki's chevrons, and so on. Reusing those tokens means a
+       column belongs to its preset without a single extra rule per preset,
+       and a new preset picks this up for free. */
+    background:
+        var(--swift-head-accent,
+            linear-gradient(180deg,
+                var(--swift-primary, var(--swift-accent)),
+                var(--swift-secondary, var(--swift-accent-hover))))
+            left top / var(--swift-head-accent-size, 3px 100%) no-repeat,
+        var(--card-bg) !important;
+    border: 1px solid var(--border-color);
+    border-radius: var(--swift-radius, 12px);
+    padding: 12px 12px 12px 18px;
+    box-shadow: var(--swift-shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.06));
+}
+
+/* The header is a label, not a banner — it used to carry the full two-colour
+   gradient, which put a coloured pill around every column title and around
+   the "+ Add Column" link, since both share this class. */
+html[data-swift-themed] .kanban .kanban-column-header {
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+html[data-swift-themed] .kanban .kanban-column-title {
+    background: none;
+    color: var(--heading-color);
+    font-weight: 650;
+    padding: 0;
+}
+
+/* The "+ Add" affordance sits at the top of every column, so it repeats as
+   many times as there are columns — it reads as an outline waiting to be
+   filled rather than as another card. */
+html[data-swift-themed] .kanban .add-card {
+    background-color: transparent;
+    border: 1px dashed color-mix(in oklab, var(--swift-accent) 40%, var(--border-color));
+    color: var(--text-muted);
+    border-radius: var(--swift-radius-sm, 8px);
+    height: auto;
+    padding: 6px 0;
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+html[data-swift-themed] .kanban .add-card:hover {
+    background-color: var(--swift-accent-soft);
+    border-color: var(--swift-accent);
+    color: var(--swift-accent);
+}
+
+/* Frappe gives every card a min-height of 100px, so a card with nothing but a
+   title — which is most of them — was mostly empty space, and the meta row was
+   pushed to the far bottom by the space-between. Let the card be as tall as
+   what is in it. */
+html[data-swift-themed] .kanban .kanban-cards .kanban-card {
+    background: var(--card-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--swift-radius-sm, 8px);
+    min-height: 0;
+    margin-top: 8px;
+    box-shadow: none;
+    /* Colour and shadow only — a transform would make the card a containing
+       block for anything it positions, which is the trap documented against
+       the widgets below. */
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+html[data-swift-themed] .kanban .kanban-cards .kanban-card:hover {
+    border-color: var(--swift-accent);
+    box-shadow:
+        0 1px 2px color-mix(in oklab, var(--swift-primary, var(--swift-accent)) 12%, transparent),
+        0 8px 20px -14px color-mix(in oklab, var(--swift-primary, var(--swift-accent)) 40%, transparent);
+}
+
+html[data-swift-themed] .kanban .kanban-card-body {
+    padding: 10px 12px;
+}
+
+html[data-swift-themed] .kanban .kanban-card-title {
+    color: var(--heading-color);
+    font-weight: 600;
+}
+
+html[data-swift-themed] .kanban .kanban-card-doc {
+    color: var(--text-muted);
+}
+
+/* An empty doc line or meta row still reserved its margin, which is where the
+   gap under each title came from. */
+html[data-swift-themed] .kanban .kanban-title-area:has(.kanban-card-doc:empty) {
+    margin-bottom: 0;
+}
+
+html[data-swift-themed] .kanban .kanban-card-meta:empty {
+    display: none;
+}
+
+html[data-swift-themed] .kanban .kanban-card-meta .like-action.liked .icon use {
+    stroke: var(--swift-accent);
+    fill: var(--swift-accent);
+}
+
+/* The placeholder left behind while a card is being dragged. */
+html[data-swift-themed] .kanban .sortable-ghost > .kanban-card:not(.add-card) {
+    background: var(--swift-accent-soft) !important;
+    border-style: dashed;
+    border-color: var(--swift-accent);
+}
+
+/* ---------------- Dashboards ---------------- */
+html[data-swift-themed] .widget,
+html[data-swift-themed] .dashboard-section .frappe-card {
+    background: var(--card-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--swift-radius, 12px);
+    box-shadow: var(--swift-shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.06));
+    overflow: hidden;
+}
+
+/* The header used to be a full-width two-colour gradient bar with white text
+   on every widget, on every dashboard — a page with five widgets was five
+   identical loud stripes, and the number cards below carried the same
+   gradient again. It reads as the same surface as the rest of the card now,
+   with the pair kept to a slim left accent, so a dashboard full of widgets
+   looks like one calm design rather than a wall of colour repeated per tile. */
+/* The accent is a background strip rather than a border-left, because a
+   border can only ever be a plain line — a background can be shaped, which
+   is what lets each preset carry its own mark here (swift-preset-accents.css
+   overrides the two custom properties below). Drawn with background rather
+   than a ::before so .widget-head needs no `position`, which would change
+   where its own dropdown anchors. */
+html[data-swift-themed] .widget .widget-head {
+    background:
+        var(--swift-head-accent,
+            linear-gradient(180deg,
+                var(--swift-primary, var(--swift-accent)),
+                var(--swift-secondary, var(--swift-accent-hover))))
+            left top / var(--swift-head-accent-size, 3px 100%) no-repeat,
+        var(--card-bg);
+    color: var(--heading-color);
+    padding: 10px 16px 10px 13px;
+    font-weight: 650;
+    border-radius: var(--swift-radius, 12px) var(--swift-radius, 12px) 0 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* .widget-title sits *inside* .widget-head, so styling both identically drew
+   the accent twice — once down the card's edge and again beside the title
+   text. It is the label, and only the label. */
+html[data-swift-themed] .widget-title {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--heading-color);
+    font-weight: 650;
+}
+
+/* A widget-group-head is not a widget's own header — it is the section
+   label above several of them ("Assets", "Reports & Masters"), and it used
+   to be styled as if it were just another widget-head: same card background,
+   same left border, indistinguishable from the individual card titles sitting
+   right beneath it. It reads as a section heading now instead — no card
+   background, an underline instead of a boxed border — so a workspace visibly
+   separates "this groups what follows" from "this is one of the cards." */
+html[data-swift-themed] .widget-group-head {
+    background: transparent;
+    color: var(--heading-color);
+    font-size: 1.05em;
+    font-weight: 700;
+    border-radius: 0;
+    border-bottom: 2px solid var(--swift-primary, var(--swift-accent));
+}
+
+html[data-swift-themed] .widget-group-title {
+    color: var(--heading-color);
+}
+
+/* Frappe sets no spacing between a group's label and the cards under it, so
+   the two sat flush and the heading read as part of the first card rather
+   than as the thing naming the row. */
+html[data-swift-themed] .widget-group-body {
+    margin-top: 10px;
+}
+
+html[data-swift-themed] .widget .widget-head *,
+html[data-swift-themed] .widget .widget-head .widget-title,
+html[data-swift-themed] .widget .widget-head .drag-handle {
+    color: var(--heading-color);
+}
+
+html[data-swift-themed] .widget .widget-head .widget-control svg,
+html[data-swift-themed] .widget .widget-head .dropdown-btn {
+    color: var(--text-muted);
+    fill: currentColor;
+    opacity: 0.85;
+}
+
+html[data-swift-themed] .widget .widget-subtitle,
+html[data-swift-themed] .widget .widget-footer,
+html[data-swift-themed] .dashboard-section .text-muted {
+    color: var(--text-muted) !important;
+}
+
+/* Number cards: the same surface as every other card, with the pair kept to
+   a slim top accent and the figure itself — a KPI tile should read as part
+   of the dashboard, not a louder, different product sitting on top of it. */
+html[data-swift-themed] .number-card,
+html[data-swift-themed] .number-widget-box {
+    position: relative;
+    background: var(--card-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--swift-radius, 12px);
+    padding: 18px;
+    box-shadow: var(--swift-shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.06));
+    overflow: hidden;
+}
+
+html[data-swift-themed] .number-card::before,
+html[data-swift-themed] .number-widget-box::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: linear-gradient(90deg,
+        var(--swift-primary, var(--swift-accent)),
+        var(--swift-secondary, var(--swift-accent-hover)));
+}
+
+/* The figure itself carries the pair — gated behind @supports so a browser
+   without background-clip:text still shows it in a plain, readable colour
+   rather than a transparent one it can't fill any other way. */
+html[data-swift-themed] .number-card .number,
+html[data-swift-themed] .number-widget-box .widget-title,
+html[data-swift-themed] .number-widget-box .number {
+    color: var(--heading-color);
+}
+
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+    html[data-swift-themed] .number-card .number,
+    html[data-swift-themed] .number-widget-box .widget-title,
+    html[data-swift-themed] .number-widget-box .number {
+        background: linear-gradient(100deg,
+            var(--swift-primary, var(--swift-accent)),
+            var(--swift-secondary, var(--swift-accent-hover)) 80%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+}
+
+html[data-swift-themed] .number-card .card-label,
+html[data-swift-themed] .number-widget-box .card-label {
+    color: var(--text-muted) !important;
+}
+
+/* A faint solid tint of the preset's own primary — not a gradient, just a
+   shifted background-color — so a number card carries that preset's colour
+   mood rather than reading as the same neutral tile whatever theme is
+   active. Kept faint enough that --text-color stays legible on top of it. */
+html[data-swift-themed] .number-card,
+html[data-swift-themed] .number-widget-box {
+    background: color-mix(in oklab, var(--swift-primary, var(--swift-accent)) 6%, var(--card-bg));
+}
+
+/* ========================================================================
+   WORKSPACE WIDGETS — shortcuts, report links, quick lists
+
+   All three share the same .widget/.widget-head shell (styled above), which
+   is why a Shortcut, a Links list and a Number Card previously looked like
+   the same box with different insides. Each gets one thing that marks what
+   kind of tile it is at a glance, rather than a full second theme.
+   ======================================================================== */
+
+/* Shortcuts are buttons in disguise — one click, one destination — so they
+   get the theme's own accent as their hover cue instead of Frappe's generic
+   --invert-neutral, which ignored the theme entirely. */
+html[data-swift-themed] .shortcut-widget-box {
+    background: var(--card-bg);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+html[data-swift-themed] .shortcut-widget-box:hover {
+    border-color: var(--swift-accent) !important;
+    box-shadow: 0 10px 22px -16px color-mix(in oklab, var(--swift-accent) 70%, transparent);
+}
+
+html[data-swift-themed] .shortcut-widget-box:hover .widget-label .widget-title,
+html[data-swift-themed] .shortcut-widget-box:focus-visible .widget-label .widget-title {
+    color: var(--swift-accent) !important;
+}
+
+html[data-swift-themed] .shortcut-widget-box .widget-control svg {
+    stroke: var(--swift-accent);
+    opacity: 0.7;
+}
+
+/* A links widget is a destination list, not a button — no hover lift, just
+   each row picking up the accent as you scan down it. */
+html[data-swift-themed] .links-widget-box .link-item:hover .link-content,
+html[data-swift-themed] .links-widget-box .link-item:focus-visible .link-content {
+    color: var(--swift-accent);
+}
+
+html[data-swift-themed] .links-widget-box .link-item:hover svg,
+html[data-swift-themed] .links-widget-box .link-item:focus-visible svg {
+    stroke: var(--swift-accent);
+}
+
+/* Quick lists show real records, so the row itself gets the same hover wash
+   as every other themed list row on the desk — consistent with list view and
+   the sidebar, rather than inventing a fourth hover treatment. Frappe's own
+   red/yellow/blue/gray indicator dots are left alone: those are status
+   signals (draft, overdue), not brand colour, and recolouring them would make
+   the status harder to read at a glance. */
+html[data-swift-themed] .quick-list-widget-box .quick-list-item:hover {
+    background: var(--swift-accent-soft);
+}
+
+/* Onboarding is a checklist, so its own identity is progress: the active
+   step and the current hover get the theme's accent instead of Frappe's
+   generic --subtle-fg. The complete/pending/skipped step icons are left
+   untouched — those are status, same reasoning as the quick-list dots above. */
+html[data-swift-themed] .onboarding-widget-box .onboarding-step.active,
+html[data-swift-themed] .onboarding-widget-box .onboarding-step:hover {
+    background: var(--swift-accent-soft) !important;
+}
+
+html[data-swift-themed] .onboarding-widget-box .onboarding-step.active .step-text {
+    color: var(--swift-accent);
+    font-weight: 600;
+}
+
+/* A chart widget is the one tile that is mostly picture rather than text, so
+   it gets no left accent bar competing with the plot — the chart's own colours
+   are the content. Only the frame is themed. */
+html[data-swift-themed] .dashboard-widget-box > .widget-head {
+    border-left: none;
+    padding-left: 16px;
+}
+
+html[data-swift-themed] .dashboard-widget-box .filter-chart {
+    background: var(--control-bg, var(--subtle-fg));
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+}
+
+/* A custom block is someone else's HTML — the theme frames it and stays out.
+   Its header floats over the content (Frappe positions it absolute), so an
+   accent bar there would cut across whatever the block itself draws. */
+html[data-swift-themed] .custom-block-widget-box > .widget-head {
+    border-left: none;
+    border-bottom: none;
+    background: transparent;
+}
+
+/* "+ New Shortcut" placeholders in edit mode. Frappe gives them a hardcoded
+   --gray-400 dashed border, which is invisible on dark themes and ignores the
+   palette on light ones. They are an invitation, so they read as an outline
+   waiting to be filled rather than a card that already exists. */
+html[data-swift-themed] .widget.new-widget {
+    background: transparent;
+    border: 1px dashed color-mix(in oklab, var(--swift-accent) 45%, var(--border-color));
+    color: var(--text-muted);
+}
+
+html[data-swift-themed] .widget.new-widget:hover {
+    border-color: var(--swift-accent);
+    color: var(--swift-accent);
+    background: var(--swift-accent-soft);
+}
+
+/* ---- Workspace text blocks ----
+   A workspace is not only widgets: headings, paragraphs and spacers are
+   editor.js blocks that sit between them. They were left entirely unthemed,
+   so a heading was whatever Frappe's default happened to be and carried
+   none of the preset. */
+
+/* The heading is the label that names each band of a workspace, so it is the
+   second-most repeated thing on the page after the cards themselves — which
+   is why it earns a per-preset accent of its own (see
+   swift-preset-accents.css) rather than only a colour. */
+html[data-swift-themed] .ce-header {
+    color: var(--heading-color);
+    position: relative;
+    padding-bottom: 6px;
+}
+
+html[data-swift-themed] .ce-header b {
+    color: var(--heading-color);
+}
+
+html[data-swift-themed] .ce-header::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 42px;
+    height: 3px;
+    border-radius: 2px;
+    background: linear-gradient(90deg,
+        var(--swift-primary, var(--swift-accent)),
+        var(--swift-secondary, var(--swift-accent-hover)));
+}
+
+html[data-swift-themed] .widget.paragraph,
+html[data-swift-themed] .ce-paragraph {
+    color: var(--text-color);
+}
+
+/* A spacer is deliberate empty room. It must not gain a background, a border
+   or an accent — anything visible defeats the point of it. */
+html[data-swift-themed] .widget.spacer {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+/* The label under it is metadata, not prose — it reads better small, spaced
+   and quiet, so the figure stays the thing your eye lands on. */
+html[data-swift-themed] .number-card .card-label,
+html[data-swift-themed] .number-widget-box .card-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+/* Two-layer shadows: a tight contact shadow plus a wider soft one. A single
+   flat shadow is what makes a card look pasted on rather than resting on the
+   page. Tinted with the theme's own primary so the depth belongs to the
+   preset instead of being generic grey. */
+html[data-swift-themed] .widget,
+html[data-swift-themed] .number-card,
+html[data-swift-themed] .number-widget-box,
+html[data-swift-themed] .dashboard-section .frappe-card {
+    box-shadow:
+        0 1px 2px color-mix(in oklab, var(--swift-primary, var(--swift-accent)) 10%, transparent),
+        0 8px 24px -12px color-mix(in oklab, var(--swift-primary, var(--swift-accent)) 22%, transparent);
+    transition: box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+html[data-swift-themed] .widget:hover,
+html[data-swift-themed] .number-card:hover,
+html[data-swift-themed] .number-widget-box:hover {
+    box-shadow:
+        0 1px 2px color-mix(in oklab, var(--swift-primary, var(--swift-accent)) 14%, transparent),
+        0 14px 34px -14px color-mix(in oklab, var(--swift-primary, var(--swift-accent)) 34%, transparent);
+    border-color: color-mix(in oklab, var(--swift-accent) 35%, var(--border-color));
+}
+
+/* Spacers and the dashed placeholder are the two that must not gain depth —
+   one is empty room, the other is an outline waiting to be filled. */
+html[data-swift-themed] .widget.spacer,
+html[data-swift-themed] .widget.new-widget,
+html[data-swift-themed] .widget.spacer:hover,
+html[data-swift-themed] .widget.new-widget:hover {
+    box-shadow: none;
+}
+
+/* Empty and loading states were Frappe's plain muted text on a bare card —
+   the emptiest part of the page also being the least designed. Centred,
+   quieter, and given room so a card with no data still looks intentional. */
+html[data-swift-themed] .chart-loading-state,
+html[data-swift-themed] .list-no-data-state,
+html[data-swift-themed] .list-loading-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 13px;
+    letter-spacing: 0.01em;
+    background:
+        radial-gradient(60% 60% at 50% 45%,
+            color-mix(in oklab, var(--swift-primary, var(--swift-accent)) 5%, transparent),
+            transparent 70%);
+    border-radius: var(--swift-radius, 12px);
+}
+
+/* One focus ring for every interactive thing on a workspace. Keyboard users
+   were getting the browser default on some of these and nothing at all on
+   others, because Frappe's own :focus-visible rules only cover its shortcuts. */
+html[data-swift-themed] .shortcut-widget-box:focus-visible,
+html[data-swift-themed] .links-widget-box .link-item:focus-visible,
+html[data-swift-themed] .quick-list-widget-box .quick-list-item:focus-visible,
+html[data-swift-themed] .onboarding-widget-box .onboarding-step:focus-visible,
+html[data-swift-themed] .widget.new-widget:focus-visible {
+    outline: 2px solid var(--swift-accent);
+    outline-offset: 2px;
+    border-radius: var(--swift-radius-sm, 6px);
+}
+
+/* ---- Charts ----
+   frappe-charts hardcodes a light palette on :root (white tooltip, near-black
+   labels, near-white axis lines), which is why the chart stayed a white slab
+   on dark themes. Re-point its own variables at the theme. */
+html[data-swift-themed] {
+    --charts-label-color: var(--text-muted);
+    --charts-axis-line-color: var(--border-color);
+    --charts-tooltip-title: var(--text-muted);
+    --charts-tooltip-label: var(--text-muted);
+    --charts-tooltip-value: var(--text-color);
+    --charts-tooltip-bg: var(--card-bg);
+    --charts-dataset-circle-stroke: var(--card-bg);
+    --charts-legend-label: var(--text-muted);
+    --charts-legend-value: var(--text-color);
+}
+
+html[data-swift-themed] .chart-container,
+html[data-swift-themed] .chart-wrapper,
+html[data-swift-themed] .widget.chart-widget .widget-body,
+html[data-swift-themed] .frappe-chart {
+    background: var(--card-bg) !important;
+    border-radius: 0 0 var(--swift-radius, 12px) var(--swift-radius, 12px);
+}
+
+html[data-swift-themed] .chart-container {
+    padding: 12px;
+}
+
+html[data-swift-themed] .frappe-chart .chart-label,
+html[data-swift-themed] .frappe-chart text,
+html[data-swift-themed] .chart-container text {
+    fill: var(--text-muted) !important;
+}
+
+html[data-swift-themed] .frappe-chart .axis line,
+html[data-swift-themed] .chart-container .axis line,
+html[data-swift-themed] .frappe-chart .y-axis-guide,
+html[data-swift-themed] .chart-container .y-axis-guide {
+    stroke: var(--border-color) !important;
+}
+
+html[data-swift-themed] .graph-svg-tip {
+    background: var(--card-bg) !important;
+    color: var(--text-color) !important;
+    border: 1px solid var(--border-color);
+    border-radius: 9px;
+}
+
+html[data-swift-themed] .graph-svg-tip .svg-pointer {
+    fill: var(--card-bg) !important;
+    stroke: var(--border-color);
+}
+
+html[data-swift-themed] .graph-svg-tip .title,
+html[data-swift-themed] .graph-svg-tip .data-point-list li {
+    color: var(--text-color) !important;
+}
+
+/* Shortcut / link cards on a workspace */
+html[data-swift-themed] .widget.shortcut-widget-box,
+html[data-swift-themed] .widget.links-widget-box {
+    background: var(--card-bg);
+}
+
+html[data-swift-themed] .widget.shortcut-widget-box:hover {
+    border-color: var(--swift-accent);
+    box-shadow: 0 6px 18px -8px var(--swift-primary, var(--swift-accent));
+}
+
+html[data-swift-themed] .link-item,
+html[data-swift-themed] .widget .link-item a {
+    color: var(--text-color);
+}
+
+html[data-swift-themed] .link-item:hover,
+html[data-swift-themed] .widget .link-item a:hover {
+    color: var(--swift-accent);
+    background: var(--swift-accent-soft);
+}
+
+/* ---------------- Breadcrumbs and page head ----------------
+
+   Breadcrumbs were the last part of the desk still wearing Frappe's own
+   colours. They read --ink-gray-4/5/7 for their text, separators and hover,
+   and no preset defines any of those — so the trail above every page stayed
+   the same grey whichever theme was active, which is the same silent failure
+   the list and report views used to have.
+
+   Themed directly rather than by redefining the ink-gray scale: those belong
+   to Frappe and are used in places this app has no business recolouring. */
+html[data-swift-themed] .page-head {
+    background: transparent;
+}
+
+html[data-swift-themed] .navbar-breadcrumbs > li > a {
+    color: var(--text-muted);
+    transition: color 0.15s ease;
+}
+
+html[data-swift-themed] .navbar-breadcrumbs > li > a:hover {
+    color: var(--swift-accent);
+}
+
+/* The mark between items. Frappe uses a slash; a chevron points the way the
+   trail runs, which is what makes it read as a path rather than a list.
+
+   :first-child is excluded deliberately. Frappe blanks the mark before the
+   opening crumb with `li:first-child a:before`, and that selector scores a
+   class and two types — less than this one — so setting content here without
+   the exclusion would put a stray chevron in front of the module name.
+
+   Quieter than the labels either side of it, so the trail reads as words
+   rather than as punctuation. */
+html[data-swift-themed] .navbar-breadcrumbs > li:not(:first-child) > a:before {
+    content: "\203A";
+    color: color-mix(in oklab, var(--text-muted) 55%, transparent);
+    font-size: 15px;
+    font-weight: 500;
+}
+
+/* Where you actually are, as opposed to how you got here. */
+html[data-swift-themed] .navbar-breadcrumbs > li:last-child > a {
+    color: var(--heading-color);
+    font-weight: 600;
+}
+
+html[data-swift-themed] .navbar-breadcrumbs > li:last-child > a:hover {
+    color: var(--swift-accent);
+}
+
+/* ---------------- Navbar ---------------- */
+html[data-swift-themed] .navbar {
+    background: var(--navbar-bg, var(--card-bg)) !important;
+    border-bottom: 1px solid var(--border-color);
+}
+
+html[data-swift-themed] .navbar .navbar-brand,
+html[data-swift-themed] .navbar .nav-link,
+html[data-swift-themed] .navbar .dropdown-toggle {
+    color: var(--text-color);
+}
+
+html[data-swift-themed] .navbar .nav-link:hover,
+html[data-swift-themed] .navbar .dropdown-toggle:hover {
+    color: var(--swift-accent);
+}
+
+html[data-swift-themed] .navbar .navbar-icon-container .navbar-badge,
+html[data-swift-themed] .navbar .badge {
+    background: var(--swift-accent);
+    color: var(--swift-accent-fg);
+}
+
+html[data-swift-themed] .navbar .dropdown-menu,
+html[data-swift-themed] .navbar .search-bar .awesomplete ul {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--swift-shadow-md, 0 12px 30px rgba(0, 0, 0, 0.2));
+}
+
+html[data-swift-themed] .navbar .dropdown-item {
+    color: var(--text-color);
+}
+
+html[data-swift-themed] .navbar .dropdown-item:hover,
+html[data-swift-themed] .navbar .dropdown-item:focus {
+    background: var(--swift-accent-soft);
+    color: var(--swift-accent);
+}
+
+html[data-swift-themed] .navbar #navbar-search,
+html[data-swift-themed] .navbar .search-bar input {
+    background: var(--control-bg, var(--subtle-fg));
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+
+/* ---------------- Buttons and links ---------------- */
+html[data-swift-themed] .btn-primary {
+    background: linear-gradient(135deg,
+        var(--swift-primary, var(--swift-accent)),
+        var(--swift-secondary, var(--swift-accent-hover)));
+    border-color: transparent;
+    color: var(--swift-accent-fg);
+}
+
+html[data-swift-themed] .btn-primary:hover,
+html[data-swift-themed] .btn-primary:focus {
+    filter: saturate(1.08) brightness(1.04);
+    color: var(--swift-accent-fg);
+}
+
+html[data-swift-themed] a:not(.btn):not(.nav-link) {
+    color: var(--swift-accent);
+}
+
+/* ---------------- Performance mode ----------------
+   boot.js writes data-swift-perf="on"; the rule here used to key off
+   data-swift-performance="1", which nothing ever set. */
+html[data-swift-perf="off"] *,
+html[data-swift-anim="off"] * {
+    animation: none !important;
+    transition: none !important;
+}
+
+html[data-swift-anim="off"] body::before {
+    animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html[data-swift-themed] body::before {
+        animation: none !important;
+    }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    .kanban {
+        padding: 8px;
+    }
+
+    .kanban-column {
+        min-width: 280px;
+    }
+}
+
+
+
+/* ============================================
+   SWIFT PRESETS INSIDE FRAPPE'S "SWITCH THEME" DIALOG
+   Cards are rendered into a .theme-grid, so Frappe's own card styling applies
+   and only the surrounding chrome needs styles here.
+   ============================================ */
+
+.swift-switch {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border-color, #e2e8f0);
+}
+
+.swift-switch-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted, #94a3b8);
+}
+
+.swift-switch-reset {
+    border: none;
+    background: transparent;
+    padding: 2px 4px;
+    color: var(--primary-color, var(--swift-accent, #4f46e5));
+    font: inherit;
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+}
+
+.swift-switch-reset:hover {
+    text-decoration: underline;
+}
+
+/* Frappe's grid is fixed at 3 columns; twelve presets need to wrap and stay
+   compact, and the dialog needs to scroll rather than run off the screen. */
+.modal-body .theme-grid.swift-theme-grid {
+    grid-template-columns: repeat(auto-fill, minmax(116px, 1fr));
+    grid-gap: 14px;
+    max-height: 46vh;
+    overflow-y: auto;
+    padding: 2px;
+}
+
+.modal-body .theme-grid.swift-theme-grid .background {
+    height: 84px;
+}
+
+.modal-body .theme-grid.swift-theme-grid .foreground {
+    height: 28px;
+}
+
+.modal-body .theme-grid.swift-theme-grid .foreground:first-child {
+    height: 18px;
+}
+
+.modal-body .theme-grid.swift-theme-grid .theme-title {
+    font-size: 12px;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.modal-body .theme-grid.swift-theme-grid .mt-3 {
+    margin-top: 8px !important;
+}
+
+.modal-body .theme-grid.swift-theme-grid [data-swift-card] {
+    cursor: pointer;
+}
+
+/* ---- Step two: the custom colour pair ---- */
+.swift-custom {
+    margin-top: 16px;
+    padding: 14px;
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 10px;
+    background: var(--subtle-fg, rgba(148, 163, 184, 0.08));
+    animation: swift-custom-in 0.18s ease-out;
+}
+
+.swift-custom[hidden] {
+    display: none;
+}
+
+@keyframes swift-custom-in {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: none; }
+}
+
+.swift-custom-head {
+    margin-bottom: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted, #94a3b8);
+}
+
+.swift-custom-row {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.swift-custom-row label {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin: 0;
+    font-size: 11.5px;
+    color: var(--text-muted, #94a3b8);
+}
+
+.swift-custom-row input[type="color"] {
+    width: 58px;
+    height: 34px;
+    padding: 2px;
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 8px;
+    background: var(--control-bg, #fff);
+    cursor: pointer;
+}
+
+.swift-custom-apply {
+    margin-left: auto;
+}
+
+.swift-custom-preview {
+    height: 8px;
+    margin-top: 14px;
+    border-radius: 999px;
+}
+
+/* ============================================
+   CHILD TABLES (GRID)
+
+   Opening a row renders .form-in-grid as position:fixed behind a z-index 1040
+   backdrop. Nothing here may create a stacking context around it — see the
+   note on body::before in swift-preset-base.css for the bug that caused.
+   ============================================ */
+
+html[data-swift-themed] .form-grid {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--swift-radius, 10px);
+}
+
+html[data-swift-themed] .grid-heading-row {
+    background: var(--subtle-fg);
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+html[data-swift-themed] .grid-row {
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+
+html[data-swift-themed] .grid-row:hover {
+    background: var(--swift-accent-soft);
+}
+
+html[data-swift-themed] .grid-static-col,
+html[data-swift-themed] .grid-row .col {
+    color: var(--text-color);
+    border-color: var(--border-color);
+}
+
+html[data-swift-themed] .grid-row-check,
+html[data-swift-themed] .grid-row input[type="checkbox"] {
+    accent-color: var(--swift-accent);
+}
+
+/* The pencil — visible enough to find, quiet enough not to shout */
+html[data-swift-themed] .btn-open-row {
+    color: var(--text-muted);
+    border-radius: 6px;
+    transition: color 0.15s ease, background 0.15s ease;
+}
+
+html[data-swift-themed] .btn-open-row:hover,
+html[data-swift-themed] .grid-row:hover .btn-open-row {
+    color: var(--swift-accent);
+    background: var(--swift-accent-soft);
+}
+
+html[data-swift-themed] .btn-open-row svg,
+html[data-swift-themed] .btn-open-row .icon {
+    stroke: currentColor;
+    fill: none;
+}
+
+/* The row currently being edited, so it reads as selected */
+html[data-swift-themed] .grid-row-open > .data-row,
+html[data-swift-themed] .grid-row.grid-row-open {
+    background: var(--swift-accent-soft);
+    box-shadow: inset 3px 0 0 0 var(--swift-primary, var(--swift-accent));
+}
+
+/* The floating editor panel itself */
+html[data-swift-themed] .grid-row-open .form-in-grid {
+    background: var(--card-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--swift-radius, 12px);
+    box-shadow: 0 26px 60px -20px rgba(0, 0, 0, 0.55);
+}
+
+html[data-swift-themed] .grid-row-open .form-in-grid .form-tabs-list {
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+html[data-swift-themed] .grid-row-open .form-in-grid .nav-link {
+    color: var(--text-muted);
+}
+
+html[data-swift-themed] .grid-row-open .form-in-grid .nav-link.active {
+    color: var(--swift-accent);
+    border-bottom-color: var(--swift-accent);
+}
+
+html[data-swift-themed] .grid-form-body,
+html[data-swift-themed] .grid-form-body .form-section {
+    background: var(--card-bg);
+    border: none;
+}
+
+html[data-swift-themed] .grid-footer,
+html[data-swift-themed] .grid-buttons {
+    background: var(--subtle-fg);
+    border-top: 1px solid var(--border-color);
+}
+
+html[data-swift-themed] .grid-empty {
+    color: var(--text-muted);
+    background: transparent;
+}
+
+/* Inline-editable cell being typed into */
+html[data-swift-themed] .editable-row .field-area input,
+html[data-swift-themed] .grid-row .form-control {
+    background: var(--control-bg, var(--subtle-fg));
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+
+html[data-swift-themed] .editable-row .field-area input:focus,
+html[data-swift-themed] .grid-row .form-control:focus {
+    border-color: var(--swift-accent);
+    box-shadow: 0 0 0 2px var(--swift-accent-soft);
+}
+
+/* ---- Child-table editor: colour only ----
+   Default Frappe already makes this work:
+       #freeze.grid-form            z-index 1020, opacity .8 of --bg-color
+       .grid-row-open .form-in-grid position fixed, z-index 1021, opacity 1
+   The editor is usable purely because 1021 sits above 1020 in the ROOT
+   stacking context. Re-declaring any of that here risks fighting Frappe on a
+   future release, and creating a stacking context around the desk breaks it
+   outright (see body::before in swift-preset-base.css). So this section sets
+   surfaces and nothing else — no z-index, opacity, position or pointer-events.
+
+   The backdrop is left exactly as Frappe ships it. It only looked like the
+   page had been bleached because the editor was rendering *underneath* it. */
+
+html[data-swift-themed] {
+    /* Frappe paints the editor and modals with --modal-bg, which it leaves as
+       plain white (or gray-900 in dark), so the panel ignored the theme. */
+    --modal-bg: var(--card-bg);
+}
+
+html[data-swift-themed] .grid-row-open .form-in-grid {
+    border: 1px solid var(--border-color);
+    border-radius: var(--swift-radius, 12px);
+    box-shadow: 0 26px 60px -20px rgba(0, 0, 0, 0.5);
+}
+
+html[data-swift-themed] .grid-form-heading,
+html[data-swift-themed] .grid-form-heading .grid-form-control {
+    color: var(--text-color);
+}
+
+/* The item-search suggestions inside the editor */
+html[data-swift-themed] .form-in-grid .awesomplete > ul,
+html[data-swift-themed] .form-in-grid .awesomplete > ul li {
+    background: var(--card-bg);
+    color: var(--text-color);
+    border-color: var(--border-color);
+}
+
+html[data-swift-themed] .form-in-grid .awesomplete > ul li:hover,
+html[data-swift-themed] .form-in-grid .awesomplete > ul li[aria-selected="true"] {
+    background: var(--swift-accent-soft);
+    color: var(--swift-accent);
+}
+
+
+/* Workspaces is the one route Frappe paints .layout-main-section on itself
+   ([data-page-route="Workspaces"] in desktop.scss). Left alone it would be the
+   single page where the backdrop stays hidden. */
+html[data-swift-themed]:not([data-swift-backdrop="none"])
+  [data-page-route="Workspaces"] .layout-main-section {
+  background-color: transparent;
+}
+
+

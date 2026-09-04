@@ -67,6 +67,38 @@ even legal for a given module before touching the DocType.
 - DocTypes: `Shell Settings` (single), `Shell Theme`, `Shell Module` +
   `Shell Module Column` / `Shell Module Filter` (child tables).
 
+## Swift Theme module (since 0.6.0)
+
+A second Frappe module, `Swift Theme`, ported whole from
+`its-alikhokher/swift_theme` (MIT; attribution in `license.txt`): twelve
+per-user colour presets in Frappe's own Switch Theme dialog, custom-colour
+palette derivation, a server-rendered login page (`wajha/www/login.*`), an
+optional desk landing page (`swift-home`), density/shape/font prefs, sounds,
+focus mode. Layout:
+
+- `wajha/swift/` — server code: `boot.py` (bootinfo + user prefs; the
+  `extend_bootinfo` hook), `home.py` (landing-page data), `colour.py`
+  (palette maths, mirrored in `swift-boot.js` — a parity harness in
+  `wajha/tests/derive_roles_parity.js` compares the two, keep them in step),
+  `install.py` (User Custom Fields + settings seeding, on both install and
+  migrate), `generate_theme_css.py` (regenerates `public/css/themes/*.css`
+  from `PREMIUM_THEMES`; note `vision.css` carries a deliberate hand-tuned
+  sidebar fill the generator does not reproduce — don't blindly regenerate).
+- `wajha/swift_theme/` — the doctypes (`Swift Theme Settings` single, sound
+  events, home cards) and the `swift-home` page.
+- `public/css/swift-*.css`, `public/css/themes/`, `public/js/swift-*.js` —
+  listed individually in `hooks.py` in the upstream bundle order, which is
+  load-bearing (cascade ties are settled by order; `swift-boot.js` must run
+  first among the swift scripts). Any new file added there needs
+  `_versioned()` like everything else.
+- Ported identifiers that must NOT be renamed: bootinfo key
+  `frappe.boot.swift_theme`, realtime event `swift_theme_updated`,
+  localStorage keys `swift_*` — the JS is keyed on all three.
+- Upstream's bench integration suite and `patches/v1_0/*` were deliberately
+  not ported (the patches migrate old standalone installs; seeding produces
+  their end state). The two Node suites in `wajha/tests/` run with plain
+  `node` and must pass.
+
 ## Testing discipline — read this before trusting a green result
 
 **A check that can only pass is not a check.** Every functional test in this
