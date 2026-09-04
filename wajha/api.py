@@ -89,6 +89,9 @@ def get_config():
             "mobile_breakpoint": cint(s.mobile_breakpoint) or 900,
             "show_clock": bool(s.show_clock),
             "show_user_chip": bool(s.show_user_chip),
+            # Absent field (site not yet migrated to 0.9) counts as on: the exit
+            # to the rest of the Desk must never disappear by accident.
+            "show_desk_link": bool(s.show_desk_link) if s.meta.has_field("show_desk_link") else True,
             "hide_desk_sidebar": bool(s.hide_desk_sidebar),
             "apply_font_globally": bool(s.apply_font_globally),
             "apply_theme_globally": bool(s.apply_theme_globally),

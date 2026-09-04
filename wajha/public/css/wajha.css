@@ -138,6 +138,41 @@
 	opacity: .75;
 }
 
+.wj-desk-link {
+	margin-top: auto;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	width: 100%;
+	padding: 9px 12px;
+	border: 1px solid rgba(255, 255, 255, .35);
+	border-radius: 10px;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	font-size: 13px;
+	cursor: pointer;
+	text-align: start;
+}
+
+.wj-desk-link:hover,
+.wj-desk-link:focus-visible {
+	background: rgba(255, 255, 255, .12);
+	outline: none;
+}
+
+.wj-desk-link .wj-en {
+	font-size: 11px;
+	opacity: .75;
+}
+
+/* When the desk link is present it takes the flexible gap; the footer note
+   sits just below it instead of pushing to the bottom on its own. */
+.wj-desk-link + .wj-foot {
+	margin-top: 8px;
+}
+
 .wj-foot {
 	margin-top: auto;
 	font-size: 11px;

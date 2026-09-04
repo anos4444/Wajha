@@ -73,6 +73,9 @@ class WajhaShell {
 						</div>
 					</div>
 					<nav class="wj-nav"></nav>
+					${layout.show_desk_link ? `<button class="wj-desk-link" type="button">
+						<span>↩ ${__("العودة إلى Frappe")}</span><span class="wj-en">Frappe Desk</span>
+					</button>` : ''}
 					${b.footer_note ? `<div class="wj-foot">${frappe.utils.escape_html(b.footer_note)}</div>` : ''}
 				</aside>
 				<main class="wj-main">
@@ -95,6 +98,10 @@ class WajhaShell {
 		this.render_nav();
 		this.render_chips(layout);
 		this.bind_drawer();
+		// The shell hides Frappe's own sidebar and app switcher on its route, so
+		// without this a user has no visible way to reach the other apps; the
+		// Home workspace brings the full Desk (and its switcher) back.
+		this.$shell.find('.wj-desk-link').on('click', () => frappe.set_route('home'));
 	}
 
 	render_nav() {
