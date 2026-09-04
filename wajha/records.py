@@ -117,7 +117,9 @@ def _sections(module, doc, meta, readable):
         if df.permlevel not in readable:
             return None
         out = _format(df, value, doc)
-        out.update({"fieldname": df.fieldname, "label": df.label or df.fieldname, "fieldtype": df.fieldtype})
+        # Through frappe._ so an ERPNext label reads in the user's language,
+        # exactly as the form would show it.
+        out.update({"fieldname": df.fieldname, "label": frappe._(df.label or df.fieldname), "fieldtype": df.fieldtype})
         return out
 
     if wanted:
@@ -129,7 +131,7 @@ def _sections(module, doc, meta, readable):
         if df.fieldtype in ("Section Break", "Tab Break"):
             if current["fields"]:
                 sections.append(current)
-            current = {"label": df.label or "", "fields": []}
+            current = {"label": frappe._(df.label) if df.label else "", "fields": []}
             continue
         if df.hidden:
             continue
@@ -157,8 +159,8 @@ def _tables(doc, meta, readable):
             continue
         out.append({
             "fieldname": df.fieldname,
-            "label": df.label or df.options,
-            "columns": [{"fieldname": c.fieldname, "label": c.label or c.fieldname} for c in cols],
+            "label": frappe._(df.label or df.options),
+            "columns": [{"fieldname": c.fieldname, "label": frappe._(c.label or c.fieldname)} for c in cols],
             "rows": [
                 {c.fieldname: (_format(c, row.get(c.fieldname), row)["value"]
                                if row.get(c.fieldname) not in (None, "") else "")
