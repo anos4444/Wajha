@@ -29,7 +29,7 @@ TOKEN_FIELDS = [
     "sidebar_width",
 ]
 
-MAX_PAGE_LENGTH = 200
+MAX_PAGE_LENGTH = 500  # ERPNext's own largest list page
 
 # Native ERPNext docstatus values, exposed to the client so it never has to
 # guess badge text/colour on its own.
@@ -286,8 +286,8 @@ def get_module_data(module_key, page=1, filters=None, search=None,
     or_filters = _search_filters(module, search, real)
 
     page = max(cint(page), 1)
-    # The client may ask for more rows per page (the shell offers 20/50/100/
-    # 200); the module's own setting is the default and MAX_PAGE_LENGTH the
+    # The client may ask for more rows per page (the shell offers 20/100/500,
+    # ERPNext's sizes); the module's own setting is the default and MAX_PAGE_LENGTH the
     # ceiling either way, so a hand-edited request cannot pull the whole table.
     page_length = min(cint(page_length) or cint(module.page_length) or 20, MAX_PAGE_LENGTH)
     page_length = max(page_length, 1)

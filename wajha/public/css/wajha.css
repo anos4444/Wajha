@@ -428,15 +428,16 @@
 	margin: 0;
 }
 
-.wj-pagesize select {
-	font-family: inherit;
-	font-size: 13px;
-	min-height: 36px;
-	padding: 6px 8px;
-	border: 1px solid var(--wj-border);
-	border-radius: 8px;
-	color: inherit;
-	background: transparent;
+.wj-pagesize .wj-page-length {
+	min-height: 32px;
+	padding: 4px 10px;
+	font-size: 12px;
+}
+
+.wj-pagesize .wj-page-length.active {
+	background: var(--wj-primary);
+	border-color: var(--wj-primary);
+	color: #fff;
 }
 
 .wj-pager {

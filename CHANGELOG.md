@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.11.0 — 2026-09-05
+
+**Paging works exactly like ERPNext's list view.** 0.8.0 added a rows-per-page
+dropdown (20/50/100/200) and Previous/Next; the ask was ERPNext's model. The
+pager now carries ERPNext's own **20 / 100 / 500** page-size buttons and a
+**Load More** that appends the next page under the rows already on screen
+(the count then reads from row 1), alongside Previous/Next for jumping.
+`MAX_PAGE_LENGTH` rises from 200 to 500 to match ERPNext's largest page —
+still a hard server-side ceiling. Clear now also returns to page 1.
+
 ## 0.10.1 — 2026-09-05
 
 **The 0.10.0 seeding probe crashed `after_migrate`.** `never_stored()` read

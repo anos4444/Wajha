@@ -23,7 +23,9 @@ frappe.pages['wajha'].on_page_hide = function () {
 	document.body.classList.remove('wj-route');
 };
 
-const PAGE_LENGTHS = [20, 50, 100, 200];
+// ERPNext's own list-view sizes, so the shell paginates the way the rest of
+// the Desk does; the server clamps at MAX_PAGE_LENGTH (500), the same ceiling.
+const PAGE_LENGTHS = [20, 100, 500];
 
 // The rows-per-page choice is a personal browsing preference, like a column
 // width, so it lives in this browser rather than on the module record: one
@@ -283,6 +285,7 @@ class WajhaShell {
 		$(`<button class="wj-btn wj-ghost">${__("Clear")}</button>`).appendTo($tools).on('click', () => {
 			this.state.filters = {};
 			this.state.search = '';
+			this.state.page_no = 1;
 			this.paint_list_frame();
 			this.load_rows();
 		});
@@ -296,12 +299,16 @@ class WajhaShell {
 		// pager sat under a full page of rows, so Previous/Next were out of view
 		// and the list looked like it stopped at the first page. The rows-per-page
 		// choice mirrors ERPNext's list view; the server clamps it (200).
+		// ERPNext's list-view controls: the 20 / 100 / 500 page-size buttons and
+		// a Load More that appends the next page, plus Previous/Next to jump
+		// between pages when a table is long.
 		const pager = (pos) => `<div class="wj-pager wj-pager-${pos}"><span class="wj-count"></span>
 			<span class="wj-pager-controls">
-			<label class="wj-pagesize">${__("Rows per page")}
-			<select class="wj-page-length">${PAGE_LENGTHS.map((n) => `<option value="${n}">${n}</option>`).join('')}</select></label>
-			<button class="wj-btn wj-ghost wj-prev">${__("Previous")}</button>
-			<button class="wj-btn wj-ghost wj-next">${__("Next")}</button></span></div>`;
+			<span class="wj-pagesize" role="group" aria-label="${__("Rows per page")}">${PAGE_LENGTHS.map((n) =>
+				`<button type="button" class="wj-btn wj-ghost wj-page-length" data-n="${n}">${n}</button>`).join('')}</span>
+			<button type="button" class="wj-btn wj-ghost wj-more">${__("Load More")}</button>
+			<button type="button" class="wj-btn wj-ghost wj-prev">${__("Previous")}</button>
+			<button type="button" class="wj-btn wj-ghost wj-next">${__("Next")}</button></span></div>`;
 		$(pager('top')).appendTo($card);
 		$(`<div class="wj-table-wrap"><table class="wj-table">
 			<thead><tr></tr></thead><tbody></tbody></table></div>`).appendTo($card);
@@ -328,13 +335,20 @@ class WajhaShell {
 			this.state.page_no++;
 			this.load_rows();
 		});
-		$card.find('.wj-page-length').val(String(this.state.page_length)).on('change', (e) => {
-			const n = parseInt($(e.currentTarget).val(), 10);
+		const mark_size = () => $card.find('.wj-page-length').each((_, b) =>
+			$(b).toggleClass('active', parseInt(b.dataset.n, 10) === this.state.page_length));
+		mark_size();
+		$card.find('.wj-page-length').on('click', (e) => {
+			const n = parseInt(e.currentTarget.dataset.n, 10);
 			this.state.page_length = PAGE_LENGTHS.includes(n) ? n : PAGE_LENGTHS[0];
-			$card.find('.wj-page-length').val(String(this.state.page_length));
+			mark_size();
 			try { window.localStorage.setItem('wajha:page_length', String(this.state.page_length)); } catch (err) { /* ignore */ }
 			this.state.page_no = 1;
 			this.load_rows();
+		});
+		$card.find('.wj-more').on('click', () => {
+			this.state.page_no++;
+			this.load_rows(true);
 		});
 
 		if (meta.map && meta.map.enabled) {
@@ -342,7 +356,9 @@ class WajhaShell {
 		}
 	}
 
-	load_rows() {
+	// append=true is Load More: keep what is on screen and add the next page
+	// under it, the way ERPNext's list grows; the count then reads from row 1.
+	load_rows(append = false) {
 		const meta = this.meta;
 		frappe.call('wajha.api.get_module_data', {
 			module_key: this.state.module.module_key,
@@ -354,14 +370,15 @@ class WajhaShell {
 			sort_order: this.state.dir || '',
 		}).then((r) => {
 			const d = r.message || { rows: [], total: 0 };
-			const $tb = this.$body.find('tbody').empty();
+			const $tb = this.$body.find('tbody');
+			if (!append) $tb.empty();
 			const col_count = (meta.columns || []).length + (meta.status_field ? 1 : 0) || 1;
-			if (!d.rows.length) {
+			if (!d.rows.length && !append) {
 				$tb.append(`<tr><td colspan="${col_count}">
 					<div class="wj-empty">${__("No matching records.")}</div></td></tr>`);
 			}
 			d.rows.forEach((row) => {
-				const $tr = $('<tr></tr>').on('click', () =>
+				const $tr = $('<tr class="wj-row"></tr>').on('click', () =>
 					frappe.set_route('Form', d.doctype, row.name));
 				if (meta.status_field) {
 					$(`<td>${this.status_badge(row[meta.status_field])}</td>`).appendTo($tr);
@@ -371,11 +388,13 @@ class WajhaShell {
 				});
 				$tr.appendTo($tb);
 			});
-			const from = (d.page - 1) * d.page_length + (d.rows.length ? 1 : 0);
 			const to = (d.page - 1) * d.page_length + d.rows.length;
+			const from = append
+				? ($tb.find('tr.wj-row').length ? 1 : 0)
+				: (d.page - 1) * d.page_length + (d.rows.length ? 1 : 0);
 			this.$body.find('.wj-count').text(`${from}–${to} ${__("of")} ${d.total}`);
 			this.$body.find('.wj-prev').prop('disabled', d.page <= 1);
-			this.$body.find('.wj-next').prop('disabled', to >= d.total);
+			this.$body.find('.wj-next, .wj-more').prop('disabled', to >= d.total);
 		});
 	}
 
