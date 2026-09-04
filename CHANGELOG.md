@@ -1,6 +1,49 @@
 # Changelog
 
-## 0.5.0 — 2026-08-21
+## 0.6.0 — 2026-09-04
+
+**The whole of Swift Theme, as a module of Wajha.** Ported from
+[its-alikhokher/swift_theme](https://github.com/its-alikhokher/swift_theme)
+(MIT; attribution in `license.txt`) under a new `Swift Theme` Frappe module,
+alongside — not replacing — Wajha's own Shell system. Everything the upstream
+app does now installs with Wajha:
+
+- **Twelve colour presets** (six light, six dark), each a hand-tuned role
+  palette with its own backdrop, offered inside Frappe's own Switch Theme
+  dialog per user, plus **Custom Colors**: a primary/secondary pair expanded
+  into a full palette by the shared `derive_roles` maths (Python and JS copies
+  kept in step by a parity test).
+- **Server-rendered themed login page** in three layouts (Split, Centered,
+  Minimal), with every word on the brand panel editable from Settings.
+- **Optional desk landing page** (`swift-home`, eight designs) built on
+  `frappe.boot.desktop_icons` and Number Cards, so permissions narrow it with
+  nothing re-implemented.
+- **Density, shape, font scale and family per user; navbar/sidebar variants,
+  glass, styled scrollbar, toast and print theming, focus mode, Alt+B sidebar
+  toggle, per-event desk sounds** — each behind its own switch in the new
+  `Swift Theme Settings` single.
+
+Mechanics of the port, where it deliberately differs from upstream:
+
+- Upstream's `.bundle.scss`/`.bundle.js` files existed only for cache busting
+  and would have put Node back into the install path. The files are instead
+  listed individually in `hooks.py`, in the exact bundle order (which is
+  load-bearing), each through the existing `_versioned()` content hash — the
+  same cache-busting result with no build step.
+- Python packages land as `wajha.swift` (boot/home/colour/install — upstream's
+  `api/` name collides with `wajha/api.py`) and `wajha.swift_theme` (the
+  doctypes and the `swift-home` page). Whitelisted method paths change
+  accordingly (`wajha.swift.boot.*`, `wajha.swift.home.*`); the bootinfo key
+  (`frappe.boot.swift_theme`), the realtime event (`swift_theme_updated`) and
+  the localStorage keys are unchanged, so the ported JS needed only the
+  method-path and `/assets/wajha/` rewrites.
+- Upstream's `patches/v1_0/*` migrate *old swift_theme installs* and are not
+  ported: on a Wajha site the module arrives fresh, and the idempotent
+  install/migrate seeding (`wajha.swift.install`) produces the end state those
+  patches converge on.
+- Upstream's 3.7k-line bench integration suite is not ported yet (it asserts
+  the bundle structure this port replaces); the two Node-run contract suites
+  are, live under `wajha/tests/`, and pass against the ported files.
 
 Closes the two remaining first-paint and stale-asset gaps, both borrowed from
 Solvronix-Desk and independently confirmed by Aurora's appearance layer.

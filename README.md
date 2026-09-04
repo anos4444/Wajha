@@ -78,6 +78,32 @@ Two Frappe behaviours cost real debugging time and are worth respecting in any p
 1. **Desk caches Page doclists.** Shipping a new `.js` does not invalidate that cache — bump the Page record's `modified`. Key that decision on a **content hash**, never on a timestamp comparison between machines; clock skew silently skips genuine deploys.
 2. **Unversioned CSS paths served with far-future caching** keep browsers on the old stylesheet while the server serves the new one. Hash-version asset paths.
 
+## Swift Theme module (0.6.0)
+
+Wajha now ships the whole of
+[Swift Theme](https://github.com/its-alikhokher/swift_theme) as a second
+Frappe module, alongside the Shell system:
+
+- **Twelve colour presets** (six light, six dark), per user, offered inside
+  Frappe's own Switch Theme dialog — plus **Custom Colors**, which derives a
+  full palette from a primary/secondary pair.
+- **Themed, server-rendered login page** in three layouts, with every word of
+  the brand panel editable from `Swift Theme Settings`.
+- **Optional desk landing page** (eight designs) built on desktop icons and
+  Number Cards, so Frappe's own permissions decide what appears.
+- **Density, shape, font scale/family per user; glass, backdrops, styled
+  scrollbar, toast and print theming, focus mode, per-event desk sounds** —
+  each behind its own switch.
+
+Configured from the `Swift Theme Settings` single; independent of the Shell,
+so either feature set can be enabled without the other. The upstream
+`.bundle.*` build files were replaced by individually hash-versioned plain
+files, so the no-Node install rule above still holds. Do not install the
+standalone `swift_theme` app on the same site — the module replaces it and
+they share DocType names.
+
 ## Licence
 
-MIT © AAA Consulting.
+MIT © AAA Consulting. The Swift Theme module is ported from
+[its-alikhokher/swift_theme](https://github.com/its-alikhokher/swift_theme),
+MIT © 2026 iamaliraza777@gmail.com.

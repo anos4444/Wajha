@@ -1,0 +1,199 @@
+import frappe
+
+from wajha.swift_theme.doctype.swift_theme_settings.swift_theme_settings import (
+    PREMIUM_THEMES,
+)
+
+
+MODES = ["Follow Frappe", "Force Light", "Force Dark", "Auto (time-based)"]
+DENSITIES = ["Compact", "Comfortable", "Cozy"]
+RADII = ["Sharp", "Rounded", "Pill"]
+FONT_SCALES = ["S", "M", "L", "XL"]
+FONT_FAMILIES = ["Inter", "Poppins", "Manrope", "Roboto", "System"]
+PRESETS = list(PREMIUM_THEMES.keys())
+
+# These nine sit on the User form, and they are a System Manager's business,
+# not the user's own (Ali, 2026-08-28) - so they live at permlevel 1, which
+# User already grants to System Manager alone.
+#
+# It costs the theme switcher nothing: _user_prefs reads and set_user_pref
+# writes through frappe.db.get_value / set_value, which do not consult
+# permlevels, so an ordinary user still picks their own theme from the Toggle
+# Theme dialog - they just cannot see or edit the raw fields on their profile.
+USER_FIELD_PERMLEVEL = 1
+
+USER_FIELDS = [
+    ("swift_follow_frappe", "Check",  "Follow Frappe's Theme Mode", None, "1"),
+    ("swift_mode",          "Select", "Swift Mode Override",         "\n".join(MODES), "Follow Frappe"),
+    ("swift_preset",        "Select", "Swift Theme Preset",          "\n".join([""] + PRESETS), ""),
+    # A user may pick their own pair instead of a preset, straight from the
+    # navbar theme switcher.
+    ("swift_primary",       "Color",  "Swift Primary Color",         None, None),
+    ("swift_secondary",     "Color",  "Swift Secondary Color",       None, None),
+    ("swift_density",       "Select", "Swift Density",               "\n".join([""] + DENSITIES), ""),
+    ("swift_radius",        "Select", "Swift Shape",                 "\n".join([""] + RADII), ""),
+    ("swift_font_scale",    "Select", "Swift Font Scale",            "\n".join([""] + FONT_SCALES), ""),
+    ("swift_font_family",   "Select", "Swift Font Family",           "\n".join([""] + FONT_FAMILIES), ""),
+]
+
+# Applied on install, and backfilled on migrate for rows still unset. These are
+# the switches the desk JS gates on — leaving them NULL disables the switcher,
+# command palette and focus mode outright.
+SETTINGS_DEFAULTS = {
+    "color_mode": "Theme Preset",
+    "active_preset": "Iron Man",
+    # Without these the Settings form shows Custom Mode and Colour Strength
+    # blank, even though the code falls back to exactly these values.
+    "custom_mode": "Dark",
+    "custom_strength": "Subtle",
+    "enable_backdrops": 1,
+    "show_backdrop_through": 0,
+    "default_density": "Comfortable",
+    "default_radius": "Rounded",
+    "default_font_scale": "M",
+    "default_font_family": "Inter",
+    "navbar_variant": "Solid",
+    "sidebar_variant": "Floating",
+    "sidebar_brand_fill": 0,
+    "enable_switcher": 1,
+    "enable_command_palette": 1,
+    "enable_focus_mode": 1,
+    "enable_perf_mode": 1,
+    "enable_styled_scrollbar": 1,
+    "enable_toast_theming": 1,
+    "enable_print_theming": 1,
+    "print_font_family": "Inter",
+    "login_layout": "Split",
+    # The brand panel beside the sign-in form. Seeded so a fresh install shows
+    # the same page the template used to hard-code; the patch does the same for
+    # sites that already existed. Editable from Settings either way.
+    "login_show_brand_panel": 1,
+    "login_heading": "Streamline Your\nBusiness Operations",
+    "login_description": (
+        "Unlock your ERP potential — build feature-rich dashboards, "
+        "automate approvals and see every number in one place."
+    ),
+    "login_points": (
+        "Role-based access control\n"
+        "Encrypted sessions and audit trails\n"
+        "Single sign-on ready"
+    ),
+    "login_stat_value": "300+",
+    "login_stat_label": "implementations delivered. Be our next success story.",
+    "enable_auto_dark": 0,
+    "auto_dark_start": "19:00:00",
+    "auto_dark_end": "07:00:00",
+    "volume_level": 50,
+}
+
+
+def after_install():
+    _ensure_user_fields()
+    _seed_settings()
+    # Frappe's own install flow commits after this hook, but not every caller
+    # does — bench, new-site and a hosted provisioner each drive it differently.
+    # These writes create the Custom Fields the desk reads on every page, so a
+    # silent rollback here would leave a site installed but unthemed with
+    # nothing to say why.
+    frappe.db.commit()  # nosemgrep: frappe-manual-commit
+
+
+def after_migrate():
+    _ensure_user_fields()
+    _seed_settings()
+
+
+def _ensure_user_fields():
+    insert_after = "desk_theme"
+    for fieldname, fieldtype, label, options, default in USER_FIELDS:
+        existing = frappe.db.get_value(
+            "Custom Field", {"dt": "User", "fieldname": fieldname}, "name"
+        )
+        if existing:
+            # Skipping outright was wrong: renaming the presets left
+            # swift_preset holding the old option list for ever, so the new
+            # presets were not selectable and apply_theme wrote a value the
+            # Select rejected.
+            field = frappe.get_doc("Custom Field", existing)
+            changed = False
+            if options is not None and (field.options or "") != options:
+                field.options = options
+                changed = True
+            # Sites that installed before this was decided still carry these at
+            # permlevel 0, where every user can see them on their own profile.
+            if int(field.permlevel or 0) != USER_FIELD_PERMLEVEL:
+                field.permlevel = USER_FIELD_PERMLEVEL
+                changed = True
+            if changed:
+                field.save(ignore_permissions=True)
+            insert_after = fieldname
+            continue
+        doc = {
+            "doctype": "Custom Field",
+            "dt": "User",
+            "module": "Swift Theme",
+            "fieldname": fieldname,
+            "label": label,
+            "fieldtype": fieldtype,
+            "insert_after": insert_after,
+            "permlevel": USER_FIELD_PERMLEVEL,
+        }
+        if options is not None:
+            doc["options"] = options
+        if default is not None:
+            doc["default"] = default
+        frappe.get_doc(doc).insert(ignore_permissions=True)
+        insert_after = fieldname
+
+
+def _seed_settings():
+    if not frappe.db.exists("DocType", "Swift Theme Settings"):
+        return
+
+    settings = frappe.get_single("Swift Theme Settings")
+
+    # Only fill in what the admin hasn't set, so migrate never clobbers choices.
+    changed = False
+    for fieldname, value in SETTINGS_DEFAULTS.items():
+        if not settings.meta.has_field(fieldname):
+            continue
+        if settings.get(fieldname) in (None, ""):
+            settings.set(fieldname, value)
+            changed = True
+
+    changed = _repair_stale_selects(settings) or changed
+
+    if changed:
+        settings.flags.ignore_permissions = True
+        settings.save(ignore_permissions=True)
+
+
+def _repair_stale_selects(settings):
+    """Reset Select fields holding a value the field no longer offers.
+
+    A Select rejects a value outside its options on save, and this runs from
+    after_migrate: one stale value — say an `active_preset` left behind because
+    a rename patch didn't reach this site — raised ValidationError and took the
+    whole seeding step down with it, so every genuinely new field stayed NULL.
+    Repairing beats aborting: the site lands on a real default instead.
+    """
+    changed = False
+    for fieldname, default in SETTINGS_DEFAULTS.items():
+        field = settings.meta.get_field(fieldname)
+        if not field or field.fieldtype != "Select":
+            continue
+
+        options = [o.strip() for o in (field.options or "").split("\n")]
+        current = settings.get(fieldname)
+        if current in (None, "") or current in options:
+            continue
+
+        frappe.log_error(
+            title="Swift Theme: stale setting reset",
+            message=f"{fieldname} held {current!r}, which is no longer an option. "
+                    f"Reset to {default!r}.",
+        )
+        settings.set(fieldname, default)
+        changed = True
+
+    return changed
