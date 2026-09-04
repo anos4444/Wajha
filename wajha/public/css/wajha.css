@@ -475,26 +475,53 @@
 }
 
 /* ---------------------------------------------------------------- desk integration */
-/* Hide Frappe's own app rail only on the shell route, so the user never sees
-   two navigation columns. Applied via a body class set by wajha_boot.js. */
+/* Hide Frappe's own chrome on the shell route, so the user never sees two
+   navigation columns. Keyed on two markers on purpose:
+     body.wj-route            — set by wajha_boot.js (needs our script to run)
+     body[data-route="wajha"] — stamped by Frappe's own views/container.js on
+                                every page change, hard load included
+   so the override holds even on a load where our script has not run yet.
+   Seen on Frappe 16.25 (hub.tawasulcloud.com): the v16 desk sidebar stayed
+   open beside the shell. v16 renders it as .body-sidebar-container — a flex
+   column holding .body-sidebar plus a .body-sidebar-placeholder that reserves
+   the 220px width — so the container is what has to go, not just the panel;
+   the breadcrumb bar is .page-head. The v15 selectors (.layout-side-section,
+   .navbar) stay for older desks. */
+body.wj-route .body-sidebar-container,
+body[data-route="wajha"] .body-sidebar-container,
+body[data-route^="wajha/"] .body-sidebar-container,
 body.wj-route .body-sidebar,
-body.wj-route .layout-side-section {
+body.wj-route .layout-side-section,
+body[data-route="wajha"] .layout-side-section,
+body[data-route^="wajha/"] .layout-side-section {
 	display: none !important;
 }
 
 body.wj-route .page-head,
-body.wj-route .navbar {
+body[data-route="wajha"] .page-head,
+body[data-route^="wajha/"] .page-head,
+body.wj-route .navbar,
+body[data-route="wajha"] .navbar,
+body[data-route^="wajha/"] .navbar {
 	display: none !important;
 }
 
 body.wj-route .main-section,
-body.wj-route .page-body {
+body[data-route="wajha"] .main-section,
+body[data-route^="wajha/"] .main-section,
+body.wj-route .page-body,
+body[data-route="wajha"] .page-body,
+body[data-route^="wajha/"] .page-body {
 	padding: 0 !important;
 	margin: 0 !important;
 }
 
 body.wj-route .container,
-body.wj-route .page-container {
+body[data-route="wajha"] .container,
+body[data-route^="wajha/"] .container,
+body.wj-route .page-container,
+body[data-route="wajha"] .page-container,
+body[data-route^="wajha/"] .page-container {
 	max-width: none !important;
 	padding: 0 !important;
 	margin: 0 !important;
