@@ -85,7 +85,39 @@ def seed_themes():
     print(f"wajha: theme presets ready ({len(PRESETS)})")
 
 
+def never_stored(doctype, fieldname):
+    """True when a Single's field has no row in tabSingles at all.
+
+    The obvious probe, `frappe.db.get_single_value(dt, field) is None`, does
+    not work for a Check on v16: it casts the missing value to the field's
+    type and returns 0 — observed on hub.tawasulcloud.com, where
+    show_desk_link had no row and get_single_value still said 0, so the
+    0.9.0 seed took "never set" for "turned off" and left the Desk link
+    hidden. Only the raw row tells the two apart.
+    """
+    return frappe.db.get_value(
+        "Singles", {"doctype": doctype, "field": fieldname}, "value"
+    ) is None
+
+
+SETTINGS_CHECK_DEFAULTS = {
+    "enabled": 1,
+    "apply_font_globally": 1,
+    "apply_theme_globally": 1,
+    "hide_desk_sidebar": 1,
+    "show_clock": 1,
+    "show_user_chip": 1,
+    "show_desk_link": 1,
+}
+
+
 def ensure_settings():
+    # This runs in the same migrate that may have just added a field to Shell
+    # Settings, and the meta cached earlier in that request predates it — so
+    # `s.meta.has_field(...)` below would say no and the loop would skip the
+    # new switch, exactly how Swift Theme Settings came up blank in 0.6.0.
+    # Drop the cached meta first so get_single loads the fields migrate synced.
+    frappe.clear_cache(doctype="Shell Settings")
     s = frappe.get_single("Shell Settings")
     changed = False
     if not s.active_theme:
@@ -94,14 +126,22 @@ def ensure_settings():
     if not s.brand_title:
         s.brand_title = "نظام الإدارة"
         changed = True
-    # 0.9.0 added show_desk_link. A Check that was never stored loads as 0
-    # (Document init fills unset Checks), so `not s.show_desk_link` cannot
-    # tell "never set" from "turned off" — the same trap the Swift master
-    # switch hit in 0.7.0. The stored row can: get_single_value is None only
-    # when the field was never saved. Never set -> on; an explicit 0 stays.
-    if s.meta.has_field("show_desk_link") and \
-            frappe.db.get_single_value("Shell Settings", "show_desk_link") is None:
-        s.show_desk_link = 1
-        changed = True
+    # The switches a fresh install should come up with. A brand-new site gets
+    # these from the DocType defaults (get_single falls back to new_doc when no
+    # row exists at all), but a site whose Settings row already exists — any
+    # site that installed an earlier release — does not: a Check that was
+    # never stored loads as 0, so `not s.field` cannot tell "never set" from
+    # "turned off" (the trap the Swift master switch hit in 0.7.0). The
+    # stored row can (see never_stored — get_single_value cannot, it casts a
+    # missing Check to 0). Never set -> the default; an explicit 0 is
+    # someone's choice and stays. Together with active_theme above this is what "a default theme
+    # at install" means: shell on, first preset active, font and colours
+    # applied Desk-wide, chrome hidden on the shell, clock/user/Desk link on.
+    for fieldname, default in SETTINGS_CHECK_DEFAULTS.items():
+        if not s.meta.has_field(fieldname):
+            continue
+        if never_stored("Shell Settings", fieldname):
+            s.set(fieldname, default)
+            changed = True
     if changed:
         s.save(ignore_permissions=True)

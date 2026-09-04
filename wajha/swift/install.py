@@ -184,8 +184,12 @@ def _seed_settings():
     # until someone ticked it. The stored row is the only place the two cases
     # differ, and get_single_value reads that row directly (None when absent),
     # so "never set" is seeded on while an explicit 0 is respected.
-    if settings.meta.has_field("enabled") and \
-            frappe.db.get_single_value("Swift Theme Settings", "enabled") is None:
+    # get_single_value cannot be the probe here: on v16 it casts a missing
+    # Check to 0, so the 0.7.1 version of this check never fired and an
+    # upgrading site would still have come up switched off. Read the raw
+    # tabSingles row instead — absent means never set.
+    if settings.meta.has_field("enabled") and frappe.db.get_value(
+            "Singles", {"doctype": "Swift Theme Settings", "field": "enabled"}, "value") is None:
         settings.enabled = 1
         changed = True
 
