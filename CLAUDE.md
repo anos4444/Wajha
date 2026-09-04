@@ -149,6 +149,13 @@ everything.
   `<div>`**, not a bare string — escaping it directly prints the markup as
   text. Unwrap through an inert `<template>` first, then escape the text
   node.
+- **Seeding a Single's Check field: "never set" is invisible to the doc AND
+  to `get_single_value`.** A loaded Single fills an unset Check with 0, and
+  on v16 `frappe.db.get_single_value()` casts a missing value to the field
+  type and returns 0 too — so neither can tell "never stored" from "turned
+  off". Read the raw `tabSingles` row (`never_stored()` in `install.py`);
+  bit both the Swift master switch (0.7.1, silently ineffective) and
+  `show_desk_link` (0.9.0, link hidden on the hub) before this was pinned.
 - **`bench install-app` does not run `after_migrate`** — anything that must
   exist on a genuinely fresh site (theme presets, roles, default settings)
   needs to fire from `after_install` too. Test against a real fresh

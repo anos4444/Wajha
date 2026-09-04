@@ -56,7 +56,7 @@ frappe.call("wajha.api.scaffold_module_from_doctype", {"doctype": "Asset"})
 Every visual value is a CSS custom property (`--wj-primary`, `--wj-sidebar-bg`, `--wj-radius`, …) published at runtime from the active `Shell Theme`. Two switches in Shell Settings extend the theme beyond the shell:
 
 - **apply_font_globally** — the theme font applies to Desk lists, forms and dialogs, so the whole site reads as one product.
-- **apply_theme_globally** — the theme's colours are mapped onto Frappe's own variables, so a user landing on a standard form still feels inside your system.
+- **apply_theme_globally** — the theme's colours are mapped onto Frappe's own variables, so a user landing on a standard form still feels inside your system. On by default since 0.10.0: a fresh install comes up themed Desk-wide; turn it off to keep the colours inside the shell.
 
 For closed networks, leave `font_css_url` empty and ship the font files inside your own app; set only the family name in the theme.
 
