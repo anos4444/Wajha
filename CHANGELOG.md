@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.10.0 — 2026-09-05
+
+**A themed Desk out of the box.** A fresh install already enabled the shell,
+picked the first preset and applied the font Desk-wide — but
+`apply_theme_globally` had no default, so a new site's forms, lists and
+dialogs stayed on Frappe's stock palette until someone found the switch.
+It now defaults on: install Wajha and the whole Desk carries the active
+theme; turn it off in Shell Settings to keep the colours inside the shell.
+
+The seeding also stops depending on the DocType defaults, which only reach a
+site with no Settings row at all. Every switch a fresh install should carry
+(`enabled`, `apply_font_globally`, `apply_theme_globally`,
+`hide_desk_sidebar`, `show_clock`, `show_user_chip`, `show_desk_link`) is now
+seeded through one loop that reads the stored row — never set → the
+default, an explicit 0 stays — so a site upgraded from an earlier release
+gets the same out-of-the-box state without overriding anyone's choice.
+
+The "never set" probe itself was wrong until now. 0.7.1 and 0.9.0 used
+`frappe.db.get_single_value(dt, field) is None`, but on v16 that call casts a
+missing Check to 0 — seen on hub.tawasulcloud.com, where `show_desk_link` had
+no `tabSingles` row and the probe still said 0, so the seed took it for
+"turned off" and the new Desk link stayed hidden (and the 0.7.1 Swift switch
+guard had never actually fired). Both seeds now read the raw `tabSingles`
+row (`never_stored()`), which is the only place the two cases differ.
+
 ## 0.9.0 — 2026-09-05
 
 **A way back to the rest of the Desk.** The shell hides Frappe's own sidebar
