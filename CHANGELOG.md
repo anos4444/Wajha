@@ -1,5 +1,52 @@
 # Changelog
 
+## 0.12.0 — 2026-09-05
+
+**The shell on a phone is a product, not the desktop squeezed.** Until now a
+390px screen got the same six-column table in a horizontal scroller, a stack
+of filter inputs above the first record, a six-control pager, and a tap that
+handed the user to Frappe's form. Every part of that is replaced:
+
+- **Cards below 700px.** One record per full-width row: the first column as
+  the title, the next two as a one-line subtitle, the status chip, a
+  chevron. No horizontal scroll. The card fields come from the columns the
+  module already orders, so nobody maintains a second list for phones.
+- **Search stays; filters move into a bottom sheet** behind one button
+  carrying the count of active filters, with removable chips under the
+  search box. Inputs are 16px on phones so iOS stops zooming on focus.
+- **The list grows as you scroll** (an IntersectionObserver on a sentinel)
+  with a Load More fallback; the 20/100/500 and Previous/Next controls are
+  desktop-only.
+- **A bottom bar** of up to four modules (flag them with the new
+  `show_in_mobile_bar`, else the first four) plus More for the drawer —
+  thumb reach instead of a burger at the top of the screen.
+- **A record card inside the shell** (`wajha.records.get_record`), on
+  desktop too: a side panel at the inline end, full screen on phones. It
+  shows only the fields that hold a value, grouped by the form's own
+  sections (or the module's `detail_fields` list), child tables, attachments
+  and comments, with an actions bar pinned at the bottom. "Open in Frappe"
+  remains as the escape hatch, never the default.
+- **Actions from the card.** Automatic: the workflow transitions Frappe says
+  this user may take (`frappe.model.workflow.get_transitions`), or Submit /
+  Cancel where there is no workflow. Configured: a new Actions table on
+  Shell Module — Set Value, a whitelisted Server Method, or a Route.
+  Every action re-checks Frappe's permission on the server; Set Value also
+  checks the field's permlevel and Server Method refuses anything not
+  whitelisted. The list patches the row's status in place afterwards.
+- **Mine modules.** `scope` on Shell Module: All, Mine (Owner), Mine (User
+  Field) or Mine (Employee Field) with `scope_field`. A Mine module adds
+  the user's own identity to every query server-side before saved filters
+  are read; opening someone else's record by name answers exactly like a
+  missing record; New starts inside the scope (the employee's own leave).
+  A user with no Employee record sees nothing, not everyone.
+- **Routes.** `/app/wajha/<module_key>` and `/app/wajha/<module_key>/<name>`
+  — the record card is a route so the phone's back gesture closes the card
+  rather than leaving the app.
+- **Install as the client's app.** On the shell route the page advertises a
+  web-app manifest generated from Shell Settings (`wajha.api.manifest`: name,
+  logo, theme and background colours, standalone display, RTL) and sets
+  `theme-color`, so Add to Home Screen installs *their* system.
+
 ## 0.11.0 — 2026-09-05
 
 **Paging works exactly like ERPNext's list view.** 0.8.0 added a rows-per-page

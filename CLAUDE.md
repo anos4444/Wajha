@@ -29,6 +29,17 @@ even legal for a given module before touching the DocType.
   `get_map_points()`, `scaffold_module_from_doctype()` (generates a Shell
   Module from an existing DocType's list-view config). Field/count caching
   lives here (`_allowed_fields`, `_cached_count`).
+- `wajha/records.py` — the record card and its actions (`get_record`,
+  `run_action`, `add_comment`). Same contract as api.py: module key + name
+  in, never a DocType. Three permission layers, in order: Frappe's document
+  permission (`check_permission`), the module's scope (`api.scope_filters`,
+  re-checked on the loaded doc so a "Mine" module cannot be bypassed by
+  URL), then permlevel per field. Actions: workflow transitions come from
+  `frappe.model.workflow.get_transitions` and are applied with
+  `apply_workflow` (which re-validates roles/state); Submit/Cancel call the
+  doc's own methods after `check_permission`; configured Server Method
+  actions must pass `frappe.is_whitelisted`. Don't add a way to call
+  arbitrary methods or set arbitrary fields from the client.
 - `wajha/boot.py` — attaches the resolved `get_config()` payload to Frappe's
   own boot response (`boot_session` hook); the client half in
   `wajha_boot.js` reads `frappe.boot.wajha_config` and applies it
@@ -59,8 +70,14 @@ even legal for a given module before touching the DocType.
   is keyed on the `user_id` cookie so a shared browser never paints the
   previous user's theme.
 - `wajha/wajha/page/wajha/wajha.js` + `wajha/public/css/wajha.css` — the
-  actual shell page: sidebar, list view, filters, map. No build step —
-  plain JS/CSS, so the app installs on any v16 bench without Node.
+  actual shell page: sidebar, list view (table on desktop, cards below
+  700px), filters (inline on desktop, bottom sheet on phones), the record
+  card (side panel / full screen), bottom bar, map. No build step — plain
+  JS/CSS, so the app installs on any v16 bench without Node. Routes are
+  `wajha`, `wajha/<module_key>`, `wajha/<module_key>/<name>`; all three
+  land on this one Page and reach the shell through `on_page_show`, which
+  Frappe fires on every route change within a page. The record card is a
+  route so back gestures close it — keep it that way.
 - `wajha/wajha/doctype/shell_module/shell_module.py` — on save,
   clears caches AND enqueues a background job (`add_filter_indexes`) that
   adds a DB index to any field used by a Number/Date/Datetime Range filter.

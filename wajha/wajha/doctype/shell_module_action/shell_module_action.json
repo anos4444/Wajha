@@ -1,0 +1,42 @@
+{
+ "doctype": "DocType",
+ "name": "Shell Module Action",
+ "module": "Wajha",
+ "custom": 0,
+ "istable": 1,
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "owner": "Administrator",
+ "modified_by": "Administrator",
+ "creation": "2026-09-05 09:00:00.000000",
+ "modified": "2026-09-05 09:00:00.000000",
+ "idx": 0,
+ "field_order": [
+  "label",
+  "label_en",
+  "action_type",
+  "value",
+  "style",
+  "show_when",
+  "confirm",
+  "icon"
+ ],
+ "fields": [
+  {"fieldname": "label", "fieldtype": "Data", "label": "العنوان", "in_list_view": 1, "reqd": 1},
+  {"fieldname": "label_en", "fieldtype": "Data", "label": "العنوان بالإنجليزية", "in_list_view": 1},
+  {"fieldname": "action_type", "fieldtype": "Select", "label": "نوع الإجراء", "in_list_view": 1, "reqd": 1,
+   "options": "Set Value\nServer Method\nRoute", "default": "Set Value",
+   "description": "Set Value: fieldname=value · Server Method: dotted path of a whitelisted function taking doctype and name · Route: a Desk route, {name} is replaced by the record name"},
+  {"fieldname": "value", "fieldtype": "Data", "label": "القيمة", "in_list_view": 1, "reqd": 1},
+  {"fieldname": "style", "fieldtype": "Select", "label": "الشكل", "in_list_view": 1,
+   "options": "Default\nPrimary\nDanger", "default": "Default"},
+  {"fieldname": "show_when", "fieldtype": "Select", "label": "يظهر عند الحالة",
+   "options": "\nDraft\nSubmitted\nCancelled",
+   "description": "Blank shows the action on every record; otherwise only on records in that docstatus."},
+  {"fieldname": "confirm", "fieldtype": "Check", "label": "تأكيد قبل التنفيذ", "default": "1"},
+  {"fieldname": "icon", "fieldtype": "Data", "label": "الأيقونة"}
+ ],
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

@@ -65,7 +65,7 @@ def get_config():
         filters={"enabled": 1},
         fields=["name", "module_key", "module_label", "module_label_en", "icon",
                 "group", "sequence", "view_type", "ref_doctype", "route",
-                "show_map"],
+                "show_map", "scope", "show_in_mobile_bar"],
         order_by="sequence asc, module_label asc",
     ):
         # A List module is only offered if the user can read its DocType.
@@ -105,6 +105,42 @@ def get_config():
     }
 
 
+@frappe.whitelist(allow_guest=True)
+def manifest():
+    """A web-app manifest built from Shell Settings, so "Add to Home Screen"
+    installs the client's system — its name, its logo, its colours — rather
+    than a generic Frappe icon. Served raw (not wrapped in {"message": …})
+    because the browser parses the body as the manifest itself. Guest-readable
+    on purpose: browsers fetch manifests without credentials, and nothing in
+    it is secret — the same values are on the login page."""
+    s = _settings()
+    t = _theme_tokens(s.active_theme) if s.enabled else {}
+    icons = []
+    if s.logo:
+        icons.append({"src": s.logo, "sizes": "any", "purpose": "any"})
+    body = {
+        "name": s.brand_title or "Wajha",
+        "short_name": (s.brand_title_en or s.brand_title or "Wajha")[:12],
+        "description": s.brand_subtitle or "",
+        "start_url": "/app/wajha",
+        "scope": "/app/",
+        "display": "standalone",
+        "orientation": "portrait",
+        "dir": "rtl",
+        "lang": "ar",
+        "theme_color": t.get("primary") or "#013D28",
+        "background_color": t.get("page_bg") or "#F2F3F1",
+        "icons": icons,
+    }
+    frappe.local.response.update({
+        "type": "download",
+        "filename": "manifest.webmanifest",
+        "filecontent": json.dumps(body, ensure_ascii=False),
+        "content_type": "application/manifest+json",
+        "display_content_as": "inline",
+    })
+
+
 # --------------------------------------------------------------------------- module data
 def _get_module(module_key):
     if not module_key or not frappe.db.exists("Shell Module", module_key):
@@ -116,6 +152,68 @@ def _get_module(module_key):
         frappe.throw("هذه الوحدة ليست من نوع قائمة")
     frappe.has_permission(m.ref_doctype, "read", throw=True)
     return m
+
+
+# --------------------------------------------------------------------------- scope
+# A "Mine" module narrows every query to the current user's own records, on
+# the server, before the user's saved filters are even looked at. It is the
+# difference between an HR admin browsing 700 employees and an employee
+# opening "my leave" on a phone: the same DocType, the same permissions, but
+# the second one must never be a list of everyone else. Frappe's role
+# permissions still apply on top; this only ever removes rows.
+SCOPES = ("All", "Mine (Owner)", "Mine (User Field)", "Mine (Employee Field)")
+
+# Mirrors ERPNext's own convention for "the Employee behind this login".
+EMPLOYEE_USER_FIELD = "user_id"
+
+
+def _current_employee():
+    """The Employee record linked to the session user, or None.
+
+    Cached on the request: a Mine (Employee Field) module asks for it from the
+    count query, the row query and the map query of the same request.
+    """
+    if not hasattr(frappe.local, "wajha_employee"):
+        emp = None
+        if frappe.db.exists("DocType", "Employee"):
+            emp = frappe.db.get_value(
+                "Employee", {EMPLOYEE_USER_FIELD: frappe.session.user, "status": "Active"}, "name"
+            ) or frappe.db.get_value("Employee", {EMPLOYEE_USER_FIELD: frappe.session.user}, "name")
+        frappe.local.wajha_employee = emp
+    return frappe.local.wajha_employee
+
+
+def scope_filters(module):
+    """The [field, "=", value] filters a Mine module adds to every query.
+
+    A user with no Employee record on an Employee-scoped module gets an
+    impossible filter rather than an unscoped one: seeing nothing is the safe
+    failure, seeing everyone is the dangerous one.
+    """
+    scope = getattr(module, "scope", None) or "All"
+    if scope == "All":
+        return []
+    if scope == "Mine (Owner)":
+        return [["owner", "=", frappe.session.user]]
+    field = (module.scope_field or "").strip()
+    if not field:
+        return [["name", "=", "__wajha_unscoped__"]]
+    if scope == "Mine (User Field)":
+        return [[field, "=", frappe.session.user]]
+    emp = _current_employee()
+    return [[field, "=", emp or "__wajha_no_employee__"]]
+
+
+def scope_defaults(module):
+    """Values a new record should start with so it lands inside the scope."""
+    scope = getattr(module, "scope", None) or "All"
+    field = (module.scope_field or "").strip()
+    if scope == "Mine (User Field)" and field:
+        return {field: frappe.session.user}
+    if scope == "Mine (Employee Field)" and field:
+        emp = _current_employee()
+        return {field: emp} if emp else {}
+    return {}
 
 
 def _compute_allowed_fields(module):
@@ -282,7 +380,7 @@ def get_module_data(module_key, page=1, filters=None, search=None,
     if isinstance(filters, str):
         filters = json.loads(filters or "{}")
 
-    applied = _build_filters(module, filters, real)
+    applied = scope_filters(module) + _build_filters(module, filters, real)
     or_filters = _search_filters(module, search, real)
 
     page = max(cint(page), 1)
@@ -359,6 +457,17 @@ def get_module_meta(module_key):
         "columns": columns,
         "filters": filters,
         "can_create": bool(frappe.has_permission(module.ref_doctype, "create")),
+        # A Mine module's New starts inside the scope (the employee's own
+        # leave, not a blank form asking which employee).
+        "new_defaults": scope_defaults(module),
+        "scope": getattr(module, "scope", None) or "All",
+        # The phone card: the first column is the title, the next two the
+        # subtitle, status_field the chip. Chosen from the columns the module
+        # already orders, so nobody maintains a second list for phones.
+        "card": {
+            "title": columns[0]["fieldname"] if columns else "name",
+            "subtitle": [c["fieldname"] for c in columns[1:3]],
+        },
         "status_field": status_field,
         "docstatus_labels": DOCSTATUS_LABELS if status_field == "docstatus" else None,
         "map": {
@@ -382,7 +491,7 @@ def get_map_points(module_key, filters=None, search=None, limit=2000):
     fields, real, _status_field = _allowed_fields(module)
     if isinstance(filters, str):
         filters = json.loads(filters or "{}")
-    applied = _build_filters(module, filters, real)
+    applied = scope_filters(module) + _build_filters(module, filters, real)
     applied.append([module.map_lat_field, "!=", 0])
     return frappe.get_list(
         module.ref_doctype, fields=fields, filters=applied,
