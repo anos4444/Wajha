@@ -1,0 +1,88 @@
+# Layered production image for hub.tawasulcloud.com
+# ---------------------------------------------------------------------------
+# Rebuilds the existing `hub-erpnext-hrms:v16` image with:
+#   - frappe        version-16   (base image tag below pins the exact release)
+#   - erpnext       version-16   (public)
+#   - hrms          version-16   (public)
+#   - wajha         main         (PRIVATE — needs a read token at build time)
+#
+# This follows the frappe_docker "custom apps" layered build: it starts from
+# the official frappe/base image, clones every app listed in apps.json, runs
+# `bench setup requirements` + `bench build`, and produces an nginx+gunicorn
+# production image. Node/yarn are present in THIS build image (the running
+# split containers don't ship them), so wajha's assets get their symlink and
+# any app that does bundle builds correctly.
+#
+# Build (from the directory containing apps.json):
+#
+#   export WAJHA_TOKEN=github_pat_xxx            # fine-grained, read-only, Contents: anos4444/Wajha
+#   # inject the token only into the wajha clone URL, never bake it into a layer:
+#   APPS_JSON_BASE64=$(python3 - <<'PY'
+#   import json,base64
+#   apps=json.load(open("apps.json"))
+#   import os
+#   tok=os.environ["WAJHA_TOKEN"]
+#   for a in apps:
+#       if "anos4444/Wajha" in a["url"]:
+#           a["url"]=a["url"].replace("https://","https://x-access-token:%s@"%tok)
+#   print(base64.b64encode(json.dumps(apps).encode()).decode())
+#   PY
+#   )
+#   docker build -f Containerfile \
+#     --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
+#     --build-arg=FRAPPE_BRANCH=version-16 \
+#     --build-arg=APPS_JSON_BASE64="$APPS_JSON_BASE64" \
+#     -t hub-erpnext-hrms:v16-next .
+#
+# The token rides in the build ARG only; it is used to clone and is gone from
+# the final image (the clone step keeps no remote credential). Rotate/revoke
+# the fine-grained token after the build regardless.
+#
+# Pin FRAPPE_BRANCH to a tag (e.g. v16.26.x) instead of version-16 if you want
+# a reproducible frappe release rather than the moving branch head.
+# ---------------------------------------------------------------------------
+
+ARG FRAPPE_PATH=https://github.com/frappe/frappe
+ARG FRAPPE_BRANCH=version-16
+ARG PYTHON_VERSION=3.11.9
+ARG NODE_VERSION=20.19.0
+FROM frappe/base:${FRAPPE_BRANCH} AS build
+
+ARG FRAPPE_PATH
+ARG FRAPPE_BRANCH
+ARG APPS_JSON_BASE64
+USER frappe
+
+RUN mkdir -p /opt/frappe && echo "${APPS_JSON_BASE64}" | base64 -d > /opt/frappe/apps.json
+
+WORKDIR /home/frappe
+RUN bench init \
+      --frappe-branch=${FRAPPE_BRANCH} \
+      --frappe-path=${FRAPPE_PATH} \
+      --apps_path=/opt/frappe/apps.json \
+      --no-procfile \
+      --no-backups \
+      --skip-redis-config-generation \
+      --verbose \
+      /home/frappe/frappe-bench && \
+    cd /home/frappe/frappe-bench && \
+    echo "{}" > sites/common_site_config.json && \
+    find apps -mindepth 1 -path "*/.git" -prune -exec rm -fr {} + || true
+
+FROM frappe/base:${FRAPPE_BRANCH} AS backend
+USER frappe
+COPY --from=build --chown=frappe:frappe /home/frappe/frappe-bench /home/frappe/frappe-bench
+WORKDIR /home/frappe/frappe-bench
+VOLUME [ "/home/frappe/frappe-bench/sites", "/home/frappe/frappe-bench/sites/assets", "/home/frappe/frappe-bench/logs" ]
+CMD [ \
+  "/home/frappe/frappe-bench/env/bin/gunicorn", \
+  "--chdir=/home/frappe/frappe-bench/sites", \
+  "--bind=0.0.0.0:8000", \
+  "--threads=4", \
+  "--workers=2", \
+  "--worker-class=gthread", \
+  "--worker-tmp-dir=/dev/shm", \
+  "--timeout=120", \
+  "--preload", \
+  "frappe.app:application" \
+]
