@@ -7,6 +7,22 @@ frappe.pages['wajha'].on_page_load = function (wrapper) {
 	new WajhaShell($(page.body), page);
 };
 
+// The Desk-chrome overrides in wajha.css (no Frappe sidebar, no breadcrumb
+// bar) key on body.wj-route, which wajha_boot.js sets from the URL/router. On
+// Frappe 16.25 the shell was seen with that chrome still showing, i.e. with
+// no marker on <body> at that moment. This page's own show/hide hooks are the
+// one place guaranteed to run whenever the shell is on screen, so set the
+// marker here too, and hide this page's own .page-head directly with Frappe's
+// .hide (display:none !important) rather than trust the selector chain.
+// Removed again on hide so other Desk pages get their chrome back.
+frappe.pages['wajha'].on_page_show = function (wrapper) {
+	document.body.classList.add('wj-route');
+	$(wrapper).find('.page-head').addClass('hide');
+};
+frappe.pages['wajha'].on_page_hide = function () {
+	document.body.classList.remove('wj-route');
+};
+
 const PAGE_LENGTHS = [20, 50, 100, 200];
 
 // The rows-per-page choice is a personal browsing preference, like a column
