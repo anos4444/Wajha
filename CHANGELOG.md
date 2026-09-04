@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.7.1 — 2026-09-04
+
+**Upgrading to 0.7.0 no longer switches Swift Theme off.** The new `enabled`
+field was seeded by the same "fill what is still None/empty" loop as every
+other default — but Frappe initialises an unset Check to 0 when a document
+loads, so a site that had never stored the field read exactly like one that
+had turned the theme off, and the loop left it at 0. Seen on the first upgrade
+of hub.tawasulcloud.com (`enabled before: 0`); that site was being switched
+off deliberately, so nothing was lost there, but any other site would have
+come up unthemed until someone ticked the box. The seed now reads the stored
+row directly (`get_single_value`, None when absent) for this one field, so
+"never set" is seeded on while an explicit 0 is respected.
+
 ## 0.7.0 — 2026-09-04
 
 **A master switch for the Swift Theme module.** Upstream never had one:
