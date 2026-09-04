@@ -428,5 +428,76 @@ check("turning it off clears the stored value",
         attrs["data-swift-backdrop"] === "iron-man", attrs["data-swift-backdrop"]);
 })();
 
+/* ------------------------------------------------------------------
+   Master switch. Swift Theme Settings > Enable Swift Theme = 0 arrives as
+   `enabled: 0` in the boot payload. A returning visitor still has the old
+   preset cached in localStorage, and before this the bootstrap repainted it
+   on every load — the site could turn the theme off and never see it go.
+   Positive: disabled + cache => nothing painted, attributes stripped, cache
+   blanked. Negative control: the same cache with the switch absent (older
+   payload) still paints, so the check can actually fail.
+   ------------------------------------------------------------------ */
+function bootWithServer(bootPayload) {
+    const attrs = {};
+    const el = {
+        setAttribute: (k, val) => { attrs[k] = val; },
+        removeAttribute: (k) => { delete attrs[k]; },
+        getAttribute: (k) => (k in attrs ? attrs[k] : null),
+        style: { setProperty() {}, removeProperty() {} },
+    };
+    // Real storage keys (KEYS in swift-boot.js): the older returning-visitor
+    // case above seeds `swift_themeCss`, which nothing reads; the stylesheet
+    // key is `swift_theme_css`, and that is the one a stale cache repaints.
+    const saved = {
+        swift_preset: "iron-man",
+        swift_theme_css: "/assets/wajha/css/themes/iron-man.css",
+        swift_backdrop: "iron-man",
+        swift_density: "Compact",
+    };
+    const ctx = {
+        document: {
+            documentElement: el, getElementById: () => null,
+            head: { appendChild() {} }, querySelector: () => null,
+            createElement: () => ({ setAttribute() {}, style: {}, addEventListener() {} }),
+            addEventListener() {},
+        },
+        window: {},
+        localStorage: {
+            getItem: (k) => (k in saved ? saved[k] : null),
+            setItem: (k, v) => { saved[k] = String(v); },
+            removeItem: (k) => { delete saved[k]; },
+        },
+        CustomEvent: function (t, i) { return { type: t, detail: i && i.detail }; },
+        setTimeout: () => 0, clearTimeout() {}, console,
+    };
+    ctx.window.document = ctx.document;
+    if (bootPayload) { ctx.frappe = { boot: { swift_theme: bootPayload } }; ctx.window.frappe = ctx.frappe; }
+    ctx.globalThis = ctx;
+    vm.createContext(ctx);
+    let threw = null;
+    try { vm.runInContext(src, ctx); } catch (e) { threw = e.message; }
+    return { attrs, saved, threw };
+}
+(function masterSwitch() {
+    const off = bootWithServer({ enabled: 0, preset: "", primary: "", theme_css: "" });
+    check("master switch off: boot.js does not throw", off.threw === null, off.threw);
+    check("master switch off: cached preset is NOT painted",
+        off.attrs["data-swift-preset"] === undefined, off.attrs["data-swift-preset"]);
+    check("master switch off: data-swift-themed removed",
+        !("data-swift-themed" in off.attrs));
+    check("master switch off: cached density attribute stripped",
+        !("data-swift-density" in off.attrs), off.attrs["data-swift-density"]);
+    check("master switch off: stored preset blanked so the next load cannot resurrect it",
+        (off.saved.swift_preset || "") === "" && (off.saved.swift_theme_css || "") === "",
+        JSON.stringify([off.saved.swift_preset, off.saved.swift_theme_css]));
+
+    const on = bootWithServer(null);
+    check("negative control: with no switch in the payload the cache still paints",
+        on.attrs["data-swift-preset"] === "iron-man", on.attrs["data-swift-preset"]);
+    const explicitOn = bootWithServer({ enabled: 1, preset: "loki", theme_css: "/x.css" });
+    check("negative control: enabled:1 paints the server preset",
+        explicitOn.attrs["data-swift-preset"] === "loki", explicitOn.attrs["data-swift-preset"]);
+})();
+
 console.log(`  ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -77,11 +77,58 @@ def _home_boot():
     }
 
 
+def is_enabled(settings=None):
+    """The master switch on Swift Theme Settings.
+
+    Absent (a site whose Settings predate the field, or a half-migrated one)
+    counts as on: the field ships defaulted to 1 and the seeding backfills it,
+    so only an explicit 0 turns the theme off. Reading it with a default keeps
+    a migrate that has not yet added the column from switching the desk off.
+    """
+    s = settings if settings is not None else _settings()
+    value = s.get("enabled")
+    return True if value is None else bool(int(value))
+
+
+def disabled_prefs():
+    """What the client receives while the master switch is off.
+
+    Blank colour identifiers (not merely absent ones) — see get_effective_prefs
+    for why — plus every feature flag at 0, no presets, no sounds, no landing.
+    """
+    return {
+        "enabled": 0,
+        "follow_frappe": 1,
+        "mode": "Follow Frappe",
+        "color_mode": "Theme Preset",
+        "color_source": "site",
+        "preset": "", "preset_name": "", "theme_css": "",
+        "primary": "", "secondary": "", "is_dark": 0, "roles": {},
+        "backdrop": "none", "enable_backdrops": 0, "show_backdrop_through": 0,
+        "backdrop_pinned": 0,
+        "density": "", "radius": "", "font_scale": "", "font_family": "",
+        "navbar_variant": "", "sidebar_variant": "", "sidebar_brand_fill": 0,
+        "sidebar_texture": 0, "home_preset": "", "custom_sidebar_gradient": 0,
+        "enable_switcher": 0, "enable_command_palette": 0, "enable_focus_mode": 0,
+        "enable_perf_mode": 0, "enable_styled_scrollbar": 0,
+        "enable_toast_theming": 0, "enable_print_theming": 0,
+        "brand_name": "", "brand_logo": "", "brand_logo_dark": "", "brand_favicon": "",
+        "login_layout": "", "login_bg_image": "", "login_tagline": "",
+        "auto_dark": 0, "auto_dark_start": "19:00:00", "auto_dark_end": "07:00:00",
+        "print_font_family": "",
+        "sounds": {"enabled": 0, "volume": 0, "files": {}},
+        "can_switch_theme": 0,
+        "presets": [],
+        "home": None,
+    }
+
+
 # Keys a signed-out visitor may see. The login page needs branding and layout;
 # it has no business receiving custom CSS/JS or anything else site-internal.
 HOME_PRESETS = ("Aurora", "Dune", "Nebula", "Abyss", "Pulse", "Horizon", "Eclipse", "Honeycomb")
 
 GUEST_KEYS = {
+    "enabled",
     "color_mode", "color_source", "preset", "preset_name",
     "theme_css", "primary", "secondary", "is_dark", "roles",
     "backdrop", "backdrop_pinned", "enable_backdrops", "show_backdrop_through",
@@ -103,11 +150,25 @@ def get_effective_prefs():
     s = _settings()
     u = _user_prefs()
 
+    if not is_enabled(s):
+        # The master switch is off: hand the client a payload that undoes
+        # everything rather than nothing at all. swift-boot.js keeps a
+        # last-known-good copy of the preset in localStorage and would
+        # otherwise repaint it on every load; blank identifiers make it clear
+        # that cache, drop the preset stylesheet and remove data-swift-themed,
+        # and every feature flag at 0 keeps the other scripts inert. Guests get
+        # the same subset as usual (see GUEST_KEYS).
+        prefs = disabled_prefs()
+        if frappe.session.user == "Guest":
+            return {k: v for k, v in prefs.items() if k in GUEST_KEYS}
+        return prefs
+
     follow = 1 if u.get("swift_follow_frappe") is None else int(u["swift_follow_frappe"])
     mode = u.get("swift_mode") or "Follow Frappe"
     colors = _colors(s, u)
 
     prefs = {
+        "enabled": 1,
         # colour — either a named preset with its own stylesheet, or a custom pair
         "follow_frappe": follow,
         "mode": mode,

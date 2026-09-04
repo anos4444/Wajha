@@ -1,5 +1,37 @@
 # Changelog
 
+## 0.7.0 — 2026-09-04
+
+**A master switch for the Swift Theme module.** Upstream never had one:
+`swift-boot.js` paints whenever a preset *or* a custom colour exists, and it
+keeps a last-known-good copy in localStorage that it repaints before the boot
+payload arrives — so a site had no way to see the plain Frappe Desk (or the
+Wajha Shell on its own) again short of uninstalling. Needed the moment both
+layers were live on the same site and someone asked to see "Wajha only".
+
+`Swift Theme Settings` gains **Enable Swift Theme** (on by default; the
+seeding backfills it, and an absent value counts as on so a half-migrated
+site is never switched off by accident). Off means:
+
+- `get_effective_prefs()` returns a *disabling* payload, not an empty one —
+  blank colour identifiers, every feature flag at 0, no presets, no sounds, no
+  landing. The desk's `applyAll` then removes the preset stylesheet and
+  `data-swift-themed`, strips every `data-swift-*` attribute, and blanks the
+  stored copies. The bootstrap that runs before `frappe.boot` honours an
+  explicit `enabled: 0` over the cache for the same reason, so the theme
+  cannot flash back for one paint on the first disabled load.
+- The Switch Theme dialog shows Frappe's own three cards only.
+- The desk landing hands back whatever home page the site had before
+  (`_apply_home_page` now reacts to the switch as well as to
+  *Enable Home Page*, and restores when either turns it off).
+- `/login` renders as stock Frappe: same markup (it *is* Frappe's template,
+  wrapped), none of the Swift classes or inline variables.
+
+Per-user picks (`swift_preset` etc.) are left in place, so turning the switch
+back on returns everyone to where they were. Contract suite: +7 checks
+including two negative controls (an absent switch still paints the cache;
+`enabled: 1` paints the server preset), 65/65 passing.
+
 ## 0.6.1 — 2026-09-04
 
 **Swift Theme Settings now seeds on the first migrate.** On a first install

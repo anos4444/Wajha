@@ -7,6 +7,7 @@ from frappe.www.login import sanitize_redirect
 from wajha.swift_theme.doctype.swift_theme_settings.swift_theme_settings import (
     get_active_theme_config,
 )
+from wajha.swift.boot import is_enabled
 
 no_cache = True
 
@@ -49,6 +50,31 @@ def get_context(context):
         context["csrf_token"] = frappe.sessions.get_csrf_token()
     except AttributeError:
         context["csrf_token"] = ""
+
+    # Master switch off: keep Frappe's own login markup (this template *is*
+    # Frappe's, wrapped) but attach none of the Swift classes or variables, so
+    # the page renders as stock Frappe — the same fallback the desk gets.
+    settings = frappe.get_cached_doc("Swift Theme Settings")
+    if not is_enabled(settings.as_dict()):
+        context["theme"] = {}
+        context["colors"] = {}
+        context["is_dark_mode"] = False
+        context["custom_login_text"] = ""
+        context["brand_name"] = frappe.get_website_settings("app_name") or ""
+        context["brand_logo"] = ""
+        context["login_tagline"] = ""
+        context["login_layout"] = "Centered"
+        context["body_class"] = "swift-theme-off"
+        context["login_bg_image"] = ""
+        context["login_show_brand_panel"] = False
+        context["login_heading_lines"] = []
+        context["login_description"] = ""
+        context["login_points"] = []
+        context["login_stat_value"] = ""
+        context["login_stat_label"] = ""
+        context["theme_variables"] = ""
+        context["current_year"] = now_datetime().year
+        return context
 
     # Rendered server-side so the themed page paints correctly on first load
     # instead of flashing default colours while an API call resolves.

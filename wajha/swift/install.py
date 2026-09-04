@@ -40,6 +40,9 @@ USER_FIELDS = [
 # the switches the desk JS gates on — leaving them NULL disables the switcher,
 # command palette and focus mode outright.
 SETTINGS_DEFAULTS = {
+    # Master switch first: a fresh install is themed, a site that turned it off
+    # stays off (the loop only fills fields that are still unset).
+    "enabled": 1,
     "color_mode": "Theme Preset",
     "active_preset": "Iron Man",
     # Without these the Settings form shows Custom Mode and Colour Strength

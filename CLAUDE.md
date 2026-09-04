@@ -91,6 +91,12 @@ focus mode. Layout:
   load-bearing (cascade ties are settled by order; `swift-boot.js` must run
   first among the swift scripts). Any new file added there needs
   `_versioned()` like everything else.
+- `Swift Theme Settings.enabled` is the master switch (0.7.0). Off must
+  *disable*, not merely stop applying: `wajha.swift.boot.disabled_prefs()`
+  sends blank identifiers so `swift-boot.js` clears its localStorage copy
+  (which otherwise repaints the old preset before boot). Any new persisted
+  Swift attribute needs both a blank in that payload and a line in the
+  bootstrap's `swiftOff` strip list.
 - Ported identifiers that must NOT be renamed: bootinfo key
   `frappe.boot.swift_theme`, realtime event `swift_theme_updated`,
   localStorage keys `swift_*` — the JS is keyed on all three.
