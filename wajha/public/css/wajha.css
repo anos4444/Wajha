@@ -261,6 +261,10 @@
 	align-items: center;
 }
 
+.wj-filter-count[hidden] {
+	display: none;
+}
+
 .wj-filter-count {
 	display: inline-flex;
 	align-items: center;
@@ -1186,8 +1190,11 @@
 		gap: 12px;
 	}
 
+	/* Column flex would otherwise stretch each field to share the sheet's
+	   height — the inputs came out 80px tall with a screen of air between. */
 	.wj-filter-fields .wj-field {
 		min-width: 0;
+		flex: 0 0 auto;
 	}
 
 	.wj-filter-fields .wj-clear {
