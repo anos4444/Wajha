@@ -95,9 +95,15 @@ def never_stored(doctype, fieldname):
     0.9.0 seed took "never set" for "turned off" and left the Desk link
     hidden. Only the raw row tells the two apart.
     """
-    return frappe.db.get_value(
-        "Singles", {"doctype": doctype, "field": fieldname}, "value"
-    ) is None
+    # Plain SQL on purpose: frappe.db.get_value("Singles", {...}) appends its
+    # default ORDER BY creation, and tabSingles has no creation column — on
+    # v16 that raised (1054, "Unknown column 'creation'") from inside
+    # after_migrate on hub.tawasulcloud.com, taking the whole seeding hook
+    # down with it. A direct select cannot be reordered.
+    return not frappe.db.sql(
+        "select value from `tabSingles` where doctype=%s and field=%s limit 1",
+        (doctype, fieldname),
+    )
 
 
 SETTINGS_CHECK_DEFAULTS = {

@@ -188,8 +188,11 @@ def _seed_settings():
     # Check to 0, so the 0.7.1 version of this check never fired and an
     # upgrading site would still have come up switched off. Read the raw
     # tabSingles row instead — absent means never set.
-    if settings.meta.has_field("enabled") and frappe.db.get_value(
-            "Singles", {"doctype": "Swift Theme Settings", "field": "enabled"}, "value") is None:
+    # (Plain SQL, not frappe.db.get_value("Singles", ...): that appends
+    # ORDER BY creation, a column tabSingles does not have — 1054 on v16.)
+    if settings.meta.has_field("enabled") and not frappe.db.sql(
+            "select value from `tabSingles` where doctype=%s and field=%s limit 1",
+            ("Swift Theme Settings", "enabled")):
         settings.enabled = 1
         changed = True
 
