@@ -139,36 +139,35 @@ def seed(app_name=None):
 
 
 def _seed_one(key, label, label_en, icon, doctype, seq, scope, scope_field, conf, created, filled):
-    if True:
-        meta = frappe.get_meta(doctype)
-        real = {df.fieldname for df in meta.fields}
-        columns = [c for c in conf.get("columns", []) if c in real]
-        if frappe.db.exists("Shell Module", key):
-            if _fill_blanks(key, conf, real):
-                filled.append(key)
-            return
-        doc = build_module_doc(doctype, key, label, field_include=columns or None)
-        doc.module_label_en = label_en
-        doc.icon = icon
-        doc.group = GROUP
-        doc.sequence = seq
-        doc.scope = scope
-        doc.scope_field = scope_field
-        doc.form_fields = ",".join(f for f in conf.get("form_fields", []) if f in real)
-        doc.detail_fields = ",".join(f for f in conf.get("detail_fields", []) if f in real)
-        doc.show_in_mobile_bar = conf.get("mobile_bar", 0)
-        doc.auto_generated = 1
-        if conf.get("page_length"):
-            doc.page_length = conf["page_length"]
-        doc.sort_field = "modified"
-        for a in conf.get("actions", []):
-            row = dict(a)
-            if isinstance(row.get("value"), dict):
-                row["value"] = json.dumps(row["value"], ensure_ascii=False)
-            doc.append("actions", row)
-        doc.flags.ignore_permissions = True
-        doc.insert(ignore_permissions=True)
-        created.append(key)
+    meta = frappe.get_meta(doctype)
+    real = {df.fieldname for df in meta.fields}
+    columns = [c for c in conf.get("columns", []) if c in real]
+    if frappe.db.exists("Shell Module", key):
+        if _fill_blanks(key, conf, real):
+            filled.append(key)
+        return
+    doc = build_module_doc(doctype, key, label, field_include=columns or None)
+    doc.module_label_en = label_en
+    doc.icon = icon
+    doc.group = GROUP
+    doc.sequence = seq
+    doc.scope = scope
+    doc.scope_field = scope_field
+    doc.form_fields = ",".join(f for f in conf.get("form_fields", []) if f in real)
+    doc.detail_fields = ",".join(f for f in conf.get("detail_fields", []) if f in real)
+    doc.show_in_mobile_bar = conf.get("mobile_bar", 0)
+    doc.auto_generated = 1
+    if conf.get("page_length"):
+        doc.page_length = conf["page_length"]
+    doc.sort_field = "modified"
+    for a in conf.get("actions", []):
+        row = dict(a)
+        if isinstance(row.get("value"), dict):
+            row["value"] = json.dumps(row["value"], ensure_ascii=False)
+        doc.append("actions", row)
+    doc.flags.ignore_permissions = True
+    doc.insert(ignore_permissions=True)
+    created.append(key)
 
 
 def _fill_blanks(key, conf, real):
