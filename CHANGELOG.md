@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.12.1 — 2026-09-05
+
+**0.12.0 rendered an empty shell on Frappe 16 — phones and desktops alike.**
+`render_tabbar` called `frappe.utils.cint`, which does not exist (Frappe
+ships `cint`/`flt` as bare globals), so the page script threw halfway
+through `render_shell`: the sidebar was on screen, the body never was.
+The local Playwright harness missed it because its Frappe shim *defined*
+`frappe.utils.cint`. The script now uses its own `wj_int`/`wj_num`
+helpers, and the harness shim exposes only what Frappe really has — run
+against the 0.12.0 script it now reproduces the hub error exactly.
+
+Also: Frappe 16 serves the Desk at `/desk` (and 301s `/app` there), so the
+manifest's `start_url`/`scope`, the record card's Desk link and the
+Route action / Route Link prefix stripping now follow the running version.
+
 ## 0.12.0 — 2026-09-05
 
 **The shell on a phone is a product, not the desktop squeezed.** Until now a

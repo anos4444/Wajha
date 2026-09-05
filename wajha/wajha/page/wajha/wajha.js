@@ -60,6 +60,13 @@ function saved_page_length() {
 }
 
 const esc = (x) => frappe.utils.escape_html(String(x === null || x === undefined ? '' : x));
+// Frappe ships cint/flt as bare globals, not under frappe.utils — on v16 a
+// call to frappe.utils.cint threw inside render_shell and left the shell as
+// an empty page beside its sidebar, on phones and desktops alike (hub,
+// 2026-09-05). Local helpers: no dependence on which globals a Frappe
+// version happens to expose.
+const wj_int = (v) => parseInt(v, 10) || 0;
+const wj_num = (v) => parseFloat(v) || 0;
 
 // Chevron pointing "forward" in the reading direction; CSS mirrors it in LTR.
 const CHEVRON = '<svg class="wj-chev" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -114,7 +121,7 @@ class WajhaShell {
 			if (m.view_type !== 'List') m = mods.find((x) => x.view_type === 'List') || m;
 		}
 		if (m.view_type === 'Route Link') {
-			frappe.set_route(m.route.replace(/^\/app\//, '').split('/'));
+			frappe.set_route(m.route.replace(/^\/(app|desk)\//, '').split('/'));
 			return;
 		}
 		const same = this.state.module && this.state.module.module_key === m.module_key;
@@ -130,7 +137,7 @@ class WajhaShell {
 	go(m) {
 		this.close_drawer && this.close_drawer();
 		if (m.view_type === 'Route Link') {
-			frappe.set_route(m.route.replace(/^\/app\//, '').split('/'));
+			frappe.set_route(m.route.replace(/^\/(app|desk)\//, '').split('/'));
 			return;
 		}
 		frappe.set_route('wajha', m.module_key);
@@ -220,7 +227,7 @@ class WajhaShell {
 	// the top of the screen.
 	render_tabbar() {
 		const mods = this.cfg.modules || [];
-		let bar = mods.filter((m) => frappe.utils.cint(m.show_in_mobile_bar));
+		let bar = mods.filter((m) => wj_int(m.show_in_mobile_bar));
 		if (!bar.length) bar = mods.slice(0, MOBILE_BAR_MAX);
 		bar = bar.slice(0, MOBILE_BAR_MAX);
 		this.$tabbar.empty();
@@ -625,9 +632,9 @@ class WajhaShell {
 			case 'Date': return esc(frappe.datetime.str_to_user(v));
 			case 'Datetime': return esc(frappe.datetime.str_to_user(v));
 			case 'Duration': return fmt_text(v, 'Duration');
-			case 'Checkbox': return frappe.utils.cint(v) ? '✓' : '✗';
+			case 'Checkbox': return wj_int(v) ? '✓' : '✗';
 			case 'Rating': {
-				const n = Math.round((frappe.utils.flt(v) || 0) * 5);
+				const n = Math.round((wj_num(v) || 0) * 5);
 				return '★'.repeat(n) + '☆'.repeat(Math.max(0, 5 - n));
 			}
 			case 'Attachment':
@@ -785,7 +792,7 @@ class WajhaShell {
 			case 'code': return `<code class="wj-json">${esc(f.value)}</code>`;
 			case 'color': return `<span class="wj-swatch" style="background:${esc(f.value)}"></span> ${esc(f.value)}`;
 			case 'rating': {
-				const n = Math.round((frappe.utils.flt(f.value) || 0) * 5);
+				const n = Math.round((wj_num(f.value) || 0) * 5);
 				return '★'.repeat(n) + '☆'.repeat(Math.max(0, 5 - n));
 			}
 			case 'link': return f.doctype
@@ -806,7 +813,7 @@ class WajhaShell {
 				.appendTo($a);
 			$btn.on('click', () => {
 				if (a.kind === 'custom' && a.type === 'Route') {
-					const route = String(a.value || '').replace(/\{name\}/g, rec.name).replace(/^\/app\//, '');
+					const route = String(a.value || '').replace(/\{name\}/g, rec.name).replace(/^\/(app|desk)\//, '');
 					frappe.set_route(route.split('/'));
 					return;
 				}
