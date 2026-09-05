@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.14.1 — 2026-09-05
+
+**Headings were nearly invisible on the hub.** The shell's page title,
+greeting, group and card headings inherited the Desk's `--heading-color`,
+which a Desk-wide theme can set to a near-white; seen in real phone
+screenshots on hub.tawasulcloud.com. Every shell heading now carries an
+explicit ink colour from the theme tokens.
+
 ## 0.14.0 — 2026-09-05
 
 **Home: the apps grid, discovered from Frappe, adapting to whatever is
