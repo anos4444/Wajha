@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.15.2 — 2026-09-05
+
+**Arabic for every shell string.** Translation always went through Frappe's
+own mechanism (`__()` / `frappe._()` / `translations/ar.csv`), but Wajha's
+dictionary covered 17 of the 60 strings the shell uses; the rest fell back
+to Frappe's dictionary or stayed English (Quick access, Find a module, the
+greetings, Load More, Open in Frappe, the location and self-service
+messages). All 60 now have Arabic entries, plus the workflow and status
+words the record card shows.
+
 ## 0.15.1 — 2026-09-05
 
 **Desk chrome leaking beside the shell on a themed Desk.** A screenshot
