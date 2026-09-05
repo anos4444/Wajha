@@ -23,12 +23,13 @@ jump to a route.
 """
 
 import json
+from urllib.parse import urlencode
 
 import frappe
 from frappe.model.workflow import apply_workflow, get_transitions, get_workflow_name
 from frappe.utils import cint, sanitize_html, strip_html
 
-from wajha.api import _get_module, desk_prefix, scope_filters
+from wajha.api import _current_employee, _get_module, desk_prefix, scope_defaults, scope_filters
 
 # Layout-only fieldtypes: never carry a value.
 LAYOUT_TYPES = {"Section Break", "Column Break", "Tab Break", "HTML", "Button", "Fold", "Heading"}
@@ -211,6 +212,29 @@ def _visible(row, doc):
     return DOCSTATUS_NAMES.get(cint(doc.docstatus)) == row.show_when
 
 
+def _action_payload(row, i):
+    return {
+        "kind": "custom", "idx": i, "type": row.action_type, "level": row.level or "Record",
+        "label": row.label, "label_en": row.label_en, "icon": row.icon,
+        "style": row.style or "Default", "confirm": cint(row.confirm),
+        # Only a Route or Print needs its value on the client; the rest stay
+        # server-side. A Create action says whether it wants the device's
+        # location, never what it will write.
+        "value": row.value if row.action_type in ("Route", "Print") else None,
+        "needs_location": bool(row.action_type == "Create" and any(
+            p in (row.value or "") for p in ("{lat}", "{lon}"))),
+    }
+
+
+def module_actions(module):
+    """Module-level buttons (above the list): Create actions such as check in
+    / check out. Offered only when the user may create the DocType."""
+    if not frappe.has_permission(module.ref_doctype, "create"):
+        return []
+    return [_action_payload(row, i) for i, row in enumerate(module.actions or [])
+            if (row.level or "Record") == "Module"]
+
+
 def _actions(module, doc, meta):
     """What this user may do to this record, right now."""
     actions = []
@@ -234,17 +258,13 @@ def _actions(module, doc, meta):
             actions.append({"kind": "cancel", "label": frappe._("Cancel"), "style": "Danger", "confirm": 1})
 
     for i, row in enumerate(module.actions or []):
-        if not _visible(row, doc):
+        if (row.level or "Record") != "Record" or not _visible(row, doc):
             continue
         if row.action_type == "Set Value" and not doc.has_permission("write"):
             continue
-        actions.append({
-            "kind": "custom", "idx": i, "type": row.action_type,
-            "label": row.label, "label_en": row.label_en, "icon": row.icon,
-            "style": row.style or "Default", "confirm": cint(row.confirm),
-            # Only a Route needs its value on the client; the rest stay server-side.
-            "value": row.value if row.action_type == "Route" else None,
-        })
+        if row.action_type == "Print" and not doc.has_permission("print"):
+            continue
+        actions.append(_action_payload(row, i))
     return actions
 
 
@@ -273,6 +293,8 @@ def _run_custom(module, doc, idx):
         # arbitrary Python from a button on a phone.
         frappe.is_whitelisted(fn)
         frappe.call(fn, doctype=doc.doctype, name=doc.name)
+    elif row.action_type == "Create":
+        frappe.throw("إجراء الإنشاء يُنفَّذ على مستوى الوحدة")
     else:
         frappe.throw("هذا الإجراء يُنفَّذ من المتصفح")
 
@@ -351,3 +373,208 @@ def add_comment(module_key, name, text):
         frappe.throw("اكتب تعليقًا")
     doc.add_comment("Comment", frappe.utils.escape_html(text[:2000]))
     return _comments(doc)
+
+
+# --------------------------------------------------------------------------- creating
+# The in-shell New form. Nobody maintains a second form definition: the
+# module names the fields (form_fields) or the DocType's mandatory ones are
+# offered, the DocType's own defaults fill in, and the scope field is set by
+# the server from the login — an employee cannot file a leave for someone
+# else by editing the request. Validation is the DocType's: doc.insert()
+# runs every validate hook the form would, and its messages come back as
+# Frappe's own error dialog.
+FORM_SKIP_TYPES = LAYOUT_TYPES | NEVER_SHOWN | {"Read Only", "Attach", "Attach Image", "Image",
+                                                 "Table MultiSelect", "Dynamic Link", "Duration"}
+MAX_CHILD_COLUMNS = 4
+
+PLACEHOLDERS = ("{employee}", "{user}", "{now}", "{today}", "{lat}", "{lon}", "{name}")
+
+
+def _form_fieldnames(module, meta):
+    wanted = [f for f in (module.form_fields or "").split(",") if f.strip()]
+    if wanted:
+        return wanted
+    scope = set(scope_defaults(module).keys())
+    return [df.fieldname for df in meta.fields
+            if df.reqd and not df.hidden and not df.read_only
+            and df.fieldtype not in FORM_SKIP_TYPES and df.fieldtype != "Table"
+            and df.fieldname not in scope]
+
+
+def _field_spec(df, value):
+    spec = {
+        "fieldname": df.fieldname, "label": frappe._(df.label or df.fieldname),
+        "fieldtype": df.fieldtype, "reqd": cint(df.reqd), "default": value,
+        "description": frappe._(df.description) if df.description else "",
+    }
+    if df.fieldtype == "Select":
+        spec["options"] = [o for o in (df.options or "").split("\n")]
+    elif df.fieldtype == "Link":
+        spec["options"] = df.options
+    return spec
+
+
+@frappe.whitelist()
+def get_form(module_key):
+    module = _get_module(module_key)
+    dt = module.ref_doctype
+    frappe.has_permission(dt, "create", throw=True)
+    meta = frappe.get_meta(dt)
+    doc = frappe.new_doc(dt)
+    for k, v in scope_defaults(module).items():
+        doc.set(k, v)
+
+    fields = []
+    for fieldname in _form_fieldnames(module, meta):
+        df = meta.get_field(fieldname)
+        if not df or df.fieldtype in FORM_SKIP_TYPES:
+            continue
+        if df.fieldtype == "Table":
+            child = frappe.get_meta(df.options)
+            cols = [c for c in child.fields
+                    if (c.reqd or c.in_list_view) and not c.hidden and not c.read_only
+                    and c.fieldtype not in FORM_SKIP_TYPES and c.fieldtype != "Table"][:MAX_CHILD_COLUMNS]
+            if not cols:
+                continue
+            fields.append({
+                "fieldname": df.fieldname, "label": frappe._(df.label or df.options),
+                "fieldtype": "Table", "reqd": cint(df.reqd),
+                "columns": [_field_spec(c, c.default) for c in cols],
+            })
+            continue
+        fields.append(_field_spec(df, doc.get(fieldname)))
+
+    scope = scope_defaults(module)
+    return {
+        "doctype": dt,
+        "title": frappe._("New {0}").format(frappe._(dt)),
+        "fields": fields,
+        "submittable": bool(meta.is_submittable),
+        # Shown read-only at the top so the employee sees whom the request is for.
+        "scope": [{"fieldname": k, "label": frappe._(meta.get_field(k).label) if meta.get_field(k) else k,
+                   "value": v} for k, v in scope.items()],
+        "missing_scope": bool(getattr(module, "scope", "All") == "Mine (Employee Field)" and not _current_employee()),
+    }
+
+
+def _apply_values(doc, meta, allowed, values):
+    """Write only the fields the form offered; child tables only the
+    columns the form offered. Everything else stays at the DocType's default."""
+    for fieldname in allowed:
+        if fieldname not in values:
+            continue
+        df = meta.get_field(fieldname)
+        if not df or df.fieldtype in FORM_SKIP_TYPES:
+            continue
+        v = values.get(fieldname)
+        if df.fieldtype == "Table":
+            child = frappe.get_meta(df.options)
+            cols = {c.fieldname for c in child.fields if c.fieldtype not in FORM_SKIP_TYPES and c.fieldtype != "Table"}
+            doc.set(fieldname, [])
+            for row in (v or []):
+                if isinstance(row, dict) and any(val not in (None, "") for val in row.values()):
+                    doc.append(fieldname, {k: val for k, val in row.items() if k in cols})
+        elif df.fieldtype == "Check":
+            doc.set(fieldname, cint(v))
+        else:
+            doc.set(fieldname, v if v != "" else None)
+
+
+@frappe.whitelist()
+def create_record(module_key, values, submit=0):
+    module = _get_module(module_key)
+    dt = module.ref_doctype
+    frappe.has_permission(dt, "create", throw=True)
+    if isinstance(values, str):
+        values = json.loads(values or "{}")
+    meta = frappe.get_meta(dt)
+
+    doc = frappe.new_doc(dt)
+    allowed = _form_fieldnames(module, meta)
+    _apply_values(doc, meta, allowed, values or {})
+    # Scope last, so nothing in the request can point the record at someone else.
+    scope = scope_defaults(module)
+    if getattr(module, "scope", "All") == "Mine (Employee Field)" and not scope:
+        frappe.throw(frappe._("Your login is not linked to an Employee record. Ask HR to link it."))
+    for k, v in scope.items():
+        doc.set(k, v)
+    doc.insert()
+    if cint(submit) and meta.is_submittable:
+        doc.submit()
+    return get_record(module_key, doc.name)
+
+
+def _fill_placeholders(template, module, context):
+    now = frappe.utils.now_datetime()
+    emp = _current_employee()
+    values = {
+        "{employee}": emp or "",
+        "{user}": frappe.session.user,
+        "{now}": now.strftime("%Y-%m-%d %H:%M:%S"),
+        "{today}": now.strftime("%Y-%m-%d"),
+        "{lat}": str(frappe.utils.flt(context.get("lat"))) if context.get("lat") not in (None, "") else "",
+        "{lon}": str(frappe.utils.flt(context.get("lon"))) if context.get("lon") not in (None, "") else "",
+        "{name}": str(context.get("name") or ""),
+    }
+    out = {}
+    for k, v in template.items():
+        if isinstance(v, str):
+            for ph, real in values.items():
+                v = v.replace(ph, real)
+        out[k] = v
+    return out
+
+
+@frappe.whitelist()
+def run_module_action(module_key, idx, context=None):
+    """A Create action: a new record from the action's JSON template, with
+    placeholders filled on the server (the employee behind the login, the
+    server's clock, the device location the client sent)."""
+    module = _get_module(module_key)
+    rows = module.actions or []
+    idx = cint(idx)
+    if idx < 0 or idx >= len(rows):
+        frappe.throw("إجراء غير معروف")
+    row = rows[idx]
+    if (row.level or "Record") != "Module" or row.action_type != "Create":
+        frappe.throw("هذا الإجراء ليس إجراء إنشاء على مستوى الوحدة")
+    if isinstance(context, str):
+        context = json.loads(context or "{}")
+    context = context or {}
+
+    dt = module.ref_doctype
+    frappe.has_permission(dt, "create", throw=True)
+    template = json.loads(row.value or "{}")
+    do_submit = cint(template.pop("__submit", 0))
+    values = _fill_placeholders(template, module, context)
+    if getattr(module, "scope", "All") == "Mine (Employee Field)" and not _current_employee():
+        frappe.throw(frappe._("Your login is not linked to an Employee record. Ask HR to link it."))
+
+    meta = frappe.get_meta(dt)
+    doc = frappe.new_doc(dt)
+    for k, v in values.items():
+        df = meta.get_field(k)
+        if not df or df.fieldtype in LAYOUT_TYPES or df.fieldtype == "Table":
+            continue
+        if v in ("", None):
+            continue
+        doc.set(k, cint(v) if df.fieldtype == "Check" else v)
+    for k, v in scope_defaults(module).items():
+        doc.set(k, v)
+    doc.insert()
+    if do_submit and meta.is_submittable:
+        doc.submit()
+    return {"name": doc.name, "record": get_record(module_key, doc.name)}
+
+
+@frappe.whitelist()
+def print_url(module_key, name, print_format=None):
+    """The PDF link for a record the user may print; the download itself is
+    served by Frappe's own endpoint, which re-checks the permission."""
+    module = _get_module(module_key)
+    doc = _load(module, name)
+    doc.check_permission("print")
+    params = {"doctype": doc.doctype, "name": doc.name}
+    if print_format:
+        params["format"] = print_format
+    return "/api/method/frappe.utils.print_format.download_pdf?" + urlencode(params)

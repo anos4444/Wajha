@@ -425,6 +425,16 @@ def get_module_data(module_key, page=1, filters=None, search=None,
     }
 
 
+def _module_actions(module):
+    from wajha.records import module_actions
+
+    try:
+        return module_actions(module)
+    except Exception:
+        frappe.log_error("wajha: module actions failed")
+        return []
+
+
 @frappe.whitelist()
 def get_module_meta(module_key):
     """Column/filter definitions + option lists for Select filters."""
@@ -469,6 +479,11 @@ def get_module_meta(module_key):
         # leave, not a blank form asking which employee).
         "new_defaults": scope_defaults(module),
         "scope": getattr(module, "scope", None) or "All",
+        # The in-shell New form is the default way to create; Frappe's form
+        # stays reachable from it. Module-level Create actions (check in /
+        # check out) sit above the list.
+        "has_form": bool(frappe.has_permission(module.ref_doctype, "create")),
+        "module_actions": _module_actions(module),
         # The phone card: the first column is the title, the next two the
         # subtitle, status_field the chip. Chosen from the columns the module
         # already orders, so nobody maintains a second list for phones.
@@ -546,16 +561,25 @@ def scaffold_module_from_doctype(doctype, module_key=None, label=None,
         explicit include list.
     """
     frappe.only_for(["Shell Manager", "System Manager"])
-    meta = frappe.get_meta(doctype)
     key = (module_key or frappe.scrub(doctype)).lower()
     if frappe.db.exists("Shell Module", key):
         frappe.throw(f"الوحدة {key} موجودة مسبقًا")
+    doc = build_module_doc(doctype, key, label, field_include, field_exclude)
+    doc.insert()
+    return doc.name
 
+
+def build_module_doc(doctype, module_key, label=None, field_include=None, field_exclude=None):
+    """An unsaved Shell Module for a DocType: columns from its list view,
+    filters from its standard filters (or sensible fallbacks), search fields,
+    map fields when it carries coordinates. Shared by the scaffold endpoint
+    and the packs that seed self-service modules (wajha/packs)."""
+    meta = frappe.get_meta(doctype)
     include = _split_fieldnames(field_include)
     exclude = set(_split_fieldnames(field_exclude))
 
     doc = frappe.new_doc("Shell Module")
-    doc.module_key = key
+    doc.module_key = module_key
     doc.module_label = label or meta.get("label") or doctype
     doc.view_type = "List"
     doc.ref_doctype = doctype
@@ -610,9 +634,7 @@ def scaffold_module_from_doctype(doctype, module_key=None, label=None,
          if df.fieldtype in ("Data", "Small Text") and df.in_list_view][:3]) or "name"
 
     _autodetect_map_fields(doc, meta, fields_by_name, exclude)
-
-    doc.insert()
-    return doc.name
+    return doc
 
 
 def _split_fieldnames(value):

@@ -22,6 +22,8 @@ Wajha sits on top rather than replacing any of it. Browsing, navigation and the 
 - **Permission-safe by construction.** The browser never names a DocType, a field or an operator. It names a *module key*; the server loads that module's saved configuration and builds the query from it, then Frappe's permission layer applies on top. A user cannot request data their roles forbid, even by editing the request.
 - **A real phone app.** Below 700px the list becomes cards (title, subtitle, status chip), filters live in a bottom sheet with a count badge, the list grows as you scroll, and up to four modules sit in a bottom bar within thumb reach. Add to Home Screen installs the client's own name, logo and colours.
 - **Record card with actions.** Tap a record and the shell shows only the fields that hold a value, grouped by the form's sections, plus child tables, attachments and comments — and the actions this user may take right now: workflow transitions, Submit/Cancel, or actions you configure (set a field, call a whitelisted method, jump to a route). Desktop gets a side panel, phones the full screen.
+- **Self-service out of the box.** With HRMS installed, employees get my leave, check in / out with location, salary slip PDFs, expense claims, attendance, advances, travel and more — each a "mine" module with an in-shell form, seeded automatically and editable as records. The same pack mechanism (`wajha/packs`) can dress any other app.
+- **Create from the shell.** New records use an in-shell form built from the DocType (or the module's `form_fields`): Link suggestions from Frappe's own search, child-table rows, Save & Submit. The scope is filled server-side. Frappe's full form stays one link away.
 - **"Mine" modules.** A module scoped to the user's own records — by owner, by a user field, or by the Employee linked to the login — is a self-service app for employees with no extra code; an admin's browse module and an employee's "my leave" can point at the same DocType.
 - **Responsive.** Persistent sidebar on desktop; off-canvas drawer with backdrop, Escape-to-close and 44px targets on tablets.
 - **Optional map view.** Point any module at latitude/longitude fields and get a filtered map alongside the table.
@@ -48,7 +50,8 @@ Requires Frappe v16 (Python 3.14). No Node build step is needed.
    - `scope` — `All`, or one of the `Mine` scopes with `scope_field` for a self-service module
    - `detail_fields` (optional) — the fields on the record card; blank shows every non-empty readable field by section
    - `show_in_mobile_bar` — pin the module to the phone's bottom bar
-   - **Actions** (optional) — extra buttons on the record card; workflow transitions and Submit/Cancel appear on their own
+   - `form_fields` (optional) — the in-shell New form; blank offers the DocType's mandatory fields
+   - **Actions** (optional) — buttons on the record card (Set Value, Server Method, Route, Print) or above the list (Create, e.g. check in / out); workflow transitions and Submit/Cancel appear on their own
    - optionally enable the map and name the lat/lon/label/colour fields
 3. Open `/app/wajha`.
 
