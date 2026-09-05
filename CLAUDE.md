@@ -39,7 +39,16 @@ even legal for a given module before touching the DocType.
   `apply_workflow` (which re-validates roles/state); Submit/Cancel call the
   doc's own methods after `check_permission`; configured Server Method
   actions must pass `frappe.is_whitelisted`. Don't add a way to call
-  arbitrary methods or set arbitrary fields from the client.
+  arbitrary methods or set arbitrary fields from the client. Creating
+  (`get_form` / `create_record` / `run_module_action`) writes only the
+  fields the form offered, then sets the scope field last from the login —
+  keep that order; it is what stops one employee filing for another.
+- `wajha/packs/` — app packs that seed Shell Modules for a known app
+  (`hrms.py`: twelve self-service modules). Registered on after_install,
+  after_migrate and `after_app_install`. Packs create only what is
+  missing and fill blanks on existing modules; they must never overwrite
+  an admin's edit or re-enable a disabled module. `api.build_module_doc`
+  is the shared scaffold builder.
 - `wajha/boot.py` — attaches the resolved `get_config()` payload to Frappe's
   own boot response (`boot_session` hook); the client half in
   `wajha_boot.js` reads `frappe.boot.wajha_config` and applies it
