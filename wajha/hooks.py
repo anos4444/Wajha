@@ -105,15 +105,17 @@ after_install = [
     "wajha.install.after_install",
     "wajha.swift.install.after_install",
     "wajha.packs.hrms.seed",
+    "wajha.packs.apps.seed",
 ]
 after_migrate = [
     "wajha.install.after_migrate",
     "wajha.swift.install.after_migrate",
     "wajha.packs.hrms.seed",
+    "wajha.packs.apps.seed",
 ]
 # Fires in every installed app when another app is installed on the site:
 # HRMS arriving after Wajha still gets its self-service modules.
-after_app_install = ["wajha.packs.hrms.seed"]
+after_app_install = ["wajha.packs.hrms.seed", "wajha.packs.apps.seed"]
 
 add_to_apps_screen = [
     {
