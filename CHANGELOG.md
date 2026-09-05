@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.15.0 — 2026-09-05
+
+**Every app's modules exist as records by default.** A fresh install had no
+Shell Module records beyond the HRMS self-service pack; the other apps were
+reachable only through the discovered Home tiles. The new **all-apps pack**
+(`wajha/packs/apps.py`) creates a Shell Module record for every DocType the
+installed apps' workspaces link to — columns, filters and search from the
+DocType's list view, grouped by workspace, labelled in the site's language —
+on install, on migrate and whenever an app is installed later (Frappe 16's
+`after_app_install`). Switched by the new Shell Settings `seed_modules`
+(default on). Rules as before: create only what is missing, never overwrite,
+skip DocTypes that already have an All-scope module. Pack seeding does not
+queue filter-index jobs (a fresh install must not ALTER live tables).
+
+- **Sidebar** copes with hundreds of modules: a filter box, and collapsible
+  workspace groups — hand-made groups open, pack groups closed until asked
+  and remembered per browser; the active module's group opens itself.
+- Quick access on Home and the bottom bar prefer flagged or hand-made
+  modules over pack-seeded ones.
+
 ## 0.14.1 — 2026-09-05
 
 **Headings were nearly invisible on the hub.** The shell's page title,

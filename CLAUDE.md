@@ -52,8 +52,10 @@ even legal for a given module before touching the DocType.
   boot cache; the key→DocType map is site-wide and permission-free.
   Keep every permission decision on Frappe's side (roles on the icon,
   `has_permission` on the DocType) — never add a list of "safe" DocTypes.
-- `wajha/packs/` — app packs that seed Shell Modules for a known app
-  (`hrms.py`: twelve self-service modules). Registered on after_install,
+- `wajha/packs/` — app packs that seed Shell Modules: `hrms.py` (twelve
+  self-service modules) and `apps.py` (a record for every workspace-linked
+  DocType of every installed app, `Shell Settings.seed_modules`). Packs set
+  `doc.flags.skip_filter_indexes` so seeding never queues ALTER TABLE jobs. Registered on after_install,
   after_migrate and `after_app_install`. Packs create only what is
   missing and fill blanks on existing modules; they must never overwrite
   an admin's edit or re-enable a disabled module. `api.build_module_doc`

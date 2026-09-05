@@ -109,6 +109,7 @@ def never_stored(doctype, fieldname):
 SETTINGS_CHECK_DEFAULTS = {
     "enabled": 1,
     "auto_modules": 1,
+    "seed_modules": 1,
     "apply_font_globally": 1,
     "apply_theme_globally": 1,
     "hide_desk_sidebar": 1,

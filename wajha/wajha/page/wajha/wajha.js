@@ -234,20 +234,68 @@ class WajhaShell {
 			if (!groups.has(g)) groups.set(g, []);
 			groups.get(g).push(m);
 		});
-		// ungrouped first, then named groups
+		// With the all-apps pack the sidebar can hold hundreds of modules in
+		// dozens of workspace groups, so: a filter box at the top, and each
+		// group collapsible — hand-made groups open, pack-seeded groups closed
+		// until asked (remembered per browser).
+		if ((this.cfg.modules || []).length > 8) {
+			$(`<input type="search" class="wj-nav-search" placeholder="${__("Find a module")}…" aria-label="${__("Find a module")}">`)
+				.on('input', (e) => this.filter_nav(e.target.value))
+				.appendTo(this.$nav);
+		}
+		let open_groups = {};
+		try { open_groups = JSON.parse(window.localStorage.getItem('wajha:nav_open') || '{}'); } catch (e) { /* ignore */ }
+		// ungrouped first, then hand-made groups, then pack-seeded groups
+		const auto_group = (mods) => mods.every((m) => wj_int(m.auto_generated));
 		[...groups.entries()]
-			.sort((a, b) => (a[0] === '' ? -1 : b[0] === '' ? 1 : a[0].localeCompare(b[0], 'ar')))
+			.sort((a, b) => {
+				if (a[0] === '') return -1;
+				if (b[0] === '') return 1;
+				const aa = auto_group(a[1]), ab = auto_group(b[1]);
+				if (aa !== ab) return aa ? 1 : -1;
+				return a[0].localeCompare(b[0], 'ar');
+			})
 			.forEach(([group, mods]) => {
-				if (group) $(`<div class="wj-group-label">${esc(group)}</div>`).appendTo(this.$nav);
+				const auto = group && auto_group(mods);
+				const open = !group || (group in open_groups ? !!open_groups[group] : !auto);
+				const $g = $(`<div class="wj-group${open ? ' wj-group-open' : ''}${auto ? ' wj-group-auto' : ''}" data-group="${esc(group)}"></div>`).appendTo(this.$nav);
+				if (group) {
+					$(`<button type="button" class="wj-group-label" aria-expanded="${open}">
+						<span>${esc(group)}</span><span class="wj-group-count">${mods.length}</span></button>`)
+						.on('click', () => {
+							const now = !$g.hasClass('wj-group-open');
+							$g.toggleClass('wj-group-open', now).find('.wj-group-label').attr('aria-expanded', String(now));
+							open_groups[group] = now;
+							try { window.localStorage.setItem('wajha:nav_open', JSON.stringify(open_groups)); } catch (e) { /* ignore */ }
+						})
+						.appendTo($g);
+				}
+				const $items = $('<div class="wj-group-items"></div>').appendTo($g);
 				mods.forEach((m) => {
-					$(`<button class="wj-link" data-key="${esc(m.module_key)}">
+					$(`<button class="wj-link" data-key="${esc(m.module_key)}" data-text="${esc((m.module_label + ' ' + (m.module_label_en || '')).toLowerCase())}">
 						<span>${m.icon ? esc(m.icon) + ' ' : ''}${esc(m.module_label)}</span>
 						${m.module_label_en ? `<span class="wj-en">${esc(m.module_label_en)}</span>` : ''}
 					</button>`)
 						.on('click', () => this.go(m))
-						.appendTo(this.$nav);
+						.appendTo($items);
 				});
 			});
+	}
+
+	// Typing in the sidebar box shows only matching modules, with their
+	// groups forced open; clearing it restores the collapsed state.
+	filter_nav(text) {
+		const q = (text || '').trim().toLowerCase();
+		this.$nav.toggleClass('wj-nav-filtering', !!q);
+		this.$nav.find('.wj-group').each((_, g) => {
+			let any = false;
+			$(g).find('.wj-link').each((__i, l) => {
+				const hit = !q || (l.dataset.text || '').includes(q);
+				l.hidden = !hit;
+				if (hit) any = true;
+			});
+			g.hidden = !!q && !any;
+		});
 	}
 
 	// Phone bottom bar: the modules flagged for it (first four), else the
@@ -256,6 +304,7 @@ class WajhaShell {
 	render_tabbar() {
 		const mods = this.cfg.modules || [];
 		let bar = mods.filter((m) => wj_int(m.show_in_mobile_bar));
+		if (!bar.length) bar = mods.filter((m) => !wj_int(m.auto_generated)).slice(0, MOBILE_BAR_MAX);
 		if (!bar.length) bar = mods.slice(0, MOBILE_BAR_MAX);
 		const home = this.has_home();
 		bar = bar.slice(0, home ? MOBILE_BAR_MAX - 1 : MOBILE_BAR_MAX);
@@ -334,7 +383,8 @@ class WajhaShell {
 	open(m) {
 		this.close_drawer && this.close_drawer();
 		this.$nav.find('.wj-link').removeAttr('aria-current');
-		this.$nav.find(`.wj-link[data-key="${m.module_key}"]`).attr('aria-current', 'page');
+		const $active = this.$nav.find(`.wj-link[data-key="${m.module_key}"]`).attr('aria-current', 'page');
+		$active.closest('.wj-group').addClass('wj-group-open').find('.wj-group-label').attr('aria-expanded', 'true');
 		this.$tabbar.find('.wj-tab').removeAttr('aria-current');
 		this.$tabbar.find(`.wj-tab[data-key="${m.module_key}"]`).attr('aria-current', 'page');
 		this.$title.text(m.module_label || '');
@@ -925,7 +975,10 @@ class WajhaShell {
 		$(`<div class="wj-home-head"><h2>${esc(greet)}${first ? '، ' + esc(first) : ''} 👋</h2>
 			<p>${__("Everything you can open, in one place.")}</p></div>`).appendTo(this.$body);
 
-		const mods = (this.cfg.modules || []).filter((m) => m.view_type === 'List' || m.view_type === 'Route Link');
+		// Quick access: the modules someone chose — flagged for the bar, or
+		// hand-made — never the hundreds a pack seeded.
+		let mods = (this.cfg.modules || []).filter((m) => wj_int(m.show_in_mobile_bar));
+		if (!mods.length) mods = (this.cfg.modules || []).filter((m) => !wj_int(m.auto_generated));
 		if (mods.length) {
 			const $q = $(`<section class="wj-home-sec"><h3>${__("Quick access")}</h3><div class="wj-tiles wj-tiles-small"></div></section>`).appendTo(this.$body);
 			mods.slice(0, 12).forEach((m) => this.tile({ label: m.module_label, label_en: m.module_label_en, emoji: m.icon || '•', kind: 'handmade', module: m })
