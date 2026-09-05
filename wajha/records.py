@@ -28,7 +28,7 @@ import frappe
 from frappe.model.workflow import apply_workflow, get_transitions, get_workflow_name
 from frappe.utils import cint, sanitize_html, strip_html
 
-from wajha.api import _get_module, scope_filters
+from wajha.api import _get_module, desk_prefix, scope_filters
 
 # Layout-only fieldtypes: never carry a value.
 LAYOUT_TYPES = {"Section Break", "Column Break", "Tab Break", "HTML", "Button", "Fold", "Heading"}
@@ -310,7 +310,7 @@ def get_record(module_key, name):
         "actions": _actions(module, doc, meta),
         "can_write": bool(doc.has_permission("write")),
         # Same slug rule as frappe.router.slug on the client.
-        "desk_url": f"/app/{doc.doctype.lower().replace(' ', '-')}/{doc.name}",
+        "desk_url": f"{desk_prefix()}/{doc.doctype.lower().replace(' ', '-')}/{doc.name}",
     }
 
 

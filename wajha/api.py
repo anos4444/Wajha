@@ -36,6 +36,14 @@ MAX_PAGE_LENGTH = 500  # ERPNext's own largest list page
 DOCSTATUS_LABELS = {0: "Draft", 1: "Submitted", 2: "Cancelled"}
 
 
+def desk_prefix():
+    """Frappe 16 serves the Desk at /desk (and 301s /app there); 15 at /app."""
+    try:
+        return "/desk" if int(frappe.__version__.split(".")[0]) >= 16 else "/app"
+    except (ValueError, AttributeError):
+        return "/app"
+
+
 def has_app_permission():
     return bool(frappe.session.user and frappe.session.user != "Guest")
 
@@ -122,8 +130,8 @@ def manifest():
         "name": s.brand_title or "Wajha",
         "short_name": (s.brand_title_en or s.brand_title or "Wajha")[:12],
         "description": s.brand_subtitle or "",
-        "start_url": "/app/wajha",
-        "scope": "/app/",
+        "start_url": f"{desk_prefix()}/wajha",
+        "scope": f"{desk_prefix()}/",
         "display": "standalone",
         "orientation": "portrait",
         "dir": "rtl",
