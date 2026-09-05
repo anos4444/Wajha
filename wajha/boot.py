@@ -44,3 +44,10 @@ def clear_boot_cache():
         frappe.cache().delete_key("bootinfo")
     except Exception:
         frappe.clear_cache()
+    try:
+        from wajha import discovery
+
+        discovery.clear_tiles_cache()
+        discovery.clear_cache()
+    except Exception:
+        pass

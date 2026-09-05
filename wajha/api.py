@@ -83,8 +83,20 @@ def get_config():
             m["can_create"] = bool(frappe.has_permission(m.ref_doctype, "create"))
         modules.append(m)
 
+    home = None
+    landing = (s.get("landing") if s.meta.has_field("landing") else None) or "Home"
+    if landing == "Home":
+        try:
+            from wajha import discovery
+
+            home = {"tiles": discovery.tiles() if discovery.enabled() else []}
+        except Exception:
+            frappe.log_error("wajha: home tiles failed")
+            home = {"tiles": []}
+
     return {
         "enabled": True,
+        "home": home,
         "brand": {
             "title": s.brand_title,
             "title_en": s.brand_title_en,
@@ -94,6 +106,8 @@ def get_config():
         },
         "layout": {
             "default_module": s.default_module,
+            "landing": landing,
+            "auto_modules": bool(s.auto_modules) if s.meta.has_field("auto_modules") else True,
             "mobile_breakpoint": cint(s.mobile_breakpoint) or 900,
             "show_clock": bool(s.show_clock),
             "show_user_chip": bool(s.show_user_chip),
@@ -151,6 +165,18 @@ def manifest():
 
 # --------------------------------------------------------------------------- module data
 def _get_module(module_key):
+    from wajha import discovery
+
+    if discovery.is_virtual(module_key):
+        # A discovered DocType: an unsaved module built from its list view.
+        # Permission is checked below exactly as for a saved module.
+        if not discovery.enabled():
+            frappe.throw("الاكتشاف التلقائي معطّل", frappe.DoesNotExistError)
+        m = discovery.virtual_module(module_key)
+        if not m:
+            frappe.throw("وحدة غير معروفة", frappe.DoesNotExistError)
+        frappe.has_permission(m.ref_doctype, "read", throw=True)
+        return m
     if not module_key or not frappe.db.exists("Shell Module", module_key):
         frappe.throw("وحدة غير معروفة", frappe.DoesNotExistError)
     m = frappe.get_cached_doc("Shell Module", module_key)
@@ -471,6 +497,7 @@ def get_module_meta(module_key):
         "module_key": module.module_key,
         "label": module.module_label,
         "label_en": module.module_label_en,
+        "virtual": bool(getattr(module, "name", "") and str(module.name).startswith("~")),
         "doctype": module.ref_doctype,
         "columns": columns,
         "filters": filters,
@@ -503,6 +530,17 @@ def get_module_meta(module_key):
             "zoom": cint(module.map_zoom) or 10,
         },
     }
+
+
+@frappe.whitelist()
+def get_group(group_key):
+    """One Home tile opened: the workspace's DocTypes this user may read,
+    in the workspace's own card sections, or a folder's child tiles."""
+    from wajha import discovery
+
+    if not discovery.enabled():
+        frappe.throw("الاكتشاف التلقائي معطّل", frappe.DoesNotExistError)
+    return discovery.group(group_key)
 
 
 @frappe.whitelist()

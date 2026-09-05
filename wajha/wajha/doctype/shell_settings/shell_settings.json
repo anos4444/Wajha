@@ -27,6 +27,8 @@
   "apply_theme_globally",
   "hide_desk_sidebar",
   "sec_layout",
+  "landing",
+  "auto_modules",
   "default_module",
   "mobile_breakpoint",
   "col_l1",
@@ -155,6 +157,21 @@
    "fieldname": "footer_note",
    "fieldtype": "Data",
    "label": "نص أسفل الشريط الجانبي"
+  },
+  {
+   "fieldname": "landing",
+   "fieldtype": "Select",
+   "label": "صفحة البداية",
+   "options": "Home\nDefault module",
+   "default": "Home",
+   "description": "Home: a grid of the apps and workspaces this user may open (discovered from Frappe, adapts when apps are installed). Default module: open the module below directly."
+  },
+  {
+   "fieldname": "auto_modules",
+   "fieldtype": "Check",
+   "label": "اكتشاف الوحدات تلقائيًا",
+   "default": "1",
+   "description": "Offer every DocType of every installed app's workspaces as a shell module, without creating Shell Module records. Hand-made modules for the same DocType take precedence."
   }
  ],
  "permissions": [
@@ -198,7 +215,7 @@
  "owner": "Administrator",
  "modified_by": "Administrator",
  "creation": "2026-08-07 09:00:00.000000",
- "modified": "2026-08-07 09:00:00.000000",
+ "modified": "2026-09-05 15:00:00.000000",
  "idx": 0,
  "links": [],
  "states": []

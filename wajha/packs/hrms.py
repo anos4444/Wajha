@@ -117,6 +117,13 @@ def installed():
 
 def seed(app_name=None):
     """Runs from after_install, after_migrate and after_app_install."""
+    # Any app arriving changes what Home can show: drop the discovery caches.
+    try:
+        from wajha.boot import clear_boot_cache
+
+        clear_boot_cache()
+    except Exception:
+        pass
     if app_name and app_name not in ("hrms", "wajha"):
         return
     if not installed() or not frappe.db.exists("DocType", "Shell Module"):

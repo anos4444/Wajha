@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.14.0 — 2026-09-05
+
+**Home: the apps grid, discovered from Frappe, adapting to whatever is
+installed.** The shell now lands on a Home page: a greeting, the hand-made
+modules as quick access, and one tile per app or workspace this user may
+open — taken from Frappe 16's own Desktop Icons (the cards the Desk home
+shows: folders with a count, workspaces, app links), or from the public
+Workspaces on a Desk without them. A tile opens the workspace's DocTypes in
+its own card sections; each DocType is a **virtual module** (`~doctype`)
+built on the fly from its list view, exactly as the scaffold would build a
+Shell Module record, with the record card, actions and forms — nothing is
+written, and a hand-made module for the same DocType takes precedence.
+Install an app and its tiles and modules appear on the next load; nobody
+creates records.
+
+- Shell Settings: `landing` (Home / Default module) and `auto_modules`
+  (default on). Home is also at `wajha/home`; groups at `wajha/@…`.
+- Sidebar and bottom bar gain a Home entry.
+- Permission: Desktop Icon roles and app permission are honoured; a
+  workspace shows only DocTypes the user may read; a virtual module is
+  resolved server-side and permission-checked like a saved one.
+- Drawer: narrower (82vw, max 300px) so the tap-outside strip is real.
+
 ## 0.13.1 — 2026-09-05
 
 **The HRMS pack did not seed on the hub.** Shell Module Action's `value`

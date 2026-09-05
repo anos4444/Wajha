@@ -105,17 +105,38 @@ class WajhaShell {
 		this.apply_route(route);
 	}
 
+	has_home() {
+		return !!(this.cfg.home && (this.cfg.layout || {}).landing !== 'Default module');
+	}
+
 	apply_route(route) {
 		const mods = this.cfg.modules || [];
-		if (!mods.length) {
+		const key = route[1] || '';
+		const name = route.slice(2).join('/');
+		// Home: the apps grid. It is the landing unless Shell Settings say
+		// "Default module", and always reachable at wajha/home.
+		if (key === 'home' || (!key && this.has_home())) {
+			this.close_detail(false);
+			this.show_home();
+			return;
+		}
+		// A Home tile opened: a workspace's DocTypes, or a folder's tiles.
+		if (key.startsWith('@')) {
+			this.close_detail(false);
+			this.show_group(key);
+			return;
+		}
+		if (!mods.length && !key.startsWith('~')) {
 			this.$body.html(`<div class="wj-card wj-empty">
 				${__("No modules configured yet. Create Shell Module records, or scaffold one from an existing DocType.")}</div>`);
 			return;
 		}
-		const key = route[1] || '';
-		const name = route.slice(2).join('/');
 		let m = key ? mods.find((x) => x.module_key === key) : null;
+		// A discovered DocType ("~doctype"): not in the module list, the
+		// server builds it on demand; the title arrives with its meta.
+		if (!m && key.startsWith('~')) m = { module_key: key, name: key, module_label: '', view_type: 'List', virtual: true };
 		if (!m) {
+			if (!mods.length) { this.show_home(); return; }
 			const preferred = (this.cfg.layout || {}).default_module;
 			m = mods.find((x) => x.name === preferred) || mods[0];
 			if (m.view_type !== 'List') m = mods.find((x) => x.view_type === 'List') || m;
@@ -201,6 +222,12 @@ class WajhaShell {
 	}
 
 	render_nav() {
+		if (this.has_home()) {
+			$(`<button class="wj-link wj-link-home" data-key="home">
+				<span>🏠 ${__("Home")}</span><span class="wj-en">Home</span></button>`)
+				.on('click', () => { this.close_drawer(); frappe.set_route('wajha', 'home'); })
+				.appendTo(this.$nav);
+		}
 		const groups = new Map();
 		(this.cfg.modules || []).forEach((m) => {
 			const g = m.group || '';
@@ -230,8 +257,15 @@ class WajhaShell {
 		const mods = this.cfg.modules || [];
 		let bar = mods.filter((m) => wj_int(m.show_in_mobile_bar));
 		if (!bar.length) bar = mods.slice(0, MOBILE_BAR_MAX);
-		bar = bar.slice(0, MOBILE_BAR_MAX);
+		const home = this.has_home();
+		bar = bar.slice(0, home ? MOBILE_BAR_MAX - 1 : MOBILE_BAR_MAX);
 		this.$tabbar.empty();
+		if (home) {
+			$(`<button class="wj-tab wj-tab-home" type="button" data-key="home">
+				<span class="wj-tab-icon" aria-hidden="true">🏠</span>
+				<span class="wj-tab-label">${__("Home")}</span>
+			</button>`).on('click', () => frappe.set_route('wajha', 'home')).appendTo(this.$tabbar);
+		}
 		bar.forEach((m) => {
 			$(`<button class="wj-tab" type="button" data-key="${esc(m.module_key)}">
 				<span class="wj-tab-icon" aria-hidden="true">${esc(m.icon || '•')}</span>
@@ -304,7 +338,9 @@ class WajhaShell {
 		this.$tabbar.find('.wj-tab').removeAttr('aria-current');
 		this.$tabbar.find(`.wj-tab[data-key="${m.module_key}"]`).attr('aria-current', 'page');
 		this.$title.text(m.module_label || '');
+		this.$shell.find('.wj-tab-home').removeAttr('aria-current');
 		this.reset_state(m);
+		this.view = 'list';
 		if (this.$detail) { this.$detail.remove(); this.$detail = null; }
 		this.$shell.removeClass('wj-detail-open');
 		return this.render_list_view(m);
@@ -315,6 +351,11 @@ class WajhaShell {
 		return frappe.call('wajha.api.get_module_meta', { module_key: m.module_key })
 			.then((r) => {
 				this.meta = r.message;
+				if (m.virtual) {
+					m.module_label = this.meta.label;
+					m.ref_doctype = this.meta.doctype;
+					this.$title.text(this.meta.label || '');
+				}
 				this.paint_list_frame();
 				this.load_rows();
 				if (this.meta.map && this.meta.map.enabled) this.load_map();
@@ -861,6 +902,87 @@ class WajhaShell {
 		$(`<button type="button" class="wj-btn wj-ghost wj-open-desk">${__("Open in Frappe")}</button>`)
 			.on('click', () => frappe.set_route('Form', rec.doctype, rec.name))
 			.appendTo($a);
+	}
+
+	// ------------------------------------------------------------------ home
+	// The apps grid: one tile per Desktop Icon / workspace this user may
+	// open, straight from Frappe, so a newly installed app appears here on
+	// its own. Hand-made module groups come first as quick access.
+	show_home() {
+		if (this._observer) this._observer.disconnect();
+		this.state.module = null;
+		this.view = 'home';
+		this.$nav.find('.wj-link').removeAttr('aria-current');
+		this.$nav.find('.wj-link-home').attr('aria-current', 'page');
+		this.$tabbar.find('.wj-tab').removeAttr('aria-current');
+		this.$tabbar.find('.wj-tab-home').attr('aria-current', 'page');
+		const b = this.cfg.brand || {};
+		this.$title.text(b.title || __("Home"));
+		const hour = new Date().getHours();
+		const greet = hour < 12 ? __("Good morning") : hour < 17 ? __("Good afternoon") : __("Good evening");
+		const first = ((this.cfg.user || {}).full_name || '').split(' ')[0];
+		this.$body.empty();
+		$(`<div class="wj-home-head"><h2>${esc(greet)}${first ? '، ' + esc(first) : ''} 👋</h2>
+			<p>${__("Everything you can open, in one place.")}</p></div>`).appendTo(this.$body);
+
+		const mods = (this.cfg.modules || []).filter((m) => m.view_type === 'List' || m.view_type === 'Route Link');
+		if (mods.length) {
+			const $q = $(`<section class="wj-home-sec"><h3>${__("Quick access")}</h3><div class="wj-tiles wj-tiles-small"></div></section>`).appendTo(this.$body);
+			mods.slice(0, 12).forEach((m) => this.tile({ label: m.module_label, label_en: m.module_label_en, emoji: m.icon || '•', kind: 'handmade', module: m })
+				.appendTo($q.find('.wj-tiles')));
+		}
+		const tiles = (this.cfg.home && this.cfg.home.tiles) || [];
+		const $apps = $(`<section class="wj-home-sec"><h3>${__("Apps")}</h3><div class="wj-tiles"></div></section>`).appendTo(this.$body);
+		if (!tiles.length) $apps.find('.wj-tiles').append(`<div class="wj-empty">${__("Nothing to show.")}</div>`);
+		tiles.forEach((t) => this.tile(t).appendTo($apps.find('.wj-tiles')));
+	}
+
+	tile(t) {
+		const icon = t.logo_url
+			? `<img src="${esc(t.logo_url)}" alt="">`
+			: t.emoji ? `<span class="wj-tile-emoji">${esc(t.emoji)}</span>`
+			: (t.icon && frappe.utils.icon ? frappe.utils.icon(t.icon, 'lg') : '<span class="wj-tile-emoji">▪</span>');
+		const $t = $(`<button type="button" class="wj-tile wj-tile-${esc(t.kind || 'group')}${t.bg_color ? ' wj-bg-' + esc(t.bg_color) : ''}">
+			<span class="wj-tile-icon">${icon}</span>
+			<span class="wj-tile-label">${esc(t.label)}</span>
+			${t.count ? `<span class="wj-tile-count">${wj_int(t.count)}</span>` : ''}
+		</button>`);
+		$t.on('click', () => {
+			if (t.kind === 'handmade') return this.go(t.module);
+			if (t.kind === 'link') return t.url && (window.location.href = t.url);
+			if (t.kind === 'module') return frappe.set_route('wajha', t.key);
+			frappe.set_route('wajha', t.key);
+		});
+		return $t;
+	}
+
+	// One tile opened: the workspace's DocTypes in its own card sections
+	// (each a tap away from its list), or a folder's child tiles.
+	show_group(key) {
+		if (this._observer) this._observer.disconnect();
+		this.state.module = null;
+		this.view = 'group';
+		this.$nav.find('.wj-link').removeAttr('aria-current');
+		this.$tabbar.find('.wj-tab').removeAttr('aria-current');
+		this.$title.text('…');
+		this.$body.html(`<div class="wj-card wj-empty">${__("Loading…")}</div>`);
+		frappe.call('wajha.api.get_group', { group_key: key }).then((r) => {
+			const g = r.message || {};
+			this.$title.text(g.label || '');
+			this.$body.empty();
+			$(`<div class="wj-group-head"><button type="button" class="wj-back wj-back-inline">${CHEVRON}</button>
+				<div><h2>${esc(g.label || '')}</h2>${g.app ? `<small class="wj-muted">${esc(g.app)}</small>` : ''}</div></div>`)
+				.appendTo(this.$body).find('.wj-back').on('click', () => frappe.set_route('wajha', 'home'));
+			if ((g.tiles || []).length) {
+				const $s = $('<section class="wj-home-sec"><div class="wj-tiles"></div></section>').appendTo(this.$body);
+				g.tiles.forEach((t) => this.tile(t).appendTo($s.find('.wj-tiles')));
+			}
+			(g.sections || []).forEach((sec) => {
+				const $s = $(`<section class="wj-home-sec">${sec.label ? `<h3>${esc(sec.label)}</h3>` : ''}<div class="wj-tiles wj-tiles-small"></div></section>`).appendTo(this.$body);
+				sec.modules.forEach((m) => this.tile({ label: m.module_label, emoji: m.icon || '📄', kind: m.virtual ? 'module' : 'handmade', key: m.module_key, module: m }).appendTo($s.find('.wj-tiles')));
+			});
+			if (!(g.tiles || []).length && !(g.sections || []).length) this.$body.append(`<div class="wj-card wj-empty">${__("Nothing to show.")}</div>`);
+		}).catch(() => this.$body.html(`<div class="wj-card wj-empty">${__("Could not load this group.")}</div>`));
 	}
 
 	// ------------------------------------------------------------------ module actions
