@@ -22,6 +22,7 @@ Wajha sits on top rather than replacing any of it. Browsing, navigation and the 
 - **Permission-safe by construction.** The browser never names a DocType, a field or an operator. It names a *module key*; the server loads that module's saved configuration and builds the query from it, then Frappe's permission layer applies on top. A user cannot request data their roles forbid, even by editing the request.
 - **A real phone app.** Below 700px the list becomes cards (title, subtitle, status chip), filters live in a bottom sheet with a count badge, the list grows as you scroll, and up to four modules sit in a bottom bar within thumb reach. Add to Home Screen installs the client's own name, logo and colours.
 - **Record card with actions.** Tap a record and the shell shows only the fields that hold a value, grouped by the form's sections, plus child tables, attachments and comments — and the actions this user may take right now: workflow transitions, Submit/Cancel, or actions you configure (set a field, call a whitelisted method, jump to a route). Desktop gets a side panel, phones the full screen.
+- **Adapts to the site.** Home is a grid of every app and workspace the user may open, discovered from Frappe itself; a tile opens the workspace's DocTypes as ready-made modules with cards, forms and actions. Install an app and it is there on the next load. Hand-made modules override any discovered one.
 - **Self-service out of the box.** With HRMS installed, employees get my leave, check in / out with location, salary slip PDFs, expense claims, attendance, advances, travel and more — each a "mine" module with an in-shell form, seeded automatically and editable as records. The same pack mechanism (`wajha/packs`) can dress any other app.
 - **Create from the shell.** New records use an in-shell form built from the DocType (or the module's `form_fields`): Link suggestions from Frappe's own search, child-table rows, Save & Submit. The scope is filled server-side. Frappe's full form stays one link away.
 - **"Mine" modules.** A module scoped to the user's own records — by owner, by a user field, or by the Employee linked to the login — is a self-service app for employees with no extra code; an admin's browse module and an employee's "my leave" can point at the same DocType.
@@ -41,7 +42,7 @@ Requires Frappe v16 (Python 3.14). No Node build step is needed.
 
 ## Configure in five minutes
 
-1. **Shell Settings** — set the system name, the authority/organisation subtitle, the logo, and pick an active theme.
+1. **Shell Settings** — set the system name, the authority/organisation subtitle, the logo, and pick an active theme. Leave `landing` on Home and `auto_modules` on to get the discovered apps grid; hand-made modules are optional.
 2. **Shell Module** — one record per sidebar item:
    - `module_key` — a latin slug, e.g. `assets`
    - `module_label` / `module_label_en` — what the user reads

@@ -43,6 +43,15 @@ even legal for a given module before touching the DocType.
   (`get_form` / `create_record` / `run_module_action`) writes only the
   fields the form offered, then sets the scope field last from the login —
   keep that order; it is what stops one employee filing for another.
+- `wajha/discovery.py` — Home tiles (Frappe 16 Desktop Icons → folders /
+  workspaces / app links, else public Workspaces) and virtual modules:
+  `~<doctype-slug>` keys resolved through the workspaces' DocType links
+  and built with `api.build_module_doc`, never saved. `api._get_module`
+  handles the prefix and permission-checks the DocType like a saved
+  module. Tiles are cached per user for five minutes and cleared with the
+  boot cache; the key→DocType map is site-wide and permission-free.
+  Keep every permission decision on Frappe's side (roles on the icon,
+  `has_permission` on the DocType) — never add a list of "safe" DocTypes.
 - `wajha/packs/` — app packs that seed Shell Modules for a known app
   (`hrms.py`: twelve self-service modules). Registered on after_install,
   after_migrate and `after_app_install`. Packs create only what is
