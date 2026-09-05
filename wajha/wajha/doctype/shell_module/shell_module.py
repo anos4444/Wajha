@@ -83,6 +83,11 @@ class ShellModule(Document):
         """
         if self.view_type != "List" or not self.ref_doctype:
             return
+        # Pack seeding creates hundreds of modules in one go; one ALTER TABLE
+        # per range filter on a live database is not what an install should
+        # do. Packs set this flag; an admin's later save queues the indexes.
+        if self.flags.skip_filter_indexes:
+            return
         fieldnames = sorted({
             f.fieldname for f in self.filters
             if f.control in _INDEXABLE_CONTROLS and f.fieldname

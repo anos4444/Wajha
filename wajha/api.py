@@ -73,7 +73,7 @@ def get_config():
         filters={"enabled": 1},
         fields=["name", "module_key", "module_label", "module_label_en", "icon",
                 "group", "sequence", "view_type", "ref_doctype", "route",
-                "show_map", "scope", "show_in_mobile_bar"],
+                "show_map", "scope", "show_in_mobile_bar", "auto_generated"],
         order_by="sequence asc, module_label asc",
     ):
         # A List module is only offered if the user can read its DocType.

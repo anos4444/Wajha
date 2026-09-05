@@ -29,6 +29,7 @@
   "sec_layout",
   "landing",
   "auto_modules",
+  "seed_modules",
   "default_module",
   "mobile_breakpoint",
   "col_l1",
@@ -172,6 +173,13 @@
    "label": "اكتشاف الوحدات تلقائيًا",
    "default": "1",
    "description": "Offer every DocType of every installed app's workspaces as a shell module, without creating Shell Module records. Hand-made modules for the same DocType take precedence."
+  },
+  {
+   "fieldname": "seed_modules",
+   "fieldtype": "Check",
+   "label": "إنشاء وحدات لكل التطبيقات",
+   "default": "1",
+   "description": "On install, migrate and whenever an app is installed, create a Shell Module record for every DocType the installed apps' workspaces link to — grouped by workspace, editable, never overwritten. Turn off to keep only hand-made modules and the discovered Home tiles."
   }
  ],
  "permissions": [
@@ -215,7 +223,7 @@
  "owner": "Administrator",
  "modified_by": "Administrator",
  "creation": "2026-08-07 09:00:00.000000",
- "modified": "2026-09-05 15:00:00.000000",
+ "modified": "2026-09-05 16:00:00.000000",
  "idx": 0,
  "links": [],
  "states": []
