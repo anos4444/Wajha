@@ -1786,6 +1786,46 @@ body[data-route^="wajha/"] .page-body {
 	margin: 0 !important;
 }
 
+/* Belt and braces for Desks whose chrome is not where 0.7.2 expected it —
+   a themed Desk (Swift on: its decorative body::before/::after colour field
+   and pattern; a floating or re-rendered sidebar, the workspace switcher /
+   user widget at its foot). On the shell route, nothing of the Desk frame
+   but the page itself may paint. Seen as a pale column and a
+   "Payroll · Frappe HR" switcher at the bottom-left of a fresh site. */
+body.wj-route #body > :not(.page-container),
+body[data-route="wajha"] #body > :not(.page-container),
+body[data-route^="wajha/"] #body > :not(.page-container),
+body.wj-route .main-section > :not(#body):not(.page-container),
+body[data-route="wajha"] .main-section > :not(#body):not(.page-container),
+body[data-route^="wajha/"] .main-section > :not(#body):not(.page-container),
+body.wj-route [class*="body-sidebar"],
+body[data-route="wajha"] [class*="body-sidebar"],
+body[data-route^="wajha/"] [class*="body-sidebar"],
+body.wj-route .sidebar-header,
+body.wj-route .body-sidebar-bottom,
+body.wj-route .swift-sidebar-restore,
+body[data-route^="wajha"] .swift-sidebar-restore {
+	display: none !important;
+}
+
+body.wj-route::before,
+body.wj-route::after,
+body[data-route="wajha"]::before,
+body[data-route="wajha"]::after,
+body[data-route^="wajha/"]::before,
+body[data-route^="wajha/"]::after {
+	display: none !important;
+	content: none !important;
+}
+
+body.wj-route #body,
+body[data-route="wajha"] #body,
+body[data-route^="wajha/"] #body {
+	display: block !important;
+	padding: 0 !important;
+	margin: 0 !important;
+}
+
 body.wj-route .container,
 body[data-route="wajha"] .container,
 body[data-route^="wajha/"] .container,

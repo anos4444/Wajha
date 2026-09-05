@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.15.1 — 2026-09-05
+
+**Desk chrome leaking beside the shell on a themed Desk.** A screenshot
+from a fresh site showed a pale column on the left and Frappe's workspace
+switcher ("Payroll · Frappe HR") at the bottom-left, next to the shell.
+The 0.7.2 rules named the exact v16 elements; a Desk with the Swift theme
+on paints a decorative colour field on `body::before/::after` and can
+re-render or float the sidebar, and those slipped past. On the shell route
+the stylesheet now hides everything in the Desk frame except the page
+itself: every non-page child of `#body` and `.main-section`, anything
+classed `body-sidebar*`, the sidebar header and foot, Swift's restore
+button, and the body pseudo-elements.
+
 ## 0.15.0 — 2026-09-05
 
 **Every app's modules exist as records by default.** A fresh install had no
