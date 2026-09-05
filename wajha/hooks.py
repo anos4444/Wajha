@@ -104,11 +104,16 @@ extend_bootinfo = "wajha.swift.boot.extend_bootinfo"
 after_install = [
     "wajha.install.after_install",
     "wajha.swift.install.after_install",
+    "wajha.packs.hrms.seed",
 ]
 after_migrate = [
     "wajha.install.after_migrate",
     "wajha.swift.install.after_migrate",
+    "wajha.packs.hrms.seed",
 ]
+# Fires in every installed app when another app is installed on the site:
+# HRMS arriving after Wajha still gets its self-service modules.
+after_app_install = ["wajha.packs.hrms.seed"]
 
 add_to_apps_screen = [
     {

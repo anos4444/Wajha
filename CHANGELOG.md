@@ -1,5 +1,36 @@
 # Changelog
 
+## 0.13.0 — 2026-09-05
+
+**Employee self-service, complete, without Frappe's form.**
+
+- **HRMS pack** (`wajha/packs/hrms.py`). When HRMS is on the site, twelve
+  "mine" modules are seeded — my leave, check in / out, my salary slips,
+  my expense claims, my attendance, attendance requests, compensatory
+  leave, advances, travel, shift requests, my shifts, my profile — each
+  scoped to the Employee behind the login (my profile by `user_id`), with
+  list columns, an in-shell form, a card field list and actions. Seeded on
+  install, on migrate and on `after_app_install` (HRMS arriving later still
+  gets them). Idempotent: existing modules keep every admin edit; only
+  blanks are filled.
+- **In-shell New form** (`wajha.records.get_form` / `create_record`). The
+  fields the module names in `form_fields` (or the DocType's mandatory
+  ones), the DocType's own defaults, Link fields with live suggestions from
+  Frappe's link search, child-table rows, Save and Save & Submit. The scope
+  field is written by the server after the request's values, so a request
+  cannot be filed for someone else. Validation is the DocType's own.
+  Phones get a full-screen form; the empty list offers a New button.
+- **Module-level actions.** Shell Module Action gains `level` (Record /
+  Module) and two types: **Create** (a JSON template with `{employee}`,
+  `{user}`, `{now}`, `{today}`, `{lat}`, `{lon}`; `"__submit": 1` submits)
+  and **Print** (opens the PDF through Frappe's own download endpoint, which
+  re-checks the permission). Check in / check out are Create actions above
+  the check-ins list, sending the device location when it is granted.
+- **Drawer.** A ✕ button in the drawer header and swipe-towards-the-edge
+  close it; the drawer and the record panel now follow the shell's own
+  direction rather than the document's, so an English-language Desk no
+  longer opens the drawer on the opposite side from the desktop sidebar.
+
 ## 0.12.1 — 2026-09-05
 
 **0.12.0 rendered an empty shell on Frappe 16 — phones and desktops alike.**

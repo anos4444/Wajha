@@ -21,6 +21,7 @@
   "group",
   "sequence",
   "enabled",
+  "auto_generated",
   "sec_view",
   "view_type",
   "ref_doctype",
@@ -36,6 +37,7 @@
   "scope_field",
   "col_s1",
   "detail_fields",
+  "form_fields",
   "show_in_mobile_bar",
   "auto_actions",
   "sec_cols",
@@ -319,6 +321,20 @@
    "fieldtype": "Table",
    "label": "الإجراءات",
    "options": "Shell Module Action"
+  },
+  {
+   "fieldname": "form_fields",
+   "fieldtype": "Small Text",
+   "label": "حقول نموذج الإنشاء",
+   "description": "Comma-separated fieldnames for the in-shell New form, in order. Blank offers the DocType's mandatory fields. The scope field is always filled by the server."
+  },
+  {
+   "fieldname": "auto_generated",
+   "fieldtype": "Check",
+   "label": "مولّدة تلقائيًا",
+   "default": "0",
+   "read_only": 1,
+   "description": "Created by a Wajha pack (e.g. HRMS self-service). Edit freely; packs only fill blanks and never overwrite."
   }
  ],
  "permissions": [
@@ -362,7 +378,7 @@
  "owner": "Administrator",
  "modified_by": "Administrator",
  "creation": "2026-08-07 09:00:00.000000",
- "modified": "2026-09-05 09:00:00.000000",
+ "modified": "2026-09-05 12:00:00.000000",
  "idx": 0,
  "links": [],
  "states": [],

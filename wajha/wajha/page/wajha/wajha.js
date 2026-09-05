@@ -163,6 +163,7 @@ class WajhaShell {
 							<h1>${esc(b.title || '')}</h1>
 							${b.subtitle ? `<p>${esc(b.subtitle)}</p>` : ''}
 						</div>
+						<button type="button" class="wj-drawer-close" aria-label="${__("Close navigation menu")}">✕</button>
 					</div>
 					<nav class="wj-nav" id="wj-nav"></nav>
 					${layout.show_desk_link ? `<button class="wj-desk-link" type="button">
@@ -271,7 +272,21 @@ class WajhaShell {
 			$shell.find('.wj-link').first().focus();
 		};
 		$burger.on('click', () => ($shell.hasClass('wj-open') ? close() : open()));
+		$shell.find('.wj-drawer-close').on('click', close);
 		$shell.find('.wj-backdrop').on('click', close);
+		// Swipe the drawer towards its own edge to close it — the backdrop
+		// strip beside a full-width drawer is easy to miss on a phone.
+		let touch_x = null;
+		$shell.find('.wj-sidebar')
+			.on('touchstart', (e) => { touch_x = e.originalEvent.touches[0].clientX; })
+			.on('touchend', (e) => {
+				if (touch_x === null) return;
+				const dx = e.originalEvent.changedTouches[0].clientX - touch_x;
+				touch_x = null;
+				const rect = $shell.find('.wj-sidebar')[0].getBoundingClientRect();
+				const on_right = rect.left + rect.width / 2 > window.innerWidth / 2;
+				if ((on_right && dx > 60) || (!on_right && dx < -60)) close();
+			});
 		$(document).on('keydown.wajha', (e) => {
 			if (e.key !== 'Escape') return;
 			if ($shell.hasClass('wj-open') || $shell.hasClass('wj-sheet-open')) close();
@@ -340,7 +355,7 @@ class WajhaShell {
 		if (!(meta.filters || []).length) $filter_btn.hide();
 		if (meta.can_create) {
 			$(`<button class="wj-btn wj-new">＋ ${__("New")}</button>`).appendTo($search_row)
-				.on('click', () => frappe.new_doc(meta.doctype, meta.new_defaults || {}));
+				.on('click', () => this.open_new());
 		}
 
 		const $filters = $(`<div class="wj-filters" id="wj-filters">
@@ -457,6 +472,7 @@ class WajhaShell {
 			<button type="button" class="wj-btn wj-ghost wj-more">${__("Load More")}</button>
 			<button type="button" class="wj-btn wj-ghost wj-prev">${__("Previous")}</button>
 			<button type="button" class="wj-btn wj-ghost wj-next">${__("Next")}</button></span></div>`;
+		this.render_module_actions($card);
 		$(pager('top')).appendTo($card);
 		$(`<div class="wj-table-wrap"><table class="wj-table">
 			<thead><tr></tr></thead><tbody></tbody></table></div>`).appendTo($card);
@@ -561,6 +577,10 @@ class WajhaShell {
 			const empty = `<div class="wj-empty">${__("No matching records.")}</div>`;
 			$tb.append(`<tr><td colspan="${col_count}">${empty}</td></tr>`);
 			$cards.append(empty);
+			if (meta.can_create && !s.search && !Object.keys(s.filters || {}).length) {
+				$(`<button type="button" class="wj-btn wj-big wj-empty-cta">＋ ${__("New")}</button>`)
+					.on('click', () => this.open_new()).appendTo($cards);
+			}
 		}
 		const open = (row) => {
 			this._detail_via_list = true;
@@ -703,10 +723,11 @@ class WajhaShell {
 	// already moved on.
 	close_detail(navigate) {
 		if (!this.$detail) return;
+		const was_form = this.$detail.hasClass('wj-form');
 		this.$detail.remove();
 		this.$detail = null;
 		this.$shell.removeClass('wj-detail-open');
-		if (!navigate) return;
+		if (!navigate || was_form) return;
 		if (this._detail_via_list) {
 			this._detail_via_list = false;
 			window.history.back();
@@ -812,6 +833,11 @@ class WajhaShell {
 				.attr('title', a.hint || '')
 				.appendTo($a);
 			$btn.on('click', () => {
+				if (a.kind === 'custom' && a.type === 'Print') {
+					frappe.call('wajha.records.print_url', { module_key: m.module_key, name: rec.name, print_format: a.value || '' })
+						.then((r) => window.open(r.message, '_blank', 'noopener'));
+					return;
+				}
 				if (a.kind === 'custom' && a.type === 'Route') {
 					const route = String(a.value || '').replace(/\{name\}/g, rec.name).replace(/^\/(app|desk)\//, '');
 					frappe.set_route(route.split('/'));
@@ -835,6 +861,214 @@ class WajhaShell {
 		$(`<button type="button" class="wj-btn wj-ghost wj-open-desk">${__("Open in Frappe")}</button>`)
 			.on('click', () => frappe.set_route('Form', rec.doctype, rec.name))
 			.appendTo($a);
+	}
+
+	// ------------------------------------------------------------------ module actions
+	// Buttons above the list, e.g. check in / check out: a Create action on
+	// the module. The device location goes with the request when the action
+	// asks for it; a refusal still records the event, just without a place.
+	render_module_actions($card) {
+		const acts = this.meta.module_actions || [];
+		if (!acts.length) return;
+		const $row = $('<div class="wj-module-actions"></div>').prependTo($card);
+		acts.forEach((a) => {
+			const cls = a.style === 'Primary' ? '' : a.style === 'Danger' ? 'wj-danger' : 'wj-ghost';
+			$(`<button type="button" class="wj-btn wj-big ${cls}">${a.icon ? esc(a.icon) + ' ' : ''}${esc(a.label)}</button>`)
+				.on('click', () => this.run_module_action(a, $row)).appendTo($row);
+		});
+	}
+
+	run_module_action(a, $row) {
+		const m = this.state.module;
+		const go = (ctx) => {
+			$row.find('button').prop('disabled', true);
+			frappe.call('wajha.records.run_module_action', { module_key: m.module_key, idx: a.idx, context: JSON.stringify(ctx) })
+				.then(() => {
+					frappe.show_alert({ message: __("Done"), indicator: 'green' });
+					this.state.page_no = 1;
+					this.load_rows();
+				})
+				.always(() => $row.find('button').prop('disabled', false));
+		};
+		const start = () => {
+			if (!a.needs_location || !navigator.geolocation) return go({});
+			frappe.show_alert({ message: __("Getting your location…"), indicator: 'blue' });
+			navigator.geolocation.getCurrentPosition(
+				(pos) => go({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+				() => go({}),
+				{ enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 });
+		};
+		if (a.confirm) frappe.confirm(`${esc(a.label)}؟`, start);
+		else start();
+	}
+
+	// ------------------------------------------------------------------ new record
+	// The in-shell form: the fields the module names (or the DocType's
+	// mandatory ones), the DocType's own defaults, the scope filled by the
+	// server. Saving runs the DocType's full validation; an error comes back
+	// as Frappe's own message dialog.
+	open_new() {
+		const m = this.state.module;
+		if (this.$detail) { this.$detail.remove(); this.$detail = null; }
+		this.$detail = $(`<div class="wj-detail wj-form" role="dialog" aria-modal="true" aria-label="${__("New")}">
+			<div class="wj-detail-head">
+				<button type="button" class="wj-back" aria-label="${__("Back")}">${CHEVRON}</button>
+				<div class="wj-detail-title"><h3>${__("New")}</h3><small>${esc(m.module_label || '')}</small></div>
+			</div>
+			<div class="wj-detail-body"><div class="wj-empty">${__("Loading…")}</div></div>
+			<div class="wj-detail-actions"></div>
+		</div>`).data('name', '__new__').appendTo(this.$shell);
+		this.$shell.addClass('wj-detail-open');
+		this.$detail.find('.wj-back').on('click', () => this.close_detail(true));
+		this.$shell.find('.wj-backdrop').off('click.detail').on('click.detail', () => {
+			if (this.$detail && !this.$shell.hasClass('wj-open') && !this.$shell.hasClass('wj-sheet-open')) this.close_detail(true);
+		});
+		frappe.call('wajha.records.get_form', { module_key: m.module_key })
+			.then((r) => this.render_form(r.message))
+			.catch(() => {
+				if (!this.$detail) return;
+				this.$detail.find('.wj-detail-body').html(`<div class="wj-empty">${__("Could not load the form.")}</div>`);
+			});
+	}
+
+	render_form(form) {
+		if (!this.$detail || !form) return;
+		const m = this.state.module;
+		const $d = this.$detail;
+		$d.find('.wj-detail-title h3').text(form.title || __("New"));
+		const $b = $d.find('.wj-detail-body').empty();
+		if (form.missing_scope) {
+			$b.append(`<div class="wj-notice">${__("Your login is not linked to an Employee record. Ask HR to link it.")}</div>`);
+		}
+		if ((form.scope || []).length) {
+			const $s = $('<div class="wj-dsec wj-scope"></div>').appendTo($b);
+			form.scope.forEach((f) => $s.append(`<div class="wj-scope-row"><span>${esc(f.label)}</span><b>${esc(f.value || '—')}</b></div>`));
+		}
+		const $sec = $('<section class="wj-dsec wj-fields"></section>').appendTo($b);
+		this._form_inputs = {};
+		(form.fields || []).forEach((f) => {
+			if (f.fieldtype === 'Table') { this.render_table_field($sec, f); return; }
+			const $f = $(`<div class="wj-field wj-form-field wj-type-${esc(f.fieldtype).replace(/\s+/g, '-')}"><label>${esc(f.label)}${f.reqd ? ' <i class="wj-req">*</i>' : ''}</label></div>`).appendTo($sec);
+			const $input = this.make_input(f).appendTo($f);
+			if (f.description) $f.append(`<small class="wj-muted">${esc(f.description)}</small>`);
+			this._form_inputs[f.fieldname] = { spec: f, $el: $input };
+		});
+		$sec.append(`<p class="wj-muted wj-form-foot"><a href="#" class="wj-open-frappe-form">${__("Open the full form in Frappe")}</a></p>`);
+		$sec.find('.wj-open-frappe-form').on('click', (e) => {
+			e.preventDefault();
+			frappe.new_doc(form.doctype, this.meta.new_defaults || {});
+		});
+
+		const $a = $d.find('.wj-detail-actions').empty();
+		const save = (submit) => {
+			const values = {};
+			Object.keys(this._form_inputs).forEach((k) => {
+				const it = this._form_inputs[k];
+				values[k] = it.$table ? this.read_table(it.$table) : this.read_value(it.$el, it.spec);
+			});
+			$a.find('button').prop('disabled', true);
+			frappe.call('wajha.records.create_record', {
+				module_key: m.module_key, values: JSON.stringify(values), submit: submit ? 1 : 0,
+			}).then((r) => {
+				const rec = r.message;
+				frappe.show_alert({ message: __("Saved"), indicator: 'green' });
+				this.close_detail(false);
+				this.state.page_no = 1;
+				this.load_rows();
+				this._detail_via_list = true;
+				frappe.set_route('wajha', m.module_key, rec.name);
+			}).catch(() => $a.find('button').prop('disabled', false));
+		};
+		$(`<button type="button" class="wj-btn">${__("Save")}</button>`).on('click', () => save(false)).appendTo($a);
+		if (form.submittable) {
+			$(`<button type="button" class="wj-btn">${__("Save and Submit")}</button>`).on('click', () => save(true)).appendTo($a);
+		}
+		$(`<button type="button" class="wj-btn wj-ghost">${__("Cancel")}</button>`).on('click', () => this.close_detail(true)).appendTo($a);
+		$sec.find('input, select, textarea').first().trigger('focus');
+	}
+
+	make_input(f) {
+		const dflt = f.default === null || f.default === undefined ? '' : f.default;
+		switch (f.fieldtype) {
+			case 'Select': {
+				const $s = $('<select></select>');
+				(f.options || []).forEach((o) => $s.append(`<option value="${esc(o)}">${esc(o)}</option>`));
+				$s.val(dflt);
+				return $s;
+			}
+			case 'Link': return this.link_input(f);
+			case 'Date': return $('<input type="date">').val(String(dflt).slice(0, 10));
+			case 'Datetime': return $('<input type="datetime-local">').val(String(dflt).replace(' ', 'T').slice(0, 16));
+			case 'Time': return $('<input type="time">').val(String(dflt).slice(0, 5));
+			case 'Int': return $('<input type="number" step="1" inputmode="numeric">').val(dflt);
+			case 'Float': case 'Currency': case 'Percent':
+				return $('<input type="number" step="any" inputmode="decimal">').val(dflt);
+			case 'Check': return $('<input type="checkbox" class="wj-check">').prop('checked', !!wj_int(dflt));
+			case 'Small Text': case 'Text': case 'Long Text': case 'Text Editor': case 'Markdown Editor': case 'HTML Editor':
+				return $('<textarea rows="3"></textarea>').val(dflt);
+			default: return $('<input type="text">').val(dflt);
+		}
+	}
+
+	// A Link field is a text box with live suggestions from Frappe's own
+	// link search, so permissions and link filters apply as in the Desk.
+	link_input(f) {
+		WajhaShell._dl = (WajhaShell._dl || 0) + 1;
+		const id = `wj-dl-${WajhaShell._dl}`;
+		const $wrap = $('<span class="wj-link-input"></span>');
+		const $input = $(`<input type="text" list="${id}" autocomplete="off" placeholder="${esc(f.options || '')}">`)
+			.val(f.default || '').appendTo($wrap);
+		const $list = $(`<datalist id="${id}"></datalist>`).appendTo($wrap);
+		const search = frappe.utils.debounce(() => {
+			frappe.call('frappe.desk.search.search_link', { doctype: f.options, txt: $input.val() || '', page_length: 10 })
+				.then((r) => {
+					const rows = (r.message && r.message.results) || r.results || (Array.isArray(r.message) ? r.message : []);
+					$list.empty();
+					rows.forEach((x) => $list.append(`<option value="${esc(x.value)}">${esc(x.description || x.label || '')}</option>`));
+				});
+		}, 250);
+		$input.on('focus input', search);
+		return $wrap;
+	}
+
+	render_table_field($sec, f) {
+		const $t = $(`<div class="wj-form-table"><label>${esc(f.label)}${f.reqd ? ' <i class="wj-req">*</i>' : ''}</label>
+			<div class="wj-form-rows"></div>
+			<button type="button" class="wj-btn wj-ghost wj-add-row">＋ ${__("Add row")}</button></div>`).appendTo($sec);
+		const add = () => {
+			const $r = $('<div class="wj-form-row"></div>').appendTo($t.find('.wj-form-rows'));
+			(f.columns || []).forEach((c) => {
+				const $c = $(`<div class="wj-field" data-col="${esc(c.fieldname)}"><label>${esc(c.label)}${c.reqd ? ' <i class="wj-req">*</i>' : ''}</label></div>`).appendTo($r);
+				this.make_input(c).appendTo($c);
+			});
+			$(`<button type="button" class="wj-row-del" aria-label="${__("Remove")}">✕</button>`).on('click', () => $r.remove()).appendTo($r);
+		};
+		$t.find('.wj-add-row').on('click', add);
+		add();
+		this._form_inputs[f.fieldname] = { spec: f, $table: $t };
+	}
+
+	read_value($el, spec) {
+		const $i = $el.is('input, select, textarea') ? $el : $el.find('input, select, textarea').first();
+		if (spec.fieldtype === 'Check') return $i.prop('checked') ? 1 : 0;
+		let v = $i.val();
+		if (v === null || v === undefined) v = '';
+		if (spec.fieldtype === 'Datetime' && v) v = v.replace('T', ' ') + (v.length === 16 ? ':00' : '');
+		return v;
+	}
+
+	read_table($t) {
+		const spec = this._form_inputs && Object.values(this._form_inputs).find((it) => it.$table === $t).spec;
+		const cols = {};
+		(spec.columns || []).forEach((c) => { cols[c.fieldname] = c; });
+		return $t.find('.wj-form-row').map((_, row) => {
+			const out = {};
+			$(row).find('.wj-field[data-col]').each((__i, cell) => {
+				const col = cell.dataset.col;
+				out[col] = this.read_value($(cell).children().last(), cols[col] || {});
+			});
+			return out;
+		}).get();
 	}
 
 	// ------------------------------------------------------------------ map

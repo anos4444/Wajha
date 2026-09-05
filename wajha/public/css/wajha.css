@@ -63,6 +63,21 @@
 	padding: 6px 6px 14px;
 }
 
+.wj-drawer-close {
+	display: none;
+	margin-inline-start: auto;
+	appearance: none;
+	border: 1px solid rgba(255, 255, 255, .35);
+	background: transparent;
+	color: inherit;
+	width: 40px;
+	height: 40px;
+	border-radius: 10px;
+	font-size: 16px;
+	cursor: pointer;
+	flex: none;
+}
+
 .wj-brand img {
 	width: 46px;
 	height: 46px;
@@ -604,10 +619,6 @@
 	opacity: .7;
 }
 
-[dir="ltr"] .wj-chev {
-	transform: scaleX(-1);
-}
-
 /* Skeleton rows while the first page is in flight, so the list never
    starts as a blank card. */
 .wj-cards.wj-skeleton::before,
@@ -651,24 +662,8 @@
 	animation: wj-slide-in .2s ease;
 }
 
-[dir="ltr"] .wj-detail {
-	left: auto;
-	right: 0;
-	direction: ltr;
-	box-shadow: -6px 0 28px rgba(0, 0, 0, .2);
-}
-
 @keyframes wj-slide-in {
 	from { opacity: .4; transform: translateX(-24px); }
-	to { opacity: 1; transform: none; }
-}
-
-[dir="ltr"] .wj-detail {
-	animation-name: wj-slide-in-ltr;
-}
-
-@keyframes wj-slide-in-ltr {
-	from { opacity: .4; transform: translateX(24px); }
 	to { opacity: 1; transform: none; }
 }
 
@@ -705,10 +700,6 @@
 	transform: scaleX(-1);
 	opacity: 1;
 	color: inherit;
-}
-
-[dir="ltr"] .wj-back .wj-chev {
-	transform: none;
 }
 
 .wj-detail-title {
@@ -924,6 +915,163 @@
 	cursor: default;
 }
 
+/* ---------------------------------------------------------------- module actions + forms */
+.wj-module-actions {
+	display: flex;
+	gap: 10px;
+	flex-wrap: wrap;
+	margin-bottom: 12px;
+}
+
+.wj-btn.wj-big {
+	flex: 1 1 160px;
+	min-height: 52px;
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.wj-empty-cta {
+	margin: 0 auto 8px;
+	max-width: 320px;
+}
+
+.wj-notice {
+	background: color-mix(in srgb, var(--wj-warning) 14%, var(--wj-surface-bg));
+	border: 1px solid color-mix(in srgb, var(--wj-warning) 40%, transparent);
+	color: var(--wj-ink);
+	border-radius: var(--wj-radius);
+	padding: 10px 12px;
+	margin-top: 10px;
+	font-size: 14px;
+	line-height: 1.6;
+}
+
+.wj-scope-row {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	font-size: 14px;
+	padding: 4px 0;
+}
+
+.wj-scope-row span {
+	color: var(--wj-muted-ink);
+}
+
+.wj-fields {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.wj-form-field {
+	min-width: 0;
+	flex: 0 0 auto;
+}
+
+.wj-form-field textarea {
+	font-family: inherit;
+	font-size: 15px;
+	padding: 8px 10px;
+	border: 1px solid var(--wj-border);
+	border-radius: 8px;
+	background: var(--wj-surface-bg);
+	color: var(--wj-ink);
+	resize: vertical;
+}
+
+.wj-form-field input:focus,
+.wj-form-field select:focus,
+.wj-form-field textarea:focus {
+	outline: 2px solid var(--wj-primary);
+	outline-offset: 1px;
+}
+
+.wj-type-Check {
+	flex-direction: row;
+	align-items: center;
+	gap: 10px;
+}
+
+.wj-type-Check label {
+	order: 2;
+	font-size: 14px;
+	color: var(--wj-ink);
+}
+
+.wj-check {
+	width: 22px;
+	height: 22px;
+	min-height: 0 !important;
+	accent-color: var(--wj-primary);
+}
+
+.wj-req {
+	color: var(--wj-danger);
+	font-style: normal;
+}
+
+.wj-link-input {
+	display: flex;
+}
+
+.wj-link-input input {
+	flex: 1 1 auto;
+	min-width: 0;
+	width: 100%;
+}
+
+.wj-form-table > label {
+	font-size: 12px;
+	color: var(--wj-muted-ink);
+	display: block;
+	margin-bottom: 6px;
+}
+
+.wj-form-rows {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.wj-form-row {
+	position: relative;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+	gap: 8px;
+	padding: 10px 40px 10px 10px;
+	border: 1px solid var(--wj-border);
+	border-radius: 8px;
+	background: var(--wj-page-bg);
+}
+
+.wj-form-row .wj-field {
+	min-width: 0;
+}
+
+.wj-row-del {
+	position: absolute;
+	top: 8px;
+	inset-inline-end: 8px;
+	appearance: none;
+	border: 0;
+	background: transparent;
+	color: var(--wj-muted-ink);
+	width: 28px;
+	height: 28px;
+	border-radius: 6px;
+	cursor: pointer;
+}
+
+.wj-form-foot {
+	margin: 4px 0 0;
+}
+
+.wj-form-foot a {
+	color: var(--wj-primary);
+}
+
 /* ---------------------------------------------------------------- phone bottom bar */
 .wj-tabbar {
 	display: none;
@@ -939,10 +1087,6 @@
 	box-shadow: 0 -2px 12px rgba(0, 0, 0, .06);
 	direction: rtl;
 	font-family: var(--wj-font);
-}
-
-[dir="ltr"] .wj-tabbar {
-	direction: ltr;
 }
 
 .wj-tab {
@@ -1015,6 +1159,12 @@
 		justify-content: center;
 	}
 
+	.wj-drawer-close {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+	}
+
 	/* Physical right/left here on purpose: `inset-inline-end` resolves to the
 	   LEFT edge in an RTL document, which docked the drawer opposite to the
 	   desktop sidebar and left part of it on screen once translated. The
@@ -1032,14 +1182,6 @@
 		transform: translateX(100%);
 		transition: transform .22s ease;
 		box-shadow: -6px 0 24px rgba(0, 0, 0, .18);
-	}
-
-	:root[dir="ltr"] .wj-sidebar,
-	[dir="ltr"] .wj-sidebar {
-		right: auto;
-		left: 0;
-		transform: translateX(-100%);
-		box-shadow: 6px 0 24px rgba(0, 0, 0, .18);
 	}
 
 	.wj-shell.wj-open .wj-sidebar {
@@ -1104,9 +1246,14 @@
 	/* 16px inputs: below that iOS zooms the page on focus. */
 	.wj-field input,
 	.wj-field select,
-	.wj-comment-box textarea {
+	.wj-comment-box textarea,
+	.wj-form-field textarea {
 		font-size: 16px;
 		min-height: 44px;
+	}
+
+	.wj-form-row {
+		grid-template-columns: 1fr;
 	}
 
 	.wj-search-field label {
@@ -1237,8 +1384,7 @@
 	}
 
 	/* The record card fills the screen. */
-	.wj-detail,
-	[dir="ltr"] .wj-detail {
+	.wj-detail {
 		width: 100vw;
 		left: 0;
 		right: 0;

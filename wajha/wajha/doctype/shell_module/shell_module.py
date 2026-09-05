@@ -1,3 +1,5 @@
+import json
+
 import frappe
 from frappe.model.document import Document
 
@@ -27,12 +29,27 @@ class ShellModule(Document):
         self.detail_fields = ",".join(
             f.strip() for f in (self.detail_fields or "").replace("\n", ",").split(",") if f.strip()
         )
+        self.form_fields = ",".join(
+            f.strip() for f in (self.form_fields or "").replace("\n", ",").split(",") if f.strip()
+        )
         for row in self.actions:
             row.value = (row.value or "").strip()
             if row.action_type == "Set Value" and "=" not in row.value:
                 frappe.throw(f"الإجراء {row.label}: القيمة يجب أن تكون بصيغة fieldname=value")
             if row.action_type == "Server Method" and "." not in row.value:
                 frappe.throw(f"الإجراء {row.label}: أدخل المسار الكامل للدالة (app.module.function)")
+            if row.action_type == "Create":
+                try:
+                    parsed = json.loads(row.value or "{}")
+                except ValueError:
+                    frappe.throw(f"الإجراء {row.label}: القيمة يجب أن تكون JSON")
+                if not isinstance(parsed, dict):
+                    frappe.throw(f"الإجراء {row.label}: القيمة يجب أن تكون كائن JSON")
+                row.level = "Module" if not row.level else row.level
+            if row.action_type == "Print" and (row.level or "Record") != "Record":
+                frappe.throw(f"الإجراء {row.label}: الطباعة إجراء على مستوى السجل")
+            if row.action_type in ("Set Value", "Server Method", "Route", "Print"):
+                row.level = row.level or "Record"
 
     def on_update(self):
         self._clear_cache()
