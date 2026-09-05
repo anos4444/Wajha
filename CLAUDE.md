@@ -173,6 +173,14 @@ everything.
   off". Read the raw `tabSingles` row (`never_stored()` in `install.py`);
   bit both the Swift master switch (0.7.1, silently ineffective) and
   `show_desk_link` (0.9.0, link hidden on the hub) before this was pinned.
+- **`frappe.utils.cint` / `frappe.utils.flt` do not exist** — Frappe exposes
+  `cint`/`flt` as bare globals. Calling them under `frappe.utils` threw in
+  the page script and blanked the whole shell on 0.12.0. Use `wj_int` /
+  `wj_num` in `wajha.js`. Corollary for the Playwright harness
+  (scratch, not in the repo): its Frappe shim must never define an API
+  Frappe lacks — a shim that is kinder than Frappe hides exactly this bug.
+- **Frappe 16 serves the Desk at `/desk`** (`/app` 301s there). Build Desk
+  URLs with `api.desk_prefix()`; strip either prefix from stored routes.
 - **`bench install-app` does not run `after_migrate`** — anything that must
   exist on a genuinely fresh site (theme presets, roles, default settings)
   needs to fire from `after_install` too. Test against a real fresh
