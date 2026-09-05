@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.13.1 — 2026-09-05
+
+**The HRMS pack did not seed on the hub.** Shell Module Action's `value`
+was mandatory, the pack's salary-slip Print action has none (blank = the
+default print format), and the resulting MandatoryError aborted the whole
+seeding step in `after_migrate` — zero self-service modules. `value` is now
+optional for Print only (validate() still requires it for every other
+type), and each pack module is seeded on its own with a logged skip, so
+one bad definition can never block the rest. The form's fallback field
+list also skips mandatory fields the DocType already fills (series,
+posting date, default status).
+
 ## 0.13.0 — 2026-09-05
 
 **Employee self-service, complete, without Frappe's form.**

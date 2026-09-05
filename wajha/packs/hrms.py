@@ -122,17 +122,31 @@ def seed(app_name=None):
     if not installed() or not frappe.db.exists("DocType", "Shell Module"):
         return
     frappe.clear_cache(doctype="Shell Module")
+    frappe.clear_cache(doctype="Shell Module Action")
     created, filled = [], []
     for key, label, label_en, icon, doctype, seq, scope, scope_field, conf in MODULES:
         if not frappe.db.exists("DocType", doctype):
             continue
+        # One module that fails to validate (a field renamed upstream, say)
+        # must not take the other eleven down with it — nor migrate.
+        try:
+            _seed_one(key, label, label_en, icon, doctype, seq, scope, scope_field, conf, created, filled)
+        except Exception:
+            frappe.log_error(title=f"wajha: HRMS pack could not seed {key}", message=frappe.get_traceback())
+            print(f"wajha: HRMS pack skipped {key}: {frappe.get_traceback().strip().splitlines()[-1]}")
+    if created or filled:
+        print(f"wajha: HRMS self-service pack — created {created or 'none'}, filled {filled or 'none'}")
+
+
+def _seed_one(key, label, label_en, icon, doctype, seq, scope, scope_field, conf, created, filled):
+    if True:
         meta = frappe.get_meta(doctype)
         real = {df.fieldname for df in meta.fields}
         columns = [c for c in conf.get("columns", []) if c in real]
         if frappe.db.exists("Shell Module", key):
             if _fill_blanks(key, conf, real):
                 filled.append(key)
-            continue
+            return
         doc = build_module_doc(doctype, key, label, field_include=columns or None)
         doc.module_label_en = label_en
         doc.icon = icon
@@ -155,8 +169,6 @@ def seed(app_name=None):
         doc.flags.ignore_permissions = True
         doc.insert(ignore_permissions=True)
         created.append(key)
-    if created or filled:
-        print(f"wajha: HRMS self-service pack — created {created or 'none'}, filled {filled or 'none'}")
 
 
 def _fill_blanks(key, conf, real):

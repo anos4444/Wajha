@@ -34,6 +34,9 @@ class ShellModule(Document):
         )
         for row in self.actions:
             row.value = (row.value or "").strip()
+            # Print is the one type that may have no value (the default format).
+            if row.action_type != "Print" and not row.value:
+                frappe.throw(f"الإجراء {row.label}: أدخل القيمة")
             if row.action_type == "Set Value" and "=" not in row.value:
                 frappe.throw(f"الإجراء {row.label}: القيمة يجب أن تكون بصيغة fieldname=value")
             if row.action_type == "Server Method" and "." not in row.value:

@@ -9,7 +9,7 @@
  "owner": "Administrator",
  "modified_by": "Administrator",
  "creation": "2026-09-05 09:00:00.000000",
- "modified": "2026-09-05 12:00:00.000000",
+ "modified": "2026-09-05 13:00:00.000000",
  "idx": 0,
  "field_order": [
   "label",
@@ -60,7 +60,7 @@
    "fieldtype": "Data",
    "label": "القيمة",
    "in_list_view": 1,
-   "reqd": 1
+   "reqd": 0
   },
   {
    "fieldname": "style",

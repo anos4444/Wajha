@@ -390,15 +390,20 @@ MAX_CHILD_COLUMNS = 4
 PLACEHOLDERS = ("{employee}", "{user}", "{now}", "{today}", "{lat}", "{lon}", "{name}")
 
 
-def _form_fieldnames(module, meta):
+def _form_fieldnames(module, meta, doc=None):
+    """The module's form_fields, else the DocType's mandatory fields that
+    still need a value: a series, a posting date or a default status is
+    filled by the DocType itself and is not the employee's business."""
     wanted = [f for f in (module.form_fields or "").split(",") if f.strip()]
     if wanted:
         return wanted
     scope = set(scope_defaults(module).keys())
+    doc = doc or frappe.new_doc(meta.name)
     return [df.fieldname for df in meta.fields
             if df.reqd and not df.hidden and not df.read_only
             and df.fieldtype not in FORM_SKIP_TYPES and df.fieldtype != "Table"
-            and df.fieldname not in scope]
+            and df.fieldname not in scope
+            and doc.get(df.fieldname) in (None, "")]
 
 
 def _field_spec(df, value):
@@ -425,7 +430,7 @@ def get_form(module_key):
         doc.set(k, v)
 
     fields = []
-    for fieldname in _form_fieldnames(module, meta):
+    for fieldname in _form_fieldnames(module, meta, doc):
         df = meta.get_field(fieldname)
         if not df or df.fieldtype in FORM_SKIP_TYPES:
             continue
@@ -490,7 +495,7 @@ def create_record(module_key, values, submit=0):
     meta = frappe.get_meta(dt)
 
     doc = frappe.new_doc(dt)
-    allowed = _form_fieldnames(module, meta)
+    allowed = _form_fieldnames(module, meta, doc)
     _apply_values(doc, meta, allowed, values or {})
     # Scope last, so nothing in the request can point the record at someone else.
     scope = scope_defaults(module)
