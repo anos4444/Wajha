@@ -1,17 +1,67 @@
-Main navigation,التنقل الرئيسي
-Open navigation menu,فتح قائمة التنقل
-Close navigation menu,إغلاق قائمة التنقل
-The shell is not enabled. Enable it in Shell Settings.,الواجهة غير مفعّلة. فعّلها من إعدادات الواجهة (Shell Settings).
-"No modules configured yet. Create Shell Module records, or scaffold one from an existing DocType.",لا توجد وحدات مُهيّأة بعد. أنشئ وحدات من Shell Module، أو استخدم أداة التهيئة السريعة من DocType موجود.
-Loading…,جارٍ التحميل…
-Opening…,جارٍ الفتح…
-Could not load this module.,تعذّر تحميل الوحدة.
-No matching records.,لا توجد سجلات مطابقة.
-Search,بحث
+(location),(موقع)
+Add a comment,أضف تعليقًا
+Add row,إضافة صف
+Approve,موافقة
+Approved,موافق عليه
+Apps,التطبيقات
+Attachments,المرفقات
+Back,رجوع
+Cancel,إلغاء
+Cancelled,ملغى
 Clear,تفريغ
+Close navigation menu,إغلاق قائمة التنقل
+Comments,التعليقات
+Could not load the form.,تعذّر تحميل النموذج.
+Could not load this group.,تعذّر تحميل هذه المجموعة.
+Could not load this module.,تعذّر تحميل الوحدة.
+Could not load this record.,تعذّر تحميل هذا السجل.
+Done,تم
+Draft,مسودة
+"Everything you can open, in one place.",كل ما يمكنك فتحه، في مكان واحد.
+Filter,تصفية
+Find a module,ابحث عن وحدة
+Getting your location…,جارٍ تحديد موقعك…
+Good afternoon,مساء الخير
+Good evening,مساء الخير
+Good morning,صباح الخير
+Home,الرئيسية
+Load More,تحميل المزيد
+Loading…,جارٍ التحميل…
+Main navigation,التنقل الرئيسي
+Max,إلى
+Min,من
+Modules,الوحدات
+More,المزيد
 New,جديد
-Previous,السابق
+New {0},{0} جديد
 Next,التالي
-of,من
+No comments yet.,لا توجد تعليقات بعد.
+No matching records.,لا توجد سجلات مطابقة.
+"No modules configured yet. Create Shell Module records, or scaffold one from an existing DocType.",لا توجد وحدات مُهيّأة بعد. أنشئ وحدات من Shell Module، أو استخدم أداة التهيئة السريعة من DocType موجود.
+Not permitted,غير مسموح
+Nothing to show.,لا شيء لعرضه.
+Open file,فتح الملف
+Open in Frappe,فتح في Frappe
+Open navigation menu,فتح قائمة التنقل
 Open record,فتح السجل
+Open the full form in Frappe,فتح النموذج الكامل في Frappe
+Opening…,جارٍ الفتح…
+Previous,السابق
+Quick access,وصول سريع
+Reject,رفض
+Rejected,مرفوض
+Remove,إزالة
+Rows per page,صفوف في الصفحة
+Save,حفظ
+Save and Submit,حفظ واعتماد
+Saved,تم الحفظ
+Search,بحث
+Send,إرسال
+Showing the first {0} rows,عرض أول {0} صف
+Status,الحالة
+Submit,اعتماد
+Submitted,معتمد
 The map library could not be loaded. Closed networks require a local tile server.,تعذّر تحميل مكتبة الخرائط. داخل الشبكات المغلقة يلزم خادم خرائط محلي.
+The shell is not enabled. Enable it in Shell Settings.,الواجهة غير مفعّلة. فعّلها من إعدادات الواجهة (Shell Settings).
+Your login is not linked to an Employee record. Ask HR to link it.,حسابك غير مرتبط بسجل موظف. اطلب من الموارد البشرية ربطه.
+of,من
