@@ -213,10 +213,35 @@
 	flex-wrap: wrap;
 }
 
+/* Explicit ink on every heading: the Desk's own stylesheet (and a theme
+   applied Desk-wide) colours h2/h3/h4 through --heading-color, which on
+   the hub rendered the shell's titles almost white on a light page. */
+.wj-head h2,
+.wj-home-head h2,
+.wj-group-head h2,
+.wj-detail-title h3,
+.wj-brand h1 + p,
+.wj-dsec h4,
+.wj-home-sec h3 {
+	color: var(--wj-ink);
+}
+
+.wj-dsec h4,
+.wj-home-sec h3,
+.wj-home-head p,
+.wj-detail-title small {
+	color: var(--wj-muted-ink);
+}
+
+.wj-brand h1 {
+	color: #fff;
+}
+
 .wj-head h2 {
 	margin: 0;
 	font-size: 20px;
 	font-weight: 700;
+	color: var(--wj-ink);
 }
 
 .wj-chips {
