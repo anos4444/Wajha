@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.16.3 — 2026-09-06
+
+**Open anything in a new tab.** Home tiles, sidebar entries, the phone tab
+bar and record cards were buttons with click handlers, so Ctrl/⌘-click and
+middle-click did nothing and a second tab could only be opened by hand.
+They are now real links with the route as `href`: a plain click still
+routes in-page and keeps the shell's state, modifier and middle clicks fall
+through to the browser.
+
+**A Link field the user cannot read is reported on the field.** A user who
+may create a record but has no read access to a DocType one of its Link
+fields points at (a leave request's approver, for instance) used to get
+Frappe's DocType-level permission dialog from the link search, which read
+as "no permission on the whole form". The form now marks that field
+disabled with a note naming the DocType and what to ask the administrator
+for; the rest of the form stays usable.
+
 ## 0.16.2 — 2026-09-06
 
 **"Save and Submit" only for users who may submit.** The new-record form

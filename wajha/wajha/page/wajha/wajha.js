@@ -68,6 +68,22 @@ const esc = (x) => frappe.utils.escape_html(String(x === null || x === undefined
 const wj_int = (v) => parseInt(v, 10) || 0;
 const wj_num = (v) => parseFloat(v) || 0;
 
+// Every place the shell navigates from is a real link: a plain click still
+// routes in-page (no reload, the shell keeps its state), while Ctrl/⌘/Shift
+// and middle clicks fall through to the browser and open a second tab —
+// the one thing a <button> with a click handler can never do.
+function wj_url(parts) {
+	if (frappe.router && typeof frappe.router.make_url === 'function') return frappe.router.make_url(parts);
+	return '/app/' + parts.map(encodeURIComponent).join('/');
+}
+function wj_nav($a, fn) {
+	return $a.on('click', (e) => {
+		if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.which === 2) return;
+		e.preventDefault();
+		fn(e);
+	});
+}
+
 // Chevron pointing "forward" in the reading direction; CSS mirrors it in LTR.
 const CHEVRON = '<svg class="wj-chev" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
@@ -155,6 +171,12 @@ class WajhaShell {
 		}
 	}
 
+	// The URL a module opens at — the same one go() routes to in-page.
+	href(m) {
+		if (m.view_type === 'Route Link') return m.route || '#';
+		return wj_url(['wajha', m.module_key]);
+	}
+
 	go(m) {
 		this.close_drawer && this.close_drawer();
 		if (m.view_type === 'Route Link') {
@@ -223,9 +245,9 @@ class WajhaShell {
 
 	render_nav() {
 		if (this.has_home()) {
-			$(`<button class="wj-link wj-link-home" data-key="home">
-				<span>🏠 ${__("Home")}</span><span class="wj-en">Home</span></button>`)
-				.on('click', () => { this.close_drawer(); frappe.set_route('wajha', 'home'); })
+			wj_nav($(`<a class="wj-link wj-link-home" data-key="home" href="${wj_url(['wajha', 'home'])}">
+				<span>🏠 ${__("Home")}</span><span class="wj-en">Home</span></a>`),
+				() => { this.close_drawer(); frappe.set_route('wajha', 'home'); })
 				.appendTo(this.$nav);
 		}
 		const groups = new Map();
@@ -272,11 +294,10 @@ class WajhaShell {
 				}
 				const $items = $('<div class="wj-group-items"></div>').appendTo($g);
 				mods.forEach((m) => {
-					$(`<button class="wj-link" data-key="${esc(m.module_key)}" data-text="${esc((m.module_label + ' ' + (m.module_label_en || '')).toLowerCase())}">
+					wj_nav($(`<a class="wj-link" data-key="${esc(m.module_key)}" href="${esc(this.href(m))}" data-text="${esc((m.module_label + ' ' + (m.module_label_en || '')).toLowerCase())}">
 						<span>${m.icon ? esc(m.icon) + ' ' : ''}${esc(m.module_label)}</span>
 						${m.module_label_en ? `<span class="wj-en">${esc(m.module_label_en)}</span>` : ''}
-					</button>`)
-						.on('click', () => this.go(m))
+					</a>`), () => this.go(m))
 						.appendTo($items);
 				});
 			});
@@ -310,16 +331,16 @@ class WajhaShell {
 		bar = bar.slice(0, home ? MOBILE_BAR_MAX - 1 : MOBILE_BAR_MAX);
 		this.$tabbar.empty();
 		if (home) {
-			$(`<button class="wj-tab wj-tab-home" type="button" data-key="home">
+			wj_nav($(`<a class="wj-tab wj-tab-home" data-key="home" href="${wj_url(['wajha', 'home'])}">
 				<span class="wj-tab-icon" aria-hidden="true">🏠</span>
 				<span class="wj-tab-label">${__("Home")}</span>
-			</button>`).on('click', () => frappe.set_route('wajha', 'home')).appendTo(this.$tabbar);
+			</a>`), () => frappe.set_route('wajha', 'home')).appendTo(this.$tabbar);
 		}
 		bar.forEach((m) => {
-			$(`<button class="wj-tab" type="button" data-key="${esc(m.module_key)}">
+			wj_nav($(`<a class="wj-tab" data-key="${esc(m.module_key)}" href="${esc(this.href(m))}">
 				<span class="wj-tab-icon" aria-hidden="true">${esc(m.icon || '•')}</span>
 				<span class="wj-tab-label">${esc(m.module_label)}</span>
-			</button>`).on('click', () => this.go(m)).appendTo(this.$tabbar);
+			</a>`), () => this.go(m)).appendTo(this.$tabbar);
 		});
 		$(`<button class="wj-tab wj-tab-more" type="button" aria-controls="wj-nav">
 			<span class="wj-tab-icon" aria-hidden="true">☰</span>
@@ -692,14 +713,14 @@ class WajhaShell {
 					const col = (meta.columns || []).find((c) => c.fieldname === f);
 					return this.fmt(row[f], col ? col.format : 'Text');
 				}).filter(Boolean);
-				$(`<button type="button" class="wj-rowcard" role="listitem">
+				wj_nav($(`<a class="wj-rowcard" role="listitem" href="${esc(wj_url(['wajha', s.module.module_key, row.name]))}">
 					<span class="wj-rowcard-main">
 						<span class="wj-rowcard-title">${esc(title)}</span>
 						${sub.length ? `<span class="wj-rowcard-sub">${sub.join(' <i>·</i> ')}</span>` : ''}
 					</span>
 					${meta.status_field ? `<span class="wj-rowcard-status">${this.status_badge(row[meta.status_field])}</span>` : ''}
 					${CHEVRON}
-				</button>`).on('click', () => open(row)).appendTo($cards);
+				</a>`), () => open(row)).appendTo($cards);
 			});
 		} else {
 			s.rows.forEach((row) => {
@@ -1001,15 +1022,17 @@ class WajhaShell {
 			? `<img src="${esc(t.logo_url)}" alt="">`
 			: t.emoji ? `<span class="wj-tile-emoji">${esc(t.emoji)}</span>`
 			: (t.icon && frappe.utils.icon ? frappe.utils.icon(t.icon, 'lg') : '<span class="wj-tile-emoji">▪</span>');
-		const $t = $(`<button type="button" class="wj-tile wj-tile-${esc(t.kind || 'group')}${t.bg_color ? ' wj-bg-' + esc(t.bg_color) : ''}">
+		const href = t.kind === 'handmade' ? this.href(t.module)
+			: t.kind === 'link' ? (t.url || '#')
+			: wj_url(['wajha', t.key]);
+		const $t = $(`<a class="wj-tile wj-tile-${esc(t.kind || 'group')}${t.bg_color ? ' wj-bg-' + esc(t.bg_color) : ''}" href="${esc(href)}">
 			<span class="wj-tile-icon">${icon}</span>
 			<span class="wj-tile-label">${esc(t.label)}</span>
 			${t.count ? `<span class="wj-tile-count">${wj_int(t.count)}</span>` : ''}
-		</button>`);
-		$t.on('click', () => {
+		</a>`);
+		wj_nav($t, () => {
 			if (t.kind === 'handmade') return this.go(t.module);
 			if (t.kind === 'link') return t.url && (window.location.href = t.url);
-			if (t.kind === 'module') return frappe.set_route('wajha', t.key);
 			frappe.set_route('wajha', t.key);
 		});
 		return $t;
@@ -1193,7 +1216,15 @@ class WajhaShell {
 			if (f.fieldtype === 'Table') { this.render_table_field($sec, f); return; }
 			const $f = $(`<div class="wj-field wj-form-field wj-type-${esc(f.fieldtype).replace(/\s+/g, '-')}"><label>${esc(f.label)}${f.reqd ? ' <i class="wj-req">*</i>' : ''}</label></div>`).appendTo($sec);
 			const $input = this.make_input(f).appendTo($f);
-			if (f.description) $f.append(`<small class="wj-muted">${esc(f.description)}</small>`);
+			if (f.no_access) {
+				// The user may create this record but cannot read the DocType
+				// this field links to. Say so on the field — the old behaviour
+				// let Frappe's link search fail and the dialog read as if the
+				// whole form were forbidden.
+				$input.find('input').addBack('input').prop('disabled', true);
+				$f.addClass('wj-no-access');
+				$f.append(`<small class="wj-warn">${esc(f.no_access_message || '')}</small>`);
+			} else if (f.description) $f.append(`<small class="wj-muted">${esc(f.description)}</small>`);
 			this._form_inputs[f.fieldname] = { spec: f, $el: $input };
 		});
 		$sec.append(`<p class="wj-muted wj-form-foot"><a href="#" class="wj-open-frappe-form">${__("Open the full form in Frappe")}</a></p>`);
@@ -1266,7 +1297,9 @@ class WajhaShell {
 		const $list = $(`<datalist id="${id}"></datalist>`).appendTo($wrap);
 		const search = frappe.utils.debounce(() => {
 			frappe.call('frappe.desk.search.search_link', { doctype: f.options, txt: $input.val() || '', page_length: 10 })
+				.catch(() => { /* the field's own note explains; no dialog for the whole form */ })
 				.then((r) => {
+					if (!r) return;
 					const rows = (r.message && r.message.results) || r.results || (Array.isArray(r.message) ? r.message : []);
 					$list.empty();
 					rows.forEach((x) => $list.append(`<option value="${esc(x.value)}">${esc(x.description || x.label || '')}</option>`));

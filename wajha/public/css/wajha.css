@@ -195,6 +195,8 @@
 .wj-link {
 	appearance: none;
 	border: 0;
+	box-sizing: border-box;
+	text-decoration: none;
 	width: 100%;
 	text-align: start;
 	background: rgba(255, 255, 255, .07);
@@ -655,6 +657,8 @@
 
 .wj-rowcard {
 	appearance: none;
+	box-sizing: border-box;
+	text-decoration: none;
 	display: flex;
 	align-items: center;
 	gap: 10px;
@@ -1060,6 +1064,8 @@
 .wj-tile {
 	position: relative;
 	appearance: none;
+	box-sizing: border-box;
+	text-decoration: none;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -1568,6 +1574,7 @@
 
 .wj-tab {
 	appearance: none;
+	text-decoration: none;
 	flex: 1 1 0;
 	min-width: 0;
 	border: 0;
@@ -2019,3 +2026,16 @@ body[data-route^="wajha/"] .page-container {
 	padding: 0 !important;
 	margin: 0 !important;
 }
+
+/* Links that look like controls keep their colour on hover/visited. */
+.wj-link:hover, .wj-link:visited, .wj-tab:hover, .wj-tab:visited,
+.wj-tile:hover, .wj-tile:visited, .wj-rowcard:hover, .wj-rowcard:visited {
+	text-decoration: none;
+}
+.wj-link:visited { color: var(--wj-sidebar-ink); }
+.wj-tile:visited, .wj-rowcard:visited { color: var(--wj-ink); }
+.wj-tab:visited { color: var(--wj-muted-ink); }
+
+/* A form field whose linked DocType this user cannot read. */
+.wj-field.wj-no-access input { opacity: .55; }
+.wj-warn { display: block; margin-top: 4px; color: var(--wj-danger); font-size: 12px; }

@@ -66,3 +66,4 @@ The shell is not enabled. Enable it in Shell Settings.,الواجهة غير م�
 Your login is not linked to an Employee record. Ask HR to link it.,حسابك غير مرتبط بسجل موظف. اطلب من الموارد البشرية ربطه.
 of,من
 Saved as draft. Submitting a {0} is for the approver, not for your role.,تم الحفظ كمسودة. اعتماد {0} من صلاحية المعتمد وليس من صلاحيات دورك.
+"You cannot pick a {0} here: your role has no read access to {0}. Ask the administrator for read access, or for a default value.","لا يمكنك اختيار {0} هنا: دورك لا يملك صلاحية قراءة {0}. اطلب من مدير النظام صلاحية القراءة، أو قيمة افتراضية."

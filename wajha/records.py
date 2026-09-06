@@ -416,6 +416,16 @@ def _field_spec(df, value):
         spec["options"] = [o for o in (df.options or "").split("\n")]
     elif df.fieldtype == "Link":
         spec["options"] = df.options
+        # Creating the record is allowed, but this field links to a DocType
+        # the user cannot read, so its picker cannot work. Report it on the
+        # field: before this the link search failed with Frappe's DocType
+        # message and read as "no permission on the whole form".
+        if df.options and not frappe.has_permission(df.options, "read"):
+            spec["no_access"] = 1
+            spec["no_access_message"] = frappe._(
+                "You cannot pick a {0} here: your role has no read access to {0}. "
+                "Ask the administrator for read access, or for a default value."
+            ).format(frappe._(df.options))
     return spec
 
 
