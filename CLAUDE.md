@@ -111,43 +111,18 @@ even legal for a given module before touching the DocType.
 - DocTypes: `Shell Settings` (single), `Shell Theme`, `Shell Module` +
   `Shell Module Column` / `Shell Module Filter` (child tables).
 
-## Swift Theme module (since 0.6.0)
+## Swift Theme — removed in 0.17.0
 
-A second Frappe module, `Swift Theme`, ported whole from
-`its-alikhokher/swift_theme` (MIT; attribution in `license.txt`): twelve
-per-user colour presets in Frappe's own Switch Theme dialog, custom-colour
-palette derivation, a server-rendered login page (`wajha/www/login.*`), an
-optional desk landing page (`swift-home`), density/shape/font prefs, sounds,
-focus mode. Layout:
-
-- `wajha/swift/` — server code: `boot.py` (bootinfo + user prefs; the
-  `extend_bootinfo` hook), `home.py` (landing-page data), `colour.py`
-  (palette maths, mirrored in `swift-boot.js` — a parity harness in
-  `wajha/tests/derive_roles_parity.js` compares the two, keep them in step),
-  `install.py` (User Custom Fields + settings seeding, on both install and
-  migrate), `generate_theme_css.py` (regenerates `public/css/themes/*.css`
-  from `PREMIUM_THEMES`; note `vision.css` carries a deliberate hand-tuned
-  sidebar fill the generator does not reproduce — don't blindly regenerate).
-- `wajha/swift_theme/` — the doctypes (`Swift Theme Settings` single, sound
-  events, home cards) and the `swift-home` page.
-- `public/css/swift-*.css`, `public/css/themes/`, `public/js/swift-*.js` —
-  listed individually in `hooks.py` in the upstream bundle order, which is
-  load-bearing (cascade ties are settled by order; `swift-boot.js` must run
-  first among the swift scripts). Any new file added there needs
-  `_versioned()` like everything else.
-- `Swift Theme Settings.enabled` is the master switch (0.7.0). Off must
-  *disable*, not merely stop applying: `wajha.swift.boot.disabled_prefs()`
-  sends blank identifiers so `swift-boot.js` clears its localStorage copy
-  (which otherwise repaints the old preset before boot). Any new persisted
-  Swift attribute needs both a blank in that payload and a line in the
-  bootstrap's `swiftOff` strip list.
-- Ported identifiers that must NOT be renamed: bootinfo key
-  `frappe.boot.swift_theme`, realtime event `swift_theme_updated`,
-  localStorage keys `swift_*` — the JS is keyed on all three.
-- Upstream's bench integration suite and `patches/v1_0/*` were deliberately
-  not ported (the patches migrate old standalone installs; seeding produces
-  their end state). The two Node suites in `wajha/tests/` run with plain
-  `node` and must pass.
+Wajha shipped a port of the standalone `swift_theme` app from 0.6.0 to
+0.16.9: a second module with its own DocTypes, a themed login page and 26
+stylesheets/scripts that loaded on every Desk page whether the theme was on
+or off. One of those painted a fallback canvas exactly when Swift was off,
+which showed as a navy or pale band under the Desk on every site. The owner
+had it removed outright. `wajha/patches/remove_swift_theme.py` deletes its
+DocTypes, Page, Module Def and the `swift_*` Custom Fields on User on the
+next migrate. Do not reintroduce Desk-wide stylesheets: the shell's only
+Desk-wide files are `wajha.css` and `wajha_boot.js`, and both are scoped to
+the shell route or to the opt-in "apply globally" switches.
 
 ## Testing discipline — read this before trusting a green result
 
@@ -216,13 +191,6 @@ everything.
   hides by class must be checked on the way out in `mark_route`
   (`wajha_boot.js`); the same goes for the root background it stamps —
   Frappe navigates in-page, so a URL check at load time never fires again.
-- **Swift's stylesheets load on every Desk page, Swift on or off** — a rule
-  keyed on `html:not([data-swift-themed])` fires precisely when Swift is
-  disabled. Upstream's fallback canvas (a root gradient plus a transparent
-  body) painted a navy or pale band wherever Frappe leaves the root
-  exposed, on every site with Swift off (0.16.9). Anything in `swift-*.css`
-  must be scoped to a `data-swift-*` attribute that is present only when
-  Swift is actually themed.
 - **`bench install-app` does not run `after_migrate`** — anything that must
   exist on a genuinely fresh site (theme presets, roles, default settings)
   needs to fire from `after_install` too. Test against a real fresh

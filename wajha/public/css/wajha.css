@@ -1977,7 +1977,7 @@ body[data-route^="wajha/"] .page-body {
 }
 
 /* Belt and braces for Desks whose chrome is not where 0.7.2 expected it —
-   a themed Desk (Swift on: its decorative body::before/::after colour field
+   a themed Desk (a decorative body::before/::after colour field
    and pattern; a floating or re-rendered sidebar, the workspace switcher /
    user widget at its foot). On the shell route, nothing of the Desk frame
    but the page itself may paint. Seen as a pale column and a
@@ -1993,8 +1993,6 @@ body[data-route="wajha"] [class*="body-sidebar"],
 body[data-route^="wajha/"] [class*="body-sidebar"],
 body.wj-route .sidebar-header,
 body.wj-route .body-sidebar-bottom,
-body.wj-route .swift-sidebar-restore,
-body[data-route^="wajha"] .swift-sidebar-restore {
 	display: none !important;
 }
 

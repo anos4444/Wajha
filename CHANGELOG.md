@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.17.0 — 2026-09-06
+
+**Swift Theme removed.** Wajha had shipped a port of the standalone
+`swift_theme` app since 0.6.0: a second module with its own DocTypes, a
+themed login page and 26 stylesheets and scripts that loaded on every Desk
+page whether the theme was on or off. One of those painted the band under
+the Desk that 0.16.9 patched around. The owner asked for it to go entirely.
+
+- Removed: the `Swift Theme` module and its DocTypes, the `swift_home` page,
+  the login-page override, every `swift-*` stylesheet and script, the
+  colour preset stylesheets, the User form script and the Swift tests.
+- A migrate patch deletes what the module left in the database: its
+  DocTypes, Page, Module Def, Desktop Icons and the nine `swift_*` Custom
+  Fields on User. Frappe's own login page and theme switcher return.
+- The Desk now loads exactly two Wajha files: `wajha.css` and
+  `wajha_boot.js`.
+
 ## 0.16.9 — 2026-09-06
 
 **The band under the Desk was Swift's fallback canvas.** `swift-desk.css`
