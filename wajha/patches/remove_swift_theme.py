@@ -38,6 +38,7 @@ def execute():
             # own tables. Deleting the DocType drops the table and the meta.
             frappe.delete_doc("DocType", dt, force=True, ignore_permissions=True, ignore_missing=True, delete_permanently=True)
     frappe.db.delete("Singles", {"doctype": ["in", DOCTYPES]})
+    drop_tables()
 
     # Frappe's own registrations of the module's page: a Workspace filed under
     # the module, and Desktop Icons that link to the page. Field names differ
@@ -55,3 +56,11 @@ def execute():
         frappe.delete_doc("Module Def", MODULE, force=True, ignore_permissions=True, ignore_missing=True)
 
     frappe.clear_cache()
+
+
+def drop_tables():
+    """Deleting a DocType record does not always drop its table (the child
+    tables survived on the hub). Drop whatever is left, by name."""
+    for table in frappe.db.get_tables():
+        if table.startswith("tabSwift "):
+            frappe.db.sql_ddl(f"DROP TABLE IF EXISTS `{table}`")

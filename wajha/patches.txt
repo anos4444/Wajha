@@ -2,3 +2,4 @@
 
 [post_model_sync]
 wajha.patches.remove_swift_theme
+wajha.patches.remove_swift_theme_tables
