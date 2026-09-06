@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.16.1 — 2026-09-06
+
+**Leaving the shell no longer damages the Desk.** Two things followed the
+user out of the drawer's "Frappe Desk" button, both reproduced on
+hub.tawasulcloud.com in a real browser and clean after this release:
+
+- The shell's page colour stayed stamped on the root element, so a site
+  with a dark theme showed a navy band beside the sidebar column and
+  below the Home apps grid. Frappe navigates in-page, so the stamp's URL
+  check only ever ran on a hard load. The marker that tracks the route
+  now clears the colour on the way out and restores it on the way in.
+- Frappe 16's sidebar came back as an empty strip. While the shell hides
+  the sidebar container with a stylesheet rule, Frappe's own sidebar code
+  calls jQuery `.show()` on it, and jQuery writes `display: block` inline
+  as its fallback for a stylesheet-hidden element. That inline style
+  outlived the route and broke the container's flex layout. It is dropped
+  when the route leaves the shell.
+
 ## 0.16.0 — 2026-09-06
 
 **A dashboard on every module.** A strip of cards above each list, built
