@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.16.0 — 2026-09-06
+
+**A dashboard on every module.** A strip of cards above each list, built
+from three sources inside the module's scope and the user's permissions:
+
+- **Generic, no configuration**: the record count, a count per status as
+  chips that filter the list when tapped (through the module's own
+  status field, never a client-named one), and totals of the module's
+  numeric columns.
+- **App cards** from providers a pack registers for a DocType
+  (`wajha/dashboard.py` registry; `wajha/packs/hrms_cards.py`): leave
+  balance per type from HRMS's own `get_leave_details` with a progress
+  bar, upcoming holidays from the employee's holiday list, requests
+  awaiting approval, this month's attendance by status, today's last
+  check-in, the last salary slip's net and gross pay, expense claims by
+  approval status with amounts.
+- **Frappe Number Cards** pinned to a module (`number_cards` on Shell
+  Module), evaluated by Frappe's own Number Card code so its permission
+  and filters apply.
+
+`show_dashboard` on Shell Module (default on) switches the strip. Phones
+get one swipeable row of cards; the list loads first and never waits for
+the strip. A failing card is logged and skipped.
+
 ## 0.15.2 — 2026-09-05
 
 **Arabic for every shell string.** Translation always went through Frappe's

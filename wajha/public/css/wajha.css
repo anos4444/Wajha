@@ -1209,6 +1209,189 @@
 	}
 }
 
+/* ---------------------------------------------------------------- dashboard strip */
+.wj-dash {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+	gap: 10px;
+	margin-bottom: 14px;
+}
+
+.wj-dash[hidden] {
+	display: none;
+}
+
+.wj-dash-card {
+	appearance: none;
+	font-family: inherit;
+	text-align: start;
+	background: var(--wj-surface-bg);
+	border: 1px solid var(--wj-border);
+	border-radius: var(--wj-radius);
+	padding: 12px 14px;
+	color: var(--wj-ink);
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-height: 84px;
+}
+
+.wj-dash-stat {
+	position: relative;
+	cursor: default;
+}
+
+.wj-dash-clickable {
+	cursor: pointer;
+}
+
+.wj-dash-clickable:hover {
+	border-color: var(--wj-primary);
+}
+
+.wj-dash-icon {
+	position: absolute;
+	top: 10px;
+	inset-inline-end: 12px;
+	font-size: 16px;
+	opacity: .8;
+}
+
+.wj-dash-value {
+	font-size: 22px;
+	font-weight: 700;
+	line-height: 1.2;
+	margin-top: 4px;
+}
+
+.wj-dash-label {
+	font-size: 12px;
+	color: var(--wj-muted-ink);
+}
+
+.wj-dash-hint {
+	font-size: 11px;
+	color: var(--wj-muted-ink);
+}
+
+.wj-tone-success .wj-dash-value { color: var(--wj-success); }
+.wj-tone-warning .wj-dash-value { color: var(--wj-warning); }
+.wj-tone-danger .wj-dash-value { color: var(--wj-danger); }
+.wj-tone-info .wj-dash-value { color: var(--wj-info); }
+
+.wj-dash-chips,
+.wj-dash-list,
+.wj-dash-progress {
+	grid-column: span 2;
+}
+
+.wj-dash-chiprow {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-top: 4px;
+}
+
+.wj-dash-chip {
+	border: 1px solid var(--wj-border);
+	background: var(--wj-page-bg);
+	color: var(--wj-ink);
+	cursor: pointer;
+	font-family: inherit;
+	min-height: 32px;
+}
+
+.wj-dash-chip b {
+	margin-inline-start: 4px;
+	color: var(--wj-primary);
+}
+
+.wj-dash-chip.active {
+	background: var(--wj-primary);
+	border-color: var(--wj-primary);
+	color: #fff;
+}
+
+.wj-dash-chip.active b {
+	color: #fff;
+}
+
+.wj-dash-list ul {
+	list-style: none;
+	margin: 4px 0 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.wj-dash-list li {
+	display: flex;
+	justify-content: space-between;
+	gap: 10px;
+	font-size: 13px;
+}
+
+.wj-dash-list small {
+	color: var(--wj-muted-ink);
+	white-space: nowrap;
+}
+
+.wj-bar {
+	margin-top: 6px;
+}
+
+.wj-bar-head {
+	display: flex;
+	justify-content: space-between;
+	font-size: 12px;
+	margin-bottom: 3px;
+}
+
+.wj-bar-track {
+	height: 6px;
+	border-radius: 3px;
+	background: color-mix(in srgb, var(--wj-primary) 12%, transparent);
+	overflow: hidden;
+}
+
+.wj-bar-fill {
+	height: 100%;
+	background: var(--wj-primary);
+	border-radius: 3px;
+}
+
+.wj-bar small {
+	font-size: 11px;
+	color: var(--wj-muted-ink);
+}
+
+@media (max-width: 700px) {
+	/* One swipeable row of cards on phones; the list stays in reach. */
+	.wj-dash {
+		display: flex;
+		overflow-x: auto;
+		scroll-snap-type: x mandatory;
+		gap: 8px;
+		padding-bottom: 4px;
+		margin: 0 -10px 10px;
+		padding-inline: 10px;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	.wj-dash-card {
+		flex: 0 0 150px;
+		scroll-snap-align: start;
+		min-height: 80px;
+	}
+
+	.wj-dash-chips,
+	.wj-dash-list,
+	.wj-dash-progress {
+		flex-basis: 260px;
+	}
+}
+
 /* ---------------------------------------------------------------- module actions + forms */
 .wj-module-actions {
 	display: flex;
