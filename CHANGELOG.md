@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.16.9 — 2026-09-06
+
+**The band under the Desk was Swift's fallback canvas.** `swift-desk.css`
+painted a gradient on the root element and forced the body transparent
+whenever `data-swift-themed` was absent — the exact state of a site with
+Swift switched off. Frappe leaves the root exposed in places: a 52px band
+under a workspace on 16.25 and the area below the Desktop grid on 16.33.
+There the gradient showed through: navy under a dark OS colour scheme,
+pale under a light one. This was the "theme overlapping" seen on both
+sites, not the shell's root colour. The fallback is removed; with Swift
+off the Desk keeps Frappe's own colours.
+
 ## 0.16.8 — 2026-09-06
 
 **The shell at the bare Desk URL hides the Desk chrome again.** When the

@@ -10,23 +10,14 @@
     --swift-sidebar-transition: 0.2s ease;
 }
 
-/* Fallback canvas for when no Swift colour scheme is active at all.
-   Keyed on data-swift-themed, which boot.js sets for both colour modes —
-   the old [data-swift-theme] attribute no longer exists. */
-html:not([data-swift-themed]) {
-    background: linear-gradient(135deg, var(--swift-default-gradient-start) 0%, var(--swift-default-gradient-end) 100%);
-}
-
-html:not([data-swift-themed]) body {
-    background: transparent !important;
-}
-
-@media (prefers-color-scheme: light) {
-    html:not([data-swift-themed]) {
-        --swift-default-gradient-start: #f8fafc;
-        --swift-default-gradient-end: #e2e8f0;
-    }
-}
+/* No fallback canvas when Swift is not themed. Upstream painted a gradient
+   on the root and forced body transparent whenever data-swift-themed was
+   absent — which is exactly the state of a site with Swift switched off.
+   Frappe leaves the root exposed in places (a 52px band under a workspace
+   on 16.25, the area below the Desktop grid on 16.33), and there the
+   gradient showed: a navy band under a dark OS scheme, a pale one under
+   light. Reported twice as "the theme overlapping". With Swift off the
+   Desk keeps Frappe's own html/body colours. */
 
 .sidebar-inner, .standard-sidebar-section {
     transition: opacity var(--swift-sidebar-transition) !important;

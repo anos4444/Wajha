@@ -216,6 +216,13 @@ everything.
   hides by class must be checked on the way out in `mark_route`
   (`wajha_boot.js`); the same goes for the root background it stamps —
   Frappe navigates in-page, so a URL check at load time never fires again.
+- **Swift's stylesheets load on every Desk page, Swift on or off** — a rule
+  keyed on `html:not([data-swift-themed])` fires precisely when Swift is
+  disabled. Upstream's fallback canvas (a root gradient plus a transparent
+  body) painted a navy or pale band wherever Frappe leaves the root
+  exposed, on every site with Swift off (0.16.9). Anything in `swift-*.css`
+  must be scoped to a `data-swift-*` attribute that is present only when
+  Swift is actually themed.
 - **`bench install-app` does not run `after_migrate`** — anything that must
   exist on a genuinely fresh site (theme presets, roles, default settings)
   needs to fire from `after_install` too. Test against a real fresh
