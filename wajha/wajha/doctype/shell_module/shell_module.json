@@ -40,6 +40,8 @@
   "form_fields",
   "show_in_mobile_bar",
   "auto_actions",
+  "show_dashboard",
+  "number_cards",
   "sec_cols",
   "columns",
   "sec_filters",
@@ -335,6 +337,20 @@
    "default": "0",
    "read_only": 1,
    "description": "Created by a Wajha pack (e.g. HRMS self-service). Edit freely; packs only fill blanks and never overwrite."
+  },
+  {
+   "fieldname": "show_dashboard",
+   "fieldtype": "Check",
+   "label": "لوحة مؤشرات",
+   "default": "1",
+   "description": "A strip of cards above the list: status counts (tap to filter), totals of the module's numeric columns, app-specific cards (leave balance, upcoming holidays, last check-in…) and any Number Cards below."
+  },
+  {
+   "fieldname": "number_cards",
+   "fieldtype": "Table MultiSelect",
+   "label": "بطاقات أرقام",
+   "options": "Shell Module Number Card",
+   "description": "Frappe Number Cards to show on this module's dashboard. Each card's own permission decides who sees it."
   }
  ],
  "permissions": [
@@ -378,7 +394,7 @@
  "owner": "Administrator",
  "modified_by": "Administrator",
  "creation": "2026-08-07 09:00:00.000000",
- "modified": "2026-09-05 12:00:00.000000",
+ "modified": "2026-09-06 09:00:00.000000",
  "idx": 0,
  "links": [],
  "states": [],
