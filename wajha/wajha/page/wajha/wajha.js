@@ -1101,7 +1101,7 @@ class WajhaShell {
 				});
 			} else if (c.kind === 'list') {
 				const $c = $(`<div class="wj-dash-card wj-dash-list"><div class="wj-dash-label">${esc(c.label)}</div><ul></ul></div>`).appendTo($d);
-				c.items.forEach((it) => $c.find('ul').append(`<li><span>${esc(it.label)}</span><small>${esc(it.hint || '')}</small></li>`));
+				c.items.forEach((it) => $c.find('ul').append(`<li><span>${esc(it.label)}</span><small><bdi>${esc(it.hint || '')}</bdi></small></li>`));
 			} else if (c.kind === 'progress') {
 				const $c = $(`<div class="wj-dash-card wj-dash-progress"><div class="wj-dash-label">${esc(c.label)}</div></div>`).appendTo($d);
 				c.items.forEach((it) => {
@@ -1109,14 +1109,14 @@ class WajhaShell {
 					const pct = total > 0 ? Math.max(0, Math.min(100, Math.round(value / total * 100))) : 0;
 					$c.append(`<div class="wj-bar"><div class="wj-bar-head"><span>${esc(it.label)}</span><b>${esc(value)}${total ? ' / ' + esc(total) : ''}</b></div>
 						<div class="wj-bar-track"><div class="wj-bar-fill" style="width:${pct}%"></div></div>
-						${it.hint ? `<small>${esc(it.hint)}</small>` : ''}</div>`);
+						${it.hint ? `<small><bdi>${esc(it.hint)}</bdi></small>` : ''}</div>`);
 				});
 			} else {
 				const $c = $(`<button type="button" class="wj-dash-card wj-dash-stat${tone(c.tone)}${c.filter ? ' wj-dash-clickable' : ''}">
 					${c.icon ? `<span class="wj-dash-icon">${esc(c.icon)}</span>` : ''}
 					<span class="wj-dash-value">${esc(c.value)}</span>
 					<span class="wj-dash-label">${esc(c.label)}</span>
-					${c.hint ? `<span class="wj-dash-hint">${esc(c.hint)}</span>` : ''}
+					${c.hint ? `<span class="wj-dash-hint"><bdi>${esc(c.hint)}</bdi></span>` : ''}
 				</button>`).appendTo($d);
 				if (c.filter && c.filter.field === this.meta.status_field) {
 					$c.on('click', () => this.set_status_value(String(this.state.status_value) === String(c.filter.value) ? '' : c.filter.value));

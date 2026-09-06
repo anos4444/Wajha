@@ -2040,12 +2040,10 @@ body[data-route^="wajha/"] .page-container {
 .wj-field.wj-no-access input { opacity: .55; }
 .wj-warn { display: block; margin-top: 4px; color: var(--wj-danger); font-size: 12px; }
 
-/* Dashboard text is often Latin (English labels, numbers) inside an RTL
-   page. Without isolation the bidi algorithm reorders the runs, so
-   "0.0 taken · 2.0 pending" came out as "taken · 2.0 pending 0.0" and read
-   as two days taken. plaintext takes each string's own direction. */
-.wj-dash-label, .wj-dash-value, .wj-dash-hint, .wj-dash-chip,
-.wj-bar-head span, .wj-bar-head b, .wj-bar small,
-.wj-dash-list li span, .wj-dash-list li small {
-	unicode-bidi: plaintext;
-}
+/* Dashboard hints are often Latin text with numbers inside an RTL page,
+   and the bidi algorithm reorders such runs ("0.0 taken · 2.0 pending"
+   came out as "taken · 2.0 pending 0.0"). The hint text is wrapped in
+   <bdi> in wajha.js, which takes its own direction from its first strong
+   character while the card keeps its alignment. Do not put plaintext on
+   the value/label blocks: a digits-only value then resolves to LTR, is
+   aligned left in an RTL card and lands under the icon (0.16.4). */

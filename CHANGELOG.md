@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.16.6 — 2026-09-06
+
+**Stat card values back under their labels, not under the icon.** 0.16.4
+put `unicode-bidi: plaintext` on the dashboard value and label blocks to
+fix the reordered "taken · pending" hint. A value that is only digits
+("3", "8") has no strong character, so plaintext resolved it to LTR and
+aligned it to the left of an RTL card — straight under the icon that sits
+at the card's inline end. The hint fix now lives in the markup instead:
+hint text is wrapped in `<bdi>`, which takes its own direction while the
+card keeps its alignment. The value and label blocks are untouched again.
+
 ## 0.16.5 — 2026-09-06
 
 **The Desk cleanup runs from the page hooks as well.** 0.16.1 cleared the
