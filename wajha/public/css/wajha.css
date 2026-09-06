@@ -1992,7 +1992,7 @@ body.wj-route [class*="body-sidebar"],
 body[data-route="wajha"] [class*="body-sidebar"],
 body[data-route^="wajha/"] [class*="body-sidebar"],
 body.wj-route .sidebar-header,
-body.wj-route .body-sidebar-bottom,
+body.wj-route .body-sidebar-bottom {
 	display: none !important;
 }
 
