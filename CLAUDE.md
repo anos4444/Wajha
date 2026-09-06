@@ -251,3 +251,18 @@ convention is a `type: short summary` subject line, then a body that states
 what broke (with a concrete repro/measurement where possible), the root
 cause, the fix, and how it was verified. Not a changelog restatement — the
 reasoning that justifies the change.
+
+Identity and trailers (the owner's standing instruction, 2026-09-06):
+
+- Every commit is authored **and** committed as
+  `anos4444 <anas.abdullah@gmail.com>` — `git config user.name anos4444`
+  and `git config user.email anas.abdullah@gmail.com` in the clone. Never
+  the firm identity; the history was rewritten once to remove it.
+- **No AI trailers.** No `Co-Authored-By: Claude …`, no `Claude-Session:`,
+  no model names or session links anywhere in a commit message, PR body,
+  tag or code comment. If a harness adds such lines on its own, strip them
+  before pushing.
+- **One branch at rest.** `main` is the only branch that survives. A change
+  may travel through a short-lived branch and a rebase-merged PR, but the
+  branch is deleted the moment the PR merges — locally and on GitHub. Do
+  not leave feature branches behind, and do not keep old release branches.
