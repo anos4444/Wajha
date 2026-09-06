@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.16.4 — 2026-09-06
+
+**Dashboard text keeps its own direction.** English labels and numbers
+inside the right-to-left page were reordered by the bidi algorithm, so the
+leave balance hint "0.0 taken · 2.0 pending" displayed as "taken · 2.0
+pending 0.0" and read as two days already taken while the requests were
+still drafts. The values from HRMS were right; the rendering was not.
+Dashboard labels, values, hints, chips and bar captions now take the
+direction of their own text. The hint also gained its Arabic entry.
+
 ## 0.16.3 — 2026-09-06
 
 **Open anything in a new tab.** Home tiles, sidebar entries, the phone tab

@@ -2039,3 +2039,13 @@ body[data-route^="wajha/"] .page-container {
 /* A form field whose linked DocType this user cannot read. */
 .wj-field.wj-no-access input { opacity: .55; }
 .wj-warn { display: block; margin-top: 4px; color: var(--wj-danger); font-size: 12px; }
+
+/* Dashboard text is often Latin (English labels, numbers) inside an RTL
+   page. Without isolation the bidi algorithm reorders the runs, so
+   "0.0 taken · 2.0 pending" came out as "taken · 2.0 pending 0.0" and read
+   as two days taken. plaintext takes each string's own direction. */
+.wj-dash-label, .wj-dash-value, .wj-dash-hint, .wj-dash-chip,
+.wj-bar-head span, .wj-bar-head b, .wj-bar small,
+.wj-dash-list li span, .wj-dash-list li small {
+	unicode-bidi: plaintext;
+}
