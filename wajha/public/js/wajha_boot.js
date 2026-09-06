@@ -435,4 +435,10 @@
 	if (frappe.router && frappe.router.on) {
 		frappe.router.on('change', mark_route);
 	}
+	// The page's own show/hide hooks (wajha.js) call this too: on a Desk
+	// whose router does not emit 'change' the way 16.25 did, those hooks are
+	// the one place guaranteed to run when the shell appears or goes away —
+	// a site on Frappe 16.33 kept the stamped root colour after leaving the
+	// shell even with the route listener above in place.
+	window.wajha.mark_route = mark_route;
 })();

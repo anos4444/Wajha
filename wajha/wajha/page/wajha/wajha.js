@@ -28,12 +28,18 @@ frappe.pages['wajha'].on_page_load = function (wrapper) {
 // directly (never frappe.get_route(): see CLAUDE.md) and null-checked.
 frappe.pages['wajha'].on_page_show = function (wrapper) {
 	document.body.classList.add('wj-route');
+	if (window.wajha && window.wajha.mark_route) window.wajha.mark_route();
 	$(wrapper).find('.page-head').addClass('hide');
 	const route = frappe.router && frappe.router.current_route;
 	if (wrapper.wajha_shell) wrapper.wajha_shell.on_route(Array.isArray(route) ? route.slice() : []);
 };
 frappe.pages['wajha'].on_page_hide = function () {
 	document.body.classList.remove('wj-route');
+	// Undo what the shell did to the frame: the root colour it stamped and
+	// the inline display jQuery left on Frappe's sidebar (see wajha_boot.js).
+	// Belt and braces for a Desk whose router never reports the change.
+	if (window.wajha && window.wajha.mark_route) window.wajha.mark_route();
+	else document.documentElement.style.backgroundColor = '';
 };
 
 // ERPNext's own list-view sizes, so the shell paginates the way the rest of

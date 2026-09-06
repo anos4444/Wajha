@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.16.5 — 2026-09-06
+
+**The Desk cleanup runs from the page hooks as well.** 0.16.1 cleared the
+shell's stamped root colour and Frappe's sidebar leftovers from the
+router's change event. A site on Frappe 16.33 still showed the navy band
+after leaving the shell with 0.16.2 installed, so that event is not a
+safe trigger on every Desk. The page's own show/hide hooks, which Frappe
+always calls, now run the same routine on the way in and out.
+
 ## 0.16.4 — 2026-09-06
 
 **Dashboard text keeps its own direction.** English labels and numbers
