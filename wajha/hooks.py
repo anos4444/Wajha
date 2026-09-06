@@ -3,9 +3,9 @@ import os
 
 app_name = "wajha"
 app_title = "Wajha"
-app_publisher = "AAA Consulting"
+app_publisher = "ANAS ABDULLA"
 app_description = "واجهة — قشرة عربية قابلة للتهيئة وطبقة سمات لـ Frappe/ERPNext"
-app_email = "a.abdulla@aaacons.com"
+app_email = "anas.abdullah@gmail.com"
 app_license = "MIT"
 
 _PUBLIC = os.path.join(os.path.dirname(os.path.abspath(__file__)), "public")

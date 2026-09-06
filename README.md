@@ -118,6 +118,4 @@ they share DocType names.
 
 ## Licence
 
-MIT © AAA Consulting. The Swift Theme module is ported from
-[its-alikhokher/swift_theme](https://github.com/its-alikhokher/swift_theme),
-MIT © 2026 iamaliraza777@gmail.com.
+MIT — see `license.txt`.

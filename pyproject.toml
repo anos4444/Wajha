@@ -1,6 +1,6 @@
 [project]
 name = "wajha"
-authors = [{ name = "AAA Consulting", email = "a.abdulla@aaacons.com" }]
+authors = [{ name = "ANAS ABDULLA", email = "anas.abdullah@gmail.com" }]
 description = "Wajha — Arabic-first, config-driven Desk shell and theming layer for Frappe/ERPNext"
 requires-python = ">=3.10"
 readme = "README.md"

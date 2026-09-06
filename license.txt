@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2026 AAA Consulting
+Copyright (c) 2026 Anas Abdulla
 
 The Swift Theme module (wajha/swift, wajha/swift_theme, wajha/www/login.*,
 public/css/swift-*, public/css/themes/, public/js/swift-*, public/js/user_form.js)
