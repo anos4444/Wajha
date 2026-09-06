@@ -1,0 +1,30 @@
+{
+ "doctype": "DocType",
+ "name": "Shell Module Number Card",
+ "module": "Wajha",
+ "custom": 0,
+ "istable": 1,
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "owner": "Administrator",
+ "modified_by": "Administrator",
+ "creation": "2026-09-06 09:00:00.000000",
+ "modified": "2026-09-06 09:00:00.000000",
+ "idx": 0,
+ "field_order": [
+  "number_card"
+ ],
+ "fields": [
+  {
+   "fieldname": "number_card",
+   "fieldtype": "Link",
+   "label": "Number Card",
+   "options": "Number Card",
+   "in_list_view": 1,
+   "reqd": 1
+  }
+ ],
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

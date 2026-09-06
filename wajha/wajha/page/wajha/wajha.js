@@ -93,7 +93,7 @@ class WajhaShell {
 	reset_state(module) {
 		this.state = {
 			module, page_no: 1, page_length: saved_page_length(),
-			filters: {}, search: '', sort: null, dir: null, rows: [], total: 0, loading: false,
+			filters: {}, search: '', sort: null, dir: null, rows: [], total: 0, loading: false, status_value: '',
 		};
 	}
 
@@ -542,6 +542,7 @@ class WajhaShell {
 		$(`<button class="wj-btn wj-ghost wj-clear">${__("Clear")}</button>`).appendTo($ff).on('click', () => {
 			this.state.filters = {};
 			this.state.search = '';
+			this.state.status_value = '';
 			this.state.page_no = 1;
 			this.paint_list_frame();
 			this.load_rows();
@@ -564,6 +565,10 @@ class WajhaShell {
 			<button type="button" class="wj-btn wj-ghost wj-prev">${__("Previous")}</button>
 			<button type="button" class="wj-btn wj-ghost wj-next">${__("Next")}</button></span></div>`;
 		this.render_module_actions($card);
+		if (meta.show_dashboard !== false) {
+			$('<div class="wj-dash" hidden></div>').insertBefore($tools);
+			this.load_dashboard();
+		}
 		$(pager('top')).appendTo($card);
 		$(`<div class="wj-table-wrap"><table class="wj-table">
 			<thead><tr></tr></thead><tbody></tbody></table></div>`).appendTo($card);
@@ -639,6 +644,7 @@ class WajhaShell {
 			module_key: req_module,
 			page: this.state.page_no,
 			page_length: this.state.page_length,
+			status_value: this.state.status_value || '',
 			filters: JSON.stringify(this.state.filters || {}),
 			search: this.state.search || '',
 			sort_field: this.state.sort || '',
@@ -1036,6 +1042,68 @@ class WajhaShell {
 			});
 			if (!(g.tiles || []).length && !(g.sections || []).length) this.$body.append(`<div class="wj-card wj-empty">${__("Nothing to show.")}</div>`);
 		}).catch(() => this.$body.html(`<div class="wj-card wj-empty">${__("Could not load this group.")}</div>`));
+	}
+
+	// ------------------------------------------------------------------ dashboard
+	// The strip above the list: a count, status chips that filter the list
+	// when tapped, totals of numeric columns, app cards (leave balance,
+	// holidays, last check-in, last salary slip) and pinned Number Cards.
+	// Loaded after the frame so the list never waits for it.
+	load_dashboard() {
+		const m = this.state.module;
+		frappe.call('wajha.dashboard.get_module_dashboard', { module_key: m.module_key }).then((r) => {
+			if (!this.state.module || this.state.module.module_key !== m.module_key) return;
+			this.render_dashboard((r.message && r.message.cards) || []);
+		}).catch(() => { /* the list stands on its own */ });
+	}
+
+	render_dashboard(cards) {
+		const $d = this.$body.find('.wj-dash');
+		if (!$d.length) return;
+		$d.empty().prop('hidden', !cards.length);
+		const tone = (t) => (t ? ` wj-tone-${esc(t)}` : '');
+		cards.forEach((c) => {
+			if (c.kind === 'chips') {
+				const $c = $(`<div class="wj-dash-card wj-dash-chips"><div class="wj-dash-label">${esc(c.label)}</div><div class="wj-dash-chiprow"></div></div>`).appendTo($d);
+				c.items.forEach((it) => {
+					const active = String(this.state.status_value) === String(it.value);
+					$(`<button type="button" class="wj-chip wj-dash-chip${active ? ' active' : ''}">${esc(it.label)} <b>${wj_int(it.count)}</b></button>`)
+						.on('click', () => this.set_status_value(active ? '' : it.value)).appendTo($c.find('.wj-dash-chiprow'));
+				});
+			} else if (c.kind === 'list') {
+				const $c = $(`<div class="wj-dash-card wj-dash-list"><div class="wj-dash-label">${esc(c.label)}</div><ul></ul></div>`).appendTo($d);
+				c.items.forEach((it) => $c.find('ul').append(`<li><span>${esc(it.label)}</span><small>${esc(it.hint || '')}</small></li>`));
+			} else if (c.kind === 'progress') {
+				const $c = $(`<div class="wj-dash-card wj-dash-progress"><div class="wj-dash-label">${esc(c.label)}</div></div>`).appendTo($d);
+				c.items.forEach((it) => {
+					const total = wj_num(it.total), value = wj_num(it.value);
+					const pct = total > 0 ? Math.max(0, Math.min(100, Math.round(value / total * 100))) : 0;
+					$c.append(`<div class="wj-bar"><div class="wj-bar-head"><span>${esc(it.label)}</span><b>${esc(value)}${total ? ' / ' + esc(total) : ''}</b></div>
+						<div class="wj-bar-track"><div class="wj-bar-fill" style="width:${pct}%"></div></div>
+						${it.hint ? `<small>${esc(it.hint)}</small>` : ''}</div>`);
+				});
+			} else {
+				const $c = $(`<button type="button" class="wj-dash-card wj-dash-stat${tone(c.tone)}${c.filter ? ' wj-dash-clickable' : ''}">
+					${c.icon ? `<span class="wj-dash-icon">${esc(c.icon)}</span>` : ''}
+					<span class="wj-dash-value">${esc(c.value)}</span>
+					<span class="wj-dash-label">${esc(c.label)}</span>
+					${c.hint ? `<span class="wj-dash-hint">${esc(c.hint)}</span>` : ''}
+				</button>`).appendTo($d);
+				if (c.filter && c.filter.field === this.meta.status_field) {
+					$c.on('click', () => this.set_status_value(String(this.state.status_value) === String(c.filter.value) ? '' : c.filter.value));
+				} else if (c.filter) {
+					$c.on('click', () => { this.state.filters[c.filter.field] = c.filter.value; this.state.page_no = 1; this.paint_list_frame(); this.load_rows(); });
+				}
+			}
+		});
+	}
+
+	set_status_value(v) {
+		this.state.status_value = v;
+		this.state.page_no = 1;
+		this.$body.find('.wj-dash-chip, .wj-dash-clickable').removeClass('active');
+		this.load_rows();
+		this.load_dashboard();
 	}
 
 	// ------------------------------------------------------------------ module actions

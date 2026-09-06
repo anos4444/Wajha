@@ -52,6 +52,13 @@ even legal for a given module before touching the DocType.
   boot cache; the key→DocType map is site-wide and permission-free.
   Keep every permission decision on Frappe's side (roles on the icon,
   `has_permission` on the DocType) — never add a list of "safe" DocTypes.
+- `wajha/dashboard.py` — the module dashboard strip: generic cards
+  (count, status chips, column sums) plus a `register(doctype, fn)`
+  registry that packs fill (`packs/hrms_cards.py`), plus pinned Number
+  Cards through Frappe's `get_result`. Every card runs inside
+  `scope_filters(module)`; a provider that raises is logged and skipped.
+  Status chips filter through `get_module_data(status_value=…)`, which
+  only ever applies the module's own status field.
 - `wajha/packs/` — app packs that seed Shell Modules: `hrms.py` (twelve
   self-service modules) and `apps.py` (a record for every workspace-linked
   DocType of every installed app, `Shell Settings.seed_modules`). Packs set

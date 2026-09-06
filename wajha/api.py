@@ -407,14 +407,18 @@ def _cached_count(module, applied, or_filters):
 
 @frappe.whitelist()
 def get_module_data(module_key, page=1, filters=None, search=None,
-                    sort_field=None, sort_order=None, page_length=None):
+                    sort_field=None, sort_order=None, page_length=None, status_value=None):
     module = _get_module(module_key)
-    fields, real, _status_field = _allowed_fields(module)
+    fields, real, status_field = _allowed_fields(module)
 
     if isinstance(filters, str):
         filters = json.loads(filters or "{}")
 
     applied = scope_filters(module) + _build_filters(module, filters, real)
+    # A tapped status chip on the dashboard: only the module's own status
+    # field, never a client-named one.
+    if status_value not in (None, "") and status_field:
+        applied.append([status_field, "=", status_value])
     or_filters = _search_filters(module, search, real)
 
     page = max(cint(page), 1)
@@ -519,6 +523,7 @@ def get_module_meta(module_key):
             "subtitle": [c["fieldname"] for c in columns[1:3]],
         },
         "status_field": status_field,
+        "show_dashboard": bool(cint(getattr(module, "show_dashboard", 1))),
         "docstatus_labels": DOCSTATUS_LABELS if status_field == "docstatus" else None,
         "map": {
             "enabled": bool(module.show_map),
