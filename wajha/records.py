@@ -455,6 +455,11 @@ def get_form(module_key):
         "title": frappe._("New {0}").format(frappe._(dt)),
         "fields": fields,
         "submittable": bool(meta.is_submittable),
+        # An employee can save a leave request but not submit it (HRMS gives
+        # the Employee role create/write and reserves submit for approvers).
+        # Without this the form offered "Save and Submit" to everyone and the
+        # click ended in a bare permission error.
+        "can_submit": bool(meta.is_submittable and frappe.has_permission(dt, "submit")),
         # Shown read-only at the top so the employee sees whom the request is for.
         "scope": [{"fieldname": k, "label": frappe._(meta.get_field(k).label) if meta.get_field(k) else k,
                    "value": v} for k, v in scope.items()],
@@ -505,6 +510,11 @@ def create_record(module_key, values, submit=0):
         doc.set(k, v)
     doc.insert()
     if cint(submit) and meta.is_submittable:
+        if not doc.has_permission("submit"):
+            frappe.throw(
+                frappe._("Saved as draft. Submitting a {0} is for the approver, not for your role.").format(frappe._(dt)),
+                frappe.PermissionError,
+            )
         doc.submit()
     return get_record(module_key, doc.name)
 

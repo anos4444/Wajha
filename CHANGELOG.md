@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.16.2 — 2026-09-06
+
+**"Save and Submit" only for users who may submit.** The new-record form
+offered it on every submittable DocType, so an employee filing a leave
+request (the Employee role has create and write on Leave Application but
+not submit — HRMS reserves that for the approver) tapped it and got a bare
+permission error, which read as "no permission to create". The form now
+asks the server whether this user may submit and shows the button only
+then; the record card's own Submit action was already gated the same way.
+If a client still sends submit without the right, the server saves the
+draft and says plainly that submitting is the approver's step.
+
 ## 0.16.1 — 2026-09-06
 
 **Leaving the shell no longer damages the Desk.** Two things followed the

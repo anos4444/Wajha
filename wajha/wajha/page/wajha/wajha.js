@@ -1223,7 +1223,9 @@ class WajhaShell {
 			}).catch(() => $a.find('button').prop('disabled', false));
 		};
 		$(`<button type="button" class="wj-btn">${__("Save")}</button>`).on('click', () => save(false)).appendTo($a);
-		if (form.submittable) {
+		// Only when this user may submit: an Employee saving a leave request
+		// gets "Save" alone, and the approver submits it from the record card.
+		if (form.submittable && form.can_submit) {
 			$(`<button type="button" class="wj-btn">${__("Save and Submit")}</button>`).on('click', () => save(true)).appendTo($a);
 		}
 		$(`<button type="button" class="wj-btn wj-ghost">${__("Cancel")}</button>`).on('click', () => this.close_detail(true)).appendTo($a);
