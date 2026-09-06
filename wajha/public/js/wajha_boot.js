@@ -382,7 +382,37 @@
 
 	function mark_route() {
 		if (!document.body) return;
-		document.body.classList.toggle('wj-route', is_shell_route());
+		const on = is_shell_route();
+		document.body.classList.toggle('wj-route', on);
+		// The root background stamped for the shell must leave with it. Frappe
+		// navigates in-page, so stamp_page_bg's pathname check only ever ran on
+		// the hard load: a user who left through the drawer's "Frappe Desk"
+		// button kept the shell's page colour under the whole Desk — seen as a
+		// navy band beside the sidebar column and below the Home grid on a
+		// site with a dark shell theme. Re-stamp on the way in for the same
+		// reason (the Wajha tile on Frappe's Home is an in-page route too).
+		// Before the config has arrived the cached stamp stays: clearing it
+		// here would reopen the white flash the cache exists to close.
+		const cfg = window.wajha && window.wajha.config;
+		const bg = cfg && cfg.enabled && cfg.tokens && cfg.tokens.page_bg;
+		if (!on) document.documentElement.style.backgroundColor = '';
+		else if (bg) document.documentElement.style.backgroundColor = bg;
+		if (!on) restore_desk_sidebar();
+	}
+
+	// While the shell route hides Frappe 16's sidebar container with a
+	// stylesheet rule, Frappe's own sidebar code still calls jQuery .show() on
+	// it, and jQuery, finding the computed display "none", writes
+	// `display: block` inline as its fallback. That inline style outlives the
+	// route: back on the Desk the container is a block instead of the flex
+	// column its stylesheet gives it, and the sidebar renders as an empty
+	// strip — seen on hub.tawasulcloud.com right after the drawer's "Frappe
+	// Desk" button, while leaving any other page kept the sidebar. Only the
+	// jQuery fallback value is dropped; Frappe never sets "block" there itself.
+	function restore_desk_sidebar() {
+		document.querySelectorAll('[class*="body-sidebar"]').forEach((el) => {
+			if (el.style && el.style.display === 'block') el.style.display = '';
+		});
 	}
 
 	// Publish the theme as early as this script runs. With the config already in

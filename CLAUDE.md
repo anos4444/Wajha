@@ -208,6 +208,14 @@ everything.
   Frappe lacks — a shim that is kinder than Frappe hides exactly this bug.
 - **Frappe 16 serves the Desk at `/desk`** (`/app` 301s there). Build Desk
   URLs with `api.desk_prefix()`; strip either prefix from stored routes.
+- **Hiding Desk chrome with a stylesheet leaves jQuery droppings** — Frappe
+  16's sidebar code calls `.show()` on `.body-sidebar-container`; on an
+  element a stylesheet hides, jQuery writes `display: block` inline as its
+  fallback, and that inline style outlives the route (an empty sidebar
+  strip on the Desk after leaving the shell, 0.16.1). Anything the shell
+  hides by class must be checked on the way out in `mark_route`
+  (`wajha_boot.js`); the same goes for the root background it stamps —
+  Frappe navigates in-page, so a URL check at load time never fires again.
 - **`bench install-app` does not run `after_migrate`** — anything that must
   exist on a genuinely fresh site (theme presets, roles, default settings)
   needs to fire from `after_install` too. Test against a real fresh
