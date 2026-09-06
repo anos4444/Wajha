@@ -371,7 +371,14 @@
 	// rendered blank -- reported live on Shell Settings.
 	function is_shell_route() {
 		const route = frappe.router && frappe.router.current_route;
-		if (Array.isArray(route) && route.length) return route[0] === 'wajha';
+		// The bare Desk URL (/desk, /app) has an empty route, and when the
+		// site's Desk home page is the shell (Frappe's desktop:home_page
+		// default set to "wajha", e.g. via Set as Home Page) Frappe renders
+		// the shell there with current_route [""] and no pathname to match —
+		// seen on the hub as the Desk sidebar standing beside the shell at
+		// /desk.
+		if (Array.isArray(route) && route.length && route[0] !== '') return route[0] === 'wajha';
+		if (frappe.boot && frappe.boot.home_page === 'wajha' && /^\/(app|desk)\/?$/.test(window.location.pathname)) return true;
 		// On a hard load the router has often not resolved the route yet by the
 		// time app_ready fires, and if it resolved before this listener was
 		// registered no 'change' event follows either — so the class would never
@@ -380,9 +387,12 @@
 		return SHELL_ROUTE.test(window.location.pathname);
 	}
 
-	function mark_route() {
+	// `force` comes from the page's own show/hide hooks, which know for
+	// certain whether the shell is on screen; the route-based guess is for
+	// the router listener and the early load.
+	function mark_route(force) {
 		if (!document.body) return;
-		const on = is_shell_route();
+		const on = typeof force === 'boolean' ? force : is_shell_route();
 		document.body.classList.toggle('wj-route', on);
 		// The root background stamped for the shell must leave with it. Frappe
 		// navigates in-page, so stamp_page_bg's pathname check only ever ran on

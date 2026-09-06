@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.16.8 — 2026-09-06
+
+**The shell at the bare Desk URL hides the Desk chrome again.** When the
+shell is the site's Desk home page, `/desk` renders it with an empty
+route. 0.16.5 made the page's show hook re-run the route check, the empty
+route failed it, and the hook removed the marker it had just added — the
+Desk sidebar stood beside the shell at `/desk` on the hub. The show and
+hide hooks now force the marker on and off (they know for certain), and
+the route check itself recognises the home-page case for the listener
+and the early load.
+
 ## 0.16.7 — 2026-09-06
 
 **Group picks from the groups already in use.** The Shell Module group
