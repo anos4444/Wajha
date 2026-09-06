@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.16.7 — 2026-09-06
+
+**Group picks from the groups already in use.** The Shell Module group
+was a plain text box, so two spellings of the same group split the
+sidebar in two. It is now an Autocomplete: type a new name or pick an
+existing group from the list. It stays free text on purpose — packs name
+groups after workspace titles, and a Link to a groups DocType would need
+every group to exist first and a migration for every row.
+
 ## 0.16.6 — 2026-09-06
 
 **Stat card values back under their labels, not under the icon.** 0.16.4

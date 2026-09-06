@@ -99,9 +99,9 @@
   },
   {
    "fieldname": "group",
-   "fieldtype": "Data",
+   "fieldtype": "Autocomplete",
    "label": "المجموعة",
-   "description": "لتجميع الوحدات الثانوية في الشريط الجانبي"
+   "description": "لتجميع الوحدات الثانوية في الشريط الجانبي. اكتب اسمًا جديدًا أو اختر مجموعة موجودة من القائمة."
   },
   {
    "fieldname": "sequence",
