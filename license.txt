@@ -2,10 +2,8 @@ MIT License
 
 Copyright (c) 2026 Anas Abdulla
 
-The Swift Theme module (wajha/swift, wajha/swift_theme, wajha/www/login.*,
+The Swift Theme module : wajha/www/login.*,
 public/css/swift-*, public/css/themes/, public/js/swift-*, public/js/user_form.js)
-is ported from Swift Theme (https://github.com/its-alikhokher/swift_theme):
-Copyright (c) 2026 iamaliraza777@gmail.com, MIT License.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
