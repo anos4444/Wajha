@@ -101,6 +101,20 @@ DOCTYPE_ICONS = {
     "Shell Module": "sliders", "Shell Theme": "sliders", "Shell Settings": "gear",
 }
 
+# What the packs seeded, and what an administrator is likely to have typed,
+# before 0.18 — read by the one-off patch that turns emoji into glyphs.
+EMOJI = {
+    "📍": "location-dot", "💵": "money-check-dollar", "🧾": "receipt", "🌴": "umbrella-beach",
+    "🏖️": "umbrella-beach", "🏖": "umbrella-beach", "👤": "user", "👥": "users", "📅": "calendar-check",
+    "🗓️": "calendar-days", "💰": "money-bills", "💳": "credit-card", "🏠": "house", "🕒": "clock",
+    "⏱️": "stopwatch", "⏱": "stopwatch", "⏳": "hourglass-half", "📝": "pen-to-square", "✈️": "plane",
+    "✈": "plane", "🔁": "repeat", "📄": "file-lines", "📁": "folder", "📊": "chart-bar", "📈": "chart-line",
+    "🔧": "wrench", "⚙️": "gear", "⚙": "gear", "🏢": "building", "🏦": "building-columns", "🚚": "truck",
+    "📦": "box", "🛒": "cart-shopping", "🏷️": "tag", "🏷": "tag", "✅": "square-check", "🔔": "bell",
+    "📧": "envelope", "✉️": "envelope", "📞": "phone", "🗺️": "map", "🎓": "graduation-cap", "⭐": "star",
+    "❤️": "heart", "🔒": "lock", "🔑": "key", "🌐": "globe", "🟢": "right-to-bracket", "🔴": "right-from-bracket",
+}
+
 # First keyword found in the DocType name wins; order matters.
 KEYWORDS = [
     ("settings", "gear"), ("invoice", "file-invoice"), ("payment", "money-bill-transfer"),
@@ -134,6 +148,20 @@ def icon_for(doctype):
                 name = candidate
                 break
     return PREFIX + (name if name in GLYPHS else DEFAULT)
+
+
+def from_emoji(spec, doctype=None, route=None):
+    """The glyph for an icon typed before 0.18: a known emoji by meaning,
+    anything else by the module's DocType (or, for a route link, a house
+    for the Desk home and a link otherwise)."""
+    spec = (spec or "").strip()
+    if spec.startswith(PREFIX):
+        return normalize(spec)
+    if spec in EMOJI:
+        return PREFIX + EMOJI[spec]
+    if doctype:
+        return icon_for(doctype)
+    return PREFIX + ("house" if route and route.rstrip("/").endswith("home") else "link")
 
 
 def normalize(spec, doctype=None):

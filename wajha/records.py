@@ -29,6 +29,8 @@ import frappe
 from frappe.model.workflow import apply_workflow, get_transitions, get_workflow_name
 from frappe.utils import cint, sanitize_html, strip_html
 
+from wajha import icons
+
 from wajha.api import _current_employee, _get_module, desk_prefix, scope_defaults, scope_filters
 
 # Layout-only fieldtypes: never carry a value.
@@ -317,6 +319,7 @@ def get_record(module_key, name):
     else:
         status = None
 
+    actions = _actions(module, doc, meta)
     return {
         "doctype": doc.doctype,
         "name": doc.name,
@@ -329,7 +332,8 @@ def get_record(module_key, name):
         "tables": _tables(doc, meta, readable),
         "attachments": _attachments(doc),
         "comments": _comments(doc),
-        "actions": _actions(module, doc, meta),
+        "actions": actions,
+        "icons": icons.table(a.get("icon") for a in actions),
         "can_write": bool(doc.has_permission("write")),
         # Same slug rule as frappe.router.slug on the client.
         "desk_url": f"{desk_prefix()}/{doc.doctype.lower().replace(' ', '-')}/{doc.name}",

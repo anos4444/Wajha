@@ -6,7 +6,7 @@ Wajha turns a Frappe site into a branded, single-column application: a right-to-
 
 It is **configuration, not code**. Adding a module to the sidebar means creating a `Shell Module` record — no JavaScript edits, no rebuild. On a fresh install every workspace DocType of every installed app already has one.
 
-Current release: **0.18.0**. `CHANGELOG.md` records each release and the reasoning behind it.
+Current release: **0.18.1**. `CHANGELOG.md` records each release and the reasoning behind it.
 
 ---
 
@@ -95,6 +95,7 @@ frappe.call("wajha.api.scaffold_module_from_doctype", {"doctype": "Asset"})
 - **Search and workspaces** live in the Desk: Ctrl+K (⌘+K) or the search icon there opens Frappe's search, and the Desk sidebar lists the workspaces. The search box at the top of the shell's drawer filters modules only.
 - **Direct addresses** work from anywhere: `/desk/wajha` for the shell, `/desk/wajha/<module_key>` for a module, `/desk/wajha/<module_key>/<name>` for a record, `/desk/home` or `/desk/<workspace>` for the Desk.
 - The full Frappe form for any record is one link away from its card, and "Open the full form in Frappe" sits under every in-shell New form.
+- **A user's own profile:** the name chip in the header opens the user's settings page in Frappe (photo, name, password, language). With HRMS, "My Profile" in the self-service group shows the employee record; "Open in Frappe" on it edits the record when the role may write, otherwise HR does.
 
 ## Theming
 

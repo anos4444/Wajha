@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.18.1 — 2026-09-07
+
+**Existing modules get the glyphs too, and the user chip leads somewhere.**
+0.18.0 drew Font Awesome glyphs for modules without an icon, but every
+module the packs had seeded before it still carried its emoji.
+
+- A migrate patch turns the emoji on existing Shell Module records into
+  glyphs: known emoji by meaning (📍 → location-dot, 🧾 → receipt,
+  👤 → user), anything else by the module's DocType. Records already on
+  `fa:` are untouched, and modified stamps are not bumped. The HRMS pack
+  seeds glyphs from now on.
+- Dashboard cards and action buttons (check in / out, approve, print)
+  draw glyphs the same way.
+- The name chip in the header is now a link to the user's own settings
+  page in Frappe (photo, name, password, language) — the place a user
+  edits their profile. The employee record behind "My Profile" is read
+  there and opened in Frappe with "Open in Frappe" when the role may
+  edit it.
+
 ## 0.18.0 — 2026-09-07
 
 **Real icons, and section titles where they belong.** A workspace opened

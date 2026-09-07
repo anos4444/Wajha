@@ -378,7 +378,12 @@ class WajhaShell {
 	render_chips(layout) {
 		const $c = this.$shell.find('.wj-chips').empty();
 		if (layout.show_user_chip && this.cfg.user) {
-			$(`<span class="wj-chip">${esc(this.cfg.user.full_name || '')}</span>`).appendTo($c);
+			// The chip is the way to the user's own settings page (name,
+			// photo, password, language): Frappe's, one link away, as the
+			// Desk's avatar menu would offer.
+			const me = this.cfg.user.name || '';
+			$(`<a class="wj-chip wj-chip-user" href="${esc(wj_url(['user', me]))}" title="${__("My Settings")}">
+				<span class="wj-btn-icon" aria-hidden="true">${wj_icon('fa:circle-user')}</span>${esc(this.cfg.user.full_name || me)}</a>`).appendTo($c);
 		}
 		if (layout.show_clock) {
 			const $clock = $('<span class="wj-chip"></span>').appendTo($c);
@@ -449,6 +454,7 @@ class WajhaShell {
 		return frappe.call('wajha.api.get_module_meta', { module_key: m.module_key })
 			.then((r) => {
 				this.meta = r.message;
+				wj_learn_icons(this.meta && this.meta.icons);
 				if (m.virtual) {
 					m.module_label = this.meta.label;
 					m.ref_doctype = this.meta.doctype;
@@ -882,6 +888,7 @@ class WajhaShell {
 	}
 
 	render_detail(rec) {
+		wj_learn_icons(rec && rec.icons);
 		if (!this.$detail || !rec) return;
 		const $d = this.$detail;
 		$d.find('.wj-detail-title h3').text(rec.title || rec.name);
@@ -974,7 +981,7 @@ class WajhaShell {
 		(rec.actions || []).forEach((a) => {
 			const label = a.label || '';
 			const cls = a.style === 'Primary' ? '' : a.style === 'Danger' ? 'wj-danger' : 'wj-ghost';
-			const $btn = $(`<button type="button" class="wj-btn ${cls}">${a.icon ? esc(a.icon) + ' ' : ''}${esc(label)}</button>`)
+			const $btn = $(`<button type="button" class="wj-btn ${cls}">${a.icon ? `<span class="wj-btn-icon" aria-hidden="true">${wj_icon(a.icon)}</span>` : ''}${esc(label)}</button>`)
 				.attr('title', a.hint || '')
 				.appendTo($a);
 			$btn.on('click', () => {
@@ -1104,6 +1111,7 @@ class WajhaShell {
 		const m = this.state.module;
 		frappe.call('wajha.dashboard.get_module_dashboard', { module_key: m.module_key }).then((r) => {
 			if (!this.state.module || this.state.module.module_key !== m.module_key) return;
+			wj_learn_icons(r.message && r.message.icons);
 			this.render_dashboard((r.message && r.message.cards) || []);
 		}).catch(() => { /* the list stands on its own */ });
 	}
@@ -1135,7 +1143,7 @@ class WajhaShell {
 				});
 			} else {
 				const $c = $(`<button type="button" class="wj-dash-card wj-dash-stat${tone(c.tone)}${c.filter ? ' wj-dash-clickable' : ''}">
-					${c.icon ? `<span class="wj-dash-icon">${esc(c.icon)}</span>` : ''}
+					${c.icon ? `<span class="wj-dash-icon" aria-hidden="true">${wj_icon(c.icon)}</span>` : ''}
 					<span class="wj-dash-value">${esc(c.value)}</span>
 					<span class="wj-dash-label">${esc(c.label)}</span>
 					${c.hint ? `<span class="wj-dash-hint"><bdi>${esc(c.hint)}</bdi></span>` : ''}
@@ -1167,7 +1175,7 @@ class WajhaShell {
 		const $row = $('<div class="wj-module-actions"></div>').prependTo($card);
 		acts.forEach((a) => {
 			const cls = a.style === 'Primary' ? '' : a.style === 'Danger' ? 'wj-danger' : 'wj-ghost';
-			$(`<button type="button" class="wj-btn wj-big ${cls}">${a.icon ? esc(a.icon) + ' ' : ''}${esc(a.label)}</button>`)
+			$(`<button type="button" class="wj-btn wj-big ${cls}">${a.icon ? `<span class="wj-btn-icon" aria-hidden="true">${wj_icon(a.icon)}</span>` : ''}${esc(a.label)}</button>`)
 				.on('click', () => this.run_module_action(a, $row)).appendTo($row);
 		});
 	}

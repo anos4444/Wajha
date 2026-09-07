@@ -58,7 +58,7 @@ def leave_cards(module, ctx):
                               filters=ctx["scope"] + [["docstatus", "=", 0], ["status", "=", "Open"]])
     n = cint(pending[0][0]) if pending else 0
     if n:
-        cards.append(stat(frappe._("Awaiting approval"), str(n), icon="⏳", tone="warning",
+        cards.append(stat(frappe._("Awaiting approval"), str(n), icon="fa:hourglass-half", tone="warning",
                           filter={"field": "status", "value": "Open"}))
     return cards
 
@@ -82,11 +82,11 @@ def checkin_cards(module, ctx):
     rows = frappe.get_list("Employee Checkin", fields=["log_type", "time"], order_by="time desc", limit_page_length=1,
                            filters=ctx["scope"] + [["time", ">=", today]])
     if not rows:
-        return [stat(frappe._("Today"), frappe._("Not checked in"), icon="🕒", tone="warning")]
+        return [stat(frappe._("Today"), frappe._("Not checked in"), icon="fa:clock", tone="warning")]
     last = rows[0]
     label = frappe._("Checked in") if last.log_type == "IN" else frappe._("Checked out")
     return [stat(frappe._("Today"), label, hint=frappe.utils.format_datetime(last.time, "HH:mm"),
-                 icon="🟢" if last.log_type == "IN" else "🔴", tone="success" if last.log_type == "IN" else None)]
+                 icon="fa:right-to-bracket" if last.log_type == "IN" else "fa:right-from-bracket", tone="success" if last.log_type == "IN" else None)]
 
 
 # --------------------------------------------------------------------------- salary
@@ -99,7 +99,7 @@ def salary_cards(module, ctx):
     r = rows[0]
     cur = {"fieldtype": "Currency", "options": "currency"}
     doc = frappe._dict(currency=r.currency)
-    return [stat(frappe._("Last net pay"), frappe.format_value(r.net_pay, cur, doc), hint=formatdate(r.end_date), icon="💵", tone="success"),
+    return [stat(frappe._("Last net pay"), frappe.format_value(r.net_pay, cur, doc), hint=formatdate(r.end_date), icon="fa:money-bill-wave", tone="success"),
             stat(frappe._("Gross"), frappe.format_value(r.gross_pay, cur, doc), hint=formatdate(r.end_date))]
 
 

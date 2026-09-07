@@ -19,6 +19,8 @@ One failing provider is logged and skipped; it never takes the strip down.
 import frappe
 from frappe.utils import cint, flt
 
+from wajha import icons
+
 from wajha.api import _allowed_fields, _get_module, scope_filters
 
 MAX_STATUS_CHIPS = 8
@@ -80,7 +82,7 @@ def _count_card(module):
     rows = frappe.get_list(module.ref_doctype, fields=[{"COUNT": "*"}], filters=scope_filters(module),
                            as_list=True, limit_page_length=1)
     total = cint(rows[0][0]) if rows else 0
-    return stat(frappe._("Records"), str(total), icon="#")
+    return stat(frappe._("Records"), str(total), icon="fa:hashtag")
 
 
 # --------------------------------------------------------------------------- number cards
@@ -99,7 +101,7 @@ def _number_cards(module):
             if (card.get("type") or "Document Type") != "Document Type":
                 continue
             value = get_result(card, card.filters_json)
-            out.append(stat(frappe._(card.label or name), frappe.format_value(flt(value), {"fieldtype": "Float", "precision": 0}), icon="▣"))
+            out.append(stat(frappe._(card.label or name), frappe.format_value(flt(value), {"fieldtype": "Float", "precision": 0}), icon="fa:chart-simple"))
         except Exception:
             frappe.log_error(title=f"wajha: number card {name} failed")
     return out
@@ -136,7 +138,8 @@ def get_module_dashboard(module_key):
     except Exception:
         frappe.log_error(title=f"wajha: number cards failed for {module.name}")
 
-    return {"cards": [c for c in cards if c]}
+    cards = [c for c in cards if c]
+    return {"cards": cards, "icons": icons.table(c.get("icon") for c in cards)}
 
 
 def _load_packs():
