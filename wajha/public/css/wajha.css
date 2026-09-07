@@ -32,6 +32,7 @@
 	grid-template-columns: var(--wj-sidebar-width) 1fr;
 	min-height: calc(100vh - var(--wj-chrome-offset, 0px));
 	direction: rtl;
+	text-align: start;
 	font-family: var(--wj-font);
 	font-size: var(--wj-font-size);
 	color: var(--wj-ink);
@@ -1044,11 +1045,28 @@
 }
 
 .wj-home-sec h3 {
-	font-size: 13px;
+	font-size: 15px;
 	font-weight: 700;
-	color: var(--wj-muted-ink);
-	margin: 0 4px 10px;
-	letter-spacing: .02em;
+	color: var(--wj-ink);
+	margin: 0 0 12px;
+	padding: 0 4px 8px;
+	border-bottom: 1px solid var(--wj-border);
+	text-align: start;
+}
+
+.wj-fa {
+	width: 1em;
+	height: 1em;
+	vertical-align: -.125em;
+	flex: none;
+}
+
+.wj-link-icon {
+	display: inline-flex;
+	width: 18px;
+	justify-content: center;
+	margin-inline-end: 8px;
+	opacity: .85;
 }
 
 .wj-tiles {
@@ -1124,6 +1142,10 @@
 .wj-tile-emoji {
 	font-size: 22px;
 	line-height: 1;
+}
+
+.wj-tile-emoji .wj-fa {
+	display: block;
 }
 
 .wj-tile-label {
@@ -1569,6 +1591,7 @@
 	border-top: 1px solid var(--wj-border);
 	box-shadow: 0 -2px 12px rgba(0, 0, 0, .06);
 	direction: rtl;
+	text-align: start;
 	font-family: var(--wj-font);
 }
 

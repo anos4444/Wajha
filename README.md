@@ -6,7 +6,7 @@ Wajha turns a Frappe site into a branded, single-column application: a right-to-
 
 It is **configuration, not code**. Adding a module to the sidebar means creating a `Shell Module` record — no JavaScript edits, no rebuild. On a fresh install every workspace DocType of every installed app already has one.
 
-Current release: **0.17.0**. `CHANGELOG.md` records each release and the reasoning behind it.
+Current release: **0.18.0**. `CHANGELOG.md` records each release and the reasoning behind it.
 
 ---
 
@@ -22,6 +22,7 @@ Wajha sits on top rather than replacing any of it. Browsing, navigation, the rec
 - **Themes as data.** `Shell Theme` records hold the full token set — colours, font, radius, shadow, sidebar width. Four presets ship with the app; duplicate one and change it to match a client's brand. The theme is a site setting; a user's Light/Dark choice stays Frappe's own.
 - **No build step.** Plain CSS and vanilla JavaScript: the Desk loads exactly two Wajha files, `wajha.css` and `wajha_boot.js`. Installs on any v16 bench, including servers with no Node toolchain, and works offline apart from the optional map tiles.
 - **Permission-safe by construction.** The browser never names a DocType, a field or an operator. It names a *module key*; the server loads that module's saved configuration and builds the query from it, then Frappe's permission layer applies on top. A user cannot request data their roles forbid, even by editing the request.
+- **Icons without a font.** Every module carries a Font Awesome Free glyph chosen for its DocType, or the emoji or `fa:` name an administrator typed. The glyphs ship as inline SVG path data with the modules that use them: no web font, no CDN, and they take the theme's colours.
 - **Every app as modules, by default.** On install, on migrate, and whenever another app is installed later, Wajha creates a Shell Module record for every DocType the installed apps' workspaces link to, grouped by workspace and labelled in the site's language. Edit, disable or flag them for the phone bar; nothing is ever overwritten. Turn `seed_modules` off in Shell Settings to keep only hand-made modules.
 - **Adapts to the site.** Home is a grid of every app and workspace the user may open, discovered from Frappe's own Desktop Icons and Workspaces; a tile opens the workspace's DocTypes as ready-made modules with cards, forms and actions. Install an app and it is there on the next load. Hand-made modules override any discovered one.
 - **A real phone app.** Below 700px the list becomes cards (title, subtitle, status chip), filters live in a bottom sheet with a count badge, the list grows as you scroll, and up to four modules sit in a bottom bar within thumb reach. The drawer closes with ✕, a swipe, or a tap outside. Add to Home Screen installs the client's own name, logo and colours.
@@ -69,6 +70,7 @@ The restart matters: Wajha's assets are served under a content hash the backend 
 2. **Shell Module** — one record per sidebar item:
    - `module_key` — a latin slug, e.g. `assets`
    - `module_label` / `module_label_en` — what the user reads
+   - `icon` — an emoji, or a Font Awesome Free glyph as `fa:coins` (the field offers the names); blank picks one for the DocType
    - `group` — a sidebar group; the field suggests the groups already in use
    - `view_type` — `List` (browse a DocType) or `Route Link` (jump to any page)
    - `ref_doctype`, then the **Columns** and **Filters** child tables
@@ -128,4 +130,4 @@ Three Frappe behaviours cost real debugging time and are worth respecting in any
 
 ## Licence
 
-MIT — see `license.txt`.
+MIT — see `license.txt`. The module icons are Font Awesome Free glyphs (https://fontawesome.com), used under CC BY 4.0; the attribution sits in `wajha/icons_data.py`.

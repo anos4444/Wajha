@@ -93,9 +93,9 @@
   },
   {
    "fieldname": "icon",
-   "fieldtype": "Data",
+   "fieldtype": "Autocomplete",
    "label": "الأيقونة",
-   "description": "رمز تعبيري أو اسم أيقونة Frappe"
+   "description": "رمز تعبيري، أو أيقونة Font Awesome بصيغة fa:coins (القائمة تقترح الأسماء). يُترك فارغًا لاختيار أيقونة مناسبة لنوع المستند تلقائيًا"
   },
   {
    "fieldname": "group",
@@ -394,7 +394,7 @@
  "owner": "Administrator",
  "modified_by": "Administrator",
  "creation": "2026-08-07 09:00:00.000000",
- "modified": "2026-09-06 09:00:00.000000",
+ "modified": "2026-09-07 10:40:00.000000",
  "idx": 0,
  "links": [],
  "states": [],

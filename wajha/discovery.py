@@ -19,6 +19,8 @@ no permission); everything permission-bearing is computed for the caller.
 import frappe
 from frappe.utils import cint
 
+from wajha import icons
+
 VIRTUAL_PREFIX = "~"
 GROUP_PREFIX = "@"
 MAP_CACHE_KEY = "wajha_virtual_map"
@@ -116,6 +118,7 @@ def _virtual_summary(dt, label=None):
         "view_type": "List",
         "ref_doctype": dt,
         "virtual": 1,
+        "icon": icons.icon_for(dt),
         "can_create": bool(frappe.has_permission(dt, "create")),
     }
 
@@ -131,7 +134,7 @@ def _handmade_by_doctype():
             continue
         if m.ref_doctype and frappe.has_permission(m.ref_doctype, "read"):
             m["view_type"] = "List"
-            out.setdefault(m.ref_doctype, m)
+            out.setdefault(m.ref_doctype, icons.attach(m))
     return out
 
 
@@ -328,6 +331,8 @@ def group(key):
     ws_slug = key[len(GROUP_PREFIX):]
     for ws in _workspaces():
         if slug(ws.name) == ws_slug:
+            sections = workspace_sections(ws.name)
             return {"key": key, "kind": "group", "label": frappe._(ws.title or ws.name),
-                    "app": ws.get("app"), "tiles": [], "sections": workspace_sections(ws.name)}
+                    "app": ws.get("app"), "tiles": [], "sections": sections,
+                    "icons": icons.table(m.get("icon") for sec in sections for m in sec["modules"])}
     frappe.throw("مجموعة غير معروفة", frappe.DoesNotExistError)

@@ -70,6 +70,22 @@ function saved_page_length() {
 }
 
 const esc = (x) => frappe.utils.escape_html(String(x === null || x === undefined ? '' : x));
+
+// A module icon is an emoji (drawn as text) or "fa:<name>", one of the
+// Font Awesome Free glyphs the server sends as path data alongside the
+// modules that use them. Inline SVG: no font file, no CDN, and the glyph
+// takes its colour from the surrounding text.
+const WJ_GLYPHS = {};
+function wj_learn_icons(table) { Object.assign(WJ_GLYPHS, table || {}); }
+function wj_icon(spec, fallback) {
+	spec = spec || fallback || '';
+	if (spec.startsWith('fa:')) {
+		const g = WJ_GLYPHS[spec.slice(3)];
+		if (!g) return '▪';
+		return `<svg class="wj-fa" viewBox="0 0 ${g[0]} 512" aria-hidden="true" focusable="false"><path fill="currentColor" d="${g[1]}"/></svg>`;
+	}
+	return esc(spec);
+}
 // Frappe ships cint/flt as bare globals, not under frappe.utils — on v16 a
 // call to frappe.utils.cint threw inside render_shell and left the shell as
 // an empty page beside its sidebar, on phones and desktops alike (hub,
@@ -106,6 +122,7 @@ class WajhaShell {
 		window.wajha.get_config().then((cfg) => {
 			this.cfg = cfg;
 			if (!cfg || !cfg.enabled) return this.render_disabled();
+			wj_learn_icons(cfg.icons);
 			this.render_shell();
 			this.apply_route(this.pending_route || []);
 		});
@@ -305,7 +322,7 @@ class WajhaShell {
 				const $items = $('<div class="wj-group-items"></div>').appendTo($g);
 				mods.forEach((m) => {
 					wj_nav($(`<a class="wj-link" data-key="${esc(m.module_key)}" href="${esc(this.href(m))}" data-text="${esc((m.module_label + ' ' + (m.module_label_en || '')).toLowerCase())}">
-						<span>${m.icon ? esc(m.icon) + ' ' : ''}${esc(m.module_label)}</span>
+						<span>${m.icon ? `<span class="wj-link-icon" aria-hidden="true">${wj_icon(m.icon)}</span>` : ''}${esc(m.module_label)}</span>
 						${m.module_label_en ? `<span class="wj-en">${esc(m.module_label_en)}</span>` : ''}
 					</a>`), () => this.go(m))
 						.appendTo($items);
@@ -348,7 +365,7 @@ class WajhaShell {
 		}
 		bar.forEach((m) => {
 			wj_nav($(`<a class="wj-tab" data-key="${esc(m.module_key)}" href="${esc(this.href(m))}">
-				<span class="wj-tab-icon" aria-hidden="true">${esc(m.icon || '•')}</span>
+				<span class="wj-tab-icon" aria-hidden="true">${wj_icon(m.icon, '•')}</span>
 				<span class="wj-tab-label">${esc(m.module_label)}</span>
 			</a>`), () => this.go(m)).appendTo(this.$tabbar);
 		});
@@ -1030,7 +1047,7 @@ class WajhaShell {
 	tile(t) {
 		const icon = t.logo_url
 			? `<img src="${esc(t.logo_url)}" alt="">`
-			: t.emoji ? `<span class="wj-tile-emoji">${esc(t.emoji)}</span>`
+			: t.emoji ? `<span class="wj-tile-emoji">${wj_icon(t.emoji)}</span>`
 			: (t.icon && frappe.utils.icon ? frappe.utils.icon(t.icon, 'lg') : '<span class="wj-tile-emoji">▪</span>');
 		const href = t.kind === 'handmade' ? this.href(t.module)
 			: t.kind === 'link' ? (t.url || '#')
@@ -1060,6 +1077,7 @@ class WajhaShell {
 		this.$body.html(`<div class="wj-card wj-empty">${__("Loading…")}</div>`);
 		frappe.call('wajha.api.get_group', { group_key: key }).then((r) => {
 			const g = r.message || {};
+			wj_learn_icons(g.icons);
 			this.$title.text(g.label || '');
 			this.$body.empty();
 			$(`<div class="wj-group-head"><button type="button" class="wj-back wj-back-inline">${CHEVRON}</button>
@@ -1071,7 +1089,7 @@ class WajhaShell {
 			}
 			(g.sections || []).forEach((sec) => {
 				const $s = $(`<section class="wj-home-sec">${sec.label ? `<h3>${esc(sec.label)}</h3>` : ''}<div class="wj-tiles wj-tiles-small"></div></section>`).appendTo(this.$body);
-				sec.modules.forEach((m) => this.tile({ label: m.module_label, emoji: m.icon || '📄', kind: m.virtual ? 'module' : 'handmade', key: m.module_key, module: m }).appendTo($s.find('.wj-tiles')));
+				sec.modules.forEach((m) => this.tile({ label: m.module_label, emoji: m.icon || '▪', kind: m.virtual ? 'module' : 'handmade', key: m.module_key, module: m }).appendTo($s.find('.wj-tiles')));
 			});
 			if (!(g.tiles || []).length && !(g.sections || []).length) this.$body.append(`<div class="wj-card wj-empty">${__("Nothing to show.")}</div>`);
 		}).catch(() => this.$body.html(`<div class="wj-card wj-empty">${__("Could not load this group.")}</div>`));

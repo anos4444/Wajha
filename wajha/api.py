@@ -12,6 +12,8 @@ import json
 import frappe
 from frappe.utils import cint
 
+from wajha import icons
+
 CONFIG_CACHE_KEY = "wajha_config"
 FIELDS_CACHE_PREFIX = "wajha_fields_"
 FIELDS_CACHE_TTL = 300  # 5 minutes; cleared immediately on module save regardless
@@ -81,7 +83,7 @@ def get_config():
             if not m.ref_doctype or not frappe.has_permission(m.ref_doctype, "read"):
                 continue
             m["can_create"] = bool(frappe.has_permission(m.ref_doctype, "create"))
-        modules.append(m)
+        modules.append(icons.attach(m))
 
     home = None
     landing = (s.get("landing") if s.meta.has_field("landing") else None) or "Home"
@@ -120,6 +122,7 @@ def get_config():
         },
         "tokens": _theme_tokens(s.active_theme),
         "modules": modules,
+        "icons": icons.table(m["icon"] for m in modules),
         "user": {
             "name": frappe.session.user,
             "full_name": frappe.utils.get_fullname(frappe.session.user),
@@ -137,9 +140,9 @@ def manifest():
     it is secret — the same values are on the login page."""
     s = _settings()
     t = _theme_tokens(s.active_theme) if s.enabled else {}
-    icons = []
+    manifest_icons = []
     if s.logo:
-        icons.append({"src": s.logo, "sizes": "any", "purpose": "any"})
+        manifest_icons.append({"src": s.logo, "sizes": "any", "purpose": "any"})
     body = {
         "name": s.brand_title or "Wajha",
         "short_name": (s.brand_title_en or s.brand_title or "Wajha")[:12],
@@ -152,7 +155,7 @@ def manifest():
         "lang": "ar",
         "theme_color": t.get("primary") or "#013D28",
         "background_color": t.get("page_bg") or "#F2F3F1",
-        "icons": icons,
+        "manifest_icons": manifest_icons,
     }
     frappe.local.response.update({
         "type": "download",
@@ -745,3 +748,9 @@ def _control_for(fieldtype):
     if fieldtype == "Datetime":
         return "Datetime Range"
     return "Text"
+
+
+@frappe.whitelist()
+def get_icon_names():
+    """The ``fa:`` names the Shell Module icon field can offer."""
+    return [icons.PREFIX + n for n in icons.names()]

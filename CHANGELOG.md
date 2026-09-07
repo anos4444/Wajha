@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.18.0 — 2026-09-07
+
+**Real icons, and section titles where they belong.** A workspace opened
+from Home showed every DocType as the same 📄 emoji, and its section
+headings ("Multi Currency", "Banking") sat at the far left of an RTL page
+while the tiles stacked from the right.
+
+- Modules draw Font Awesome Free glyphs: `fa:<name>` in a Shell Module's
+  icon field (the field now offers the names), or an emoji as before. A
+  module with no icon gets one for its DocType — invoices, currencies,
+  employees, leave, stock, assets, projects and some two hundred more —
+  with a keyword fallback for the rest. The glyphs are inline SVG path
+  data served with the modules that use them: no web font, no CDN,
+  nothing to fetch on a closed network.
+- The heading fix: Bootstrap's reboot sets `text-align: left` on the
+  body and `direction: rtl` alone does not undo an inherited alignment.
+  The shell now sets `text-align: start`, and section headings are
+  proper titles (ink colour, a rule beneath) above their tiles.
+- Migrate reloads the Shell Module DocType (icon field is an
+  Autocomplete); the icon data carries Font Awesome's attribution.
+
 ## 0.17.0 — 2026-09-06
 
 **Swift Theme removed.** Wajha had shipped a port of the standalone

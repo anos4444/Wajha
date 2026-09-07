@@ -14,5 +14,12 @@ frappe.ui.form.on("Shell Module", {
 				const ctrl = frm.fields_dict.group;
 				if (ctrl && ctrl.set_data) ctrl.set_data(groups);
 			});
+		// The icon is free text too (an emoji stays an emoji); the list
+		// offers the Font Awesome names the shell can draw, so "fa:coins"
+		// is picked rather than guessed.
+		frappe.call("wajha.api.get_icon_names").then((r) => {
+			const ctrl = frm.fields_dict.icon;
+			if (ctrl && ctrl.set_data) ctrl.set_data(r.message || []);
+		});
 	},
 });
