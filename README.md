@@ -6,7 +6,7 @@ Wajha turns a Frappe site into a branded, single-column application: a right-to-
 
 It is **configuration, not code**. Adding a module to the sidebar means creating a `Shell Module` record — no JavaScript edits, no rebuild. On a fresh install every workspace DocType of every installed app already has one.
 
-Current release: **0.19.0**. `CHANGELOG.md` records each release and the reasoning behind it.
+Current release: **0.19.1**. `CHANGELOG.md` records each release and the reasoning behind it.
 
 ---
 

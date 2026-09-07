@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.19.1 — 2026-09-07
+
+**A hovered tile lost its label under a dark Desk theme.** Frappe paints
+every `a:hover` with `var(--text-color)`; with the Desk theme set to
+Dark that is near-white, and since 0.16.3 tiles, sidebar entries, tabs
+and row cards are real links. The label turned white on its white card
+the moment the pointer touched it. The shell's links now state their
+colour for hover, focus and active as well as rest.
+
 ## 0.19.0 — 2026-09-07
 
 **The Desk's own icon picker, with the Font Awesome glyphs in it.** The

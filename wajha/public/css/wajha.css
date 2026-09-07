@@ -2095,3 +2095,28 @@ body[data-route^="wajha/"] .page-container {
    character while the card keeps its alignment. Do not put plaintext on
    the value/label blocks: a digits-only value then resolves to LTR, is
    aligned left in an RTL card and lands under the icon (0.16.4). */
+
+/* Frappe paints every a:hover with var(--text-color). Under a dark Desk
+   theme that is near-white, so a hovered tile's label vanished on its own
+   white card (and a light theme would darken sidebar links on the dark
+   sidebar). The shell's links keep their own colour in every state. */
+.wj-tile:hover, .wj-tile:focus, .wj-tile:active,
+.wj-rowcard:hover, .wj-rowcard:focus, .wj-rowcard:active {
+	color: var(--wj-ink);
+}
+.wj-link:hover, .wj-link:focus, .wj-link:active {
+	color: var(--wj-sidebar-ink);
+}
+.wj-link[aria-current="page"]:hover, .wj-link[aria-current="page"]:focus, .wj-link[aria-current="page"]:active {
+	color: var(--wj-sidebar-active-ink);
+}
+.wj-tab:hover, .wj-tab:focus, .wj-tab:active {
+	color: var(--wj-muted-ink);
+}
+.wj-tab[aria-current="page"]:hover, .wj-tab[aria-current="page"]:focus, .wj-tab[aria-current="page"]:active {
+	color: var(--wj-primary);
+}
+.wj-dl dd a:hover, .wj-dl dd a:focus, .wj-files a:hover, .wj-files a:focus,
+.wj-form-foot a:hover, .wj-form-foot a:focus, .wj-shell a:not([class]):hover, .wj-shell a:not([class]):focus {
+	color: var(--wj-primary);
+}
