@@ -122,7 +122,6 @@ def get_config():
         },
         "tokens": _theme_tokens(s.active_theme),
         "modules": modules,
-        "icons": icons.table([m["icon"] for m in modules] + ["fa:circle-user"]),
         "user": {
             "name": frappe.session.user,
             "full_name": frappe.utils.get_fullname(frappe.session.user),
@@ -500,7 +499,6 @@ def get_module_meta(module_key):
             "link_doctype": f.options if f.control == "Link" else None,
         })
 
-    module_actions = _module_actions(module)
     return {
         "module_key": module.module_key,
         "label": module.module_label,
@@ -518,8 +516,7 @@ def get_module_meta(module_key):
         # stays reachable from it. Module-level Create actions (check in /
         # check out) sit above the list.
         "has_form": bool(frappe.has_permission(module.ref_doctype, "create")),
-        "module_actions": module_actions,
-        "icons": icons.table(a.get("icon") for a in module_actions),
+        "module_actions": _module_actions(module),
         # The phone card: the first column is the title, the next two the
         # subtitle, status_field the chip. Chosen from the columns the module
         # already orders, so nobody maintains a second list for phones.
@@ -750,9 +747,3 @@ def _control_for(fieldtype):
     if fieldtype == "Datetime":
         return "Datetime Range"
     return "Text"
-
-
-@frappe.whitelist()
-def get_icon_names():
-    """The ``fa:`` names the Shell Module icon field can offer."""
-    return [icons.PREFIX + n for n in icons.names()]

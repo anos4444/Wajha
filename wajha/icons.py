@@ -1,20 +1,34 @@
-"""Icons for modules: an emoji the administrator typed, or a Font Awesome
-Free glyph named ``fa:<name>``.
+"""Icons for modules: whatever the Desk icon picker offers — a Frappe icon
+name, an emoji, or one of the Font Awesome Free glyphs Wajha adds to the
+Desk sprite as ``fa-<name>``.
 
-The glyphs are shipped as inline SVG path data (``icons_data.GLYPHS``),
-not as a web font: nothing to download from a CDN, nothing to break on a
-closed network, and the glyph takes the tile's colour through
-``currentColor``. Only the glyphs a response actually uses travel with
-it — ``table()`` picks them out — so a page never pays for the whole set.
+The glyphs live in ``public/icons/fa.svg``, registered through the
+``app_include_icons`` hook, so the picker on Shell Module lists them and
+``frappe.utils.icon("fa-coins")`` draws them on any Desk page: no web
+font, no CDN, nothing to fetch on a closed network. This module only
+knows their names (read once from the sprite) and which one suits a
+DocType: ``DOCTYPE_ICONS`` first, then the first keyword of the name
+that ``KEYWORDS`` knows.
 
-A DocType with no icon of its own gets one from ``DOCTYPE_ICONS`` or,
-failing that, from the first keyword of its name that ``KEYWORDS`` knows.
+Before 0.19 the same glyphs were written ``fa:<name>``; ``normalize``
+still reads that spelling.
 """
 
-from wajha.icons_data import GLYPHS
+import os
+import re
 
-PREFIX = "fa:"
+PREFIX = "fa-"
+LEGACY_PREFIX = "fa:"
 DEFAULT = "file-lines"
+SPRITE = os.path.join(os.path.dirname(__file__), "public", "icons", "fa.svg")
+
+
+def _glyph_names():
+    with open(SPRITE, encoding="utf-8") as f:
+        return set(re.findall(r'id="icon-fa-([a-z0-9-]+)"', f.read()))
+
+
+GLYPHS = _glyph_names()
 
 DOCTYPE_ICONS = {
     # Accounts
@@ -137,7 +151,7 @@ KEYWORDS = [
 
 
 def icon_for(doctype):
-    """``fa:<name>`` for a DocType that has no icon of its own."""
+    """``fa-<name>`` for a DocType that has no icon of its own."""
     if not doctype:
         return PREFIX + DEFAULT
     name = DOCTYPE_ICONS.get(doctype)
@@ -155,7 +169,7 @@ def from_emoji(spec, doctype=None, route=None):
     anything else by the module's DocType (or, for a route link, a house
     for the Desk home and a link otherwise)."""
     spec = (spec or "").strip()
-    if spec.startswith(PREFIX):
+    if spec.startswith(PREFIX) or spec.startswith(LEGACY_PREFIX):
         return normalize(spec)
     if spec in EMOJI:
         return PREFIX + EMOJI[spec]
@@ -165,12 +179,14 @@ def from_emoji(spec, doctype=None, route=None):
 
 
 def normalize(spec, doctype=None):
-    """What the client should draw: the emoji as typed, a known ``fa:``
-    name as typed, an unknown one as the default glyph, nothing as the
-    DocType's own icon."""
+    """What the client should draw: an emoji or Frappe icon name as typed,
+    a known glyph as ``fa-<name>`` (the old ``fa:`` spelling included), an
+    unknown glyph as the default one, nothing as the DocType's own icon."""
     spec = (spec or "").strip()
     if not spec:
         return icon_for(doctype)
+    if spec.startswith(LEGACY_PREFIX):
+        spec = PREFIX + spec[len(LEGACY_PREFIX):]
     if spec.startswith(PREFIX):
         return spec if spec[len(PREFIX):] in GLYPHS else PREFIX + DEFAULT
     return spec
@@ -180,19 +196,3 @@ def attach(module):
     """Fill ``module["icon"]`` in place (a dict from get_all or a summary)."""
     module["icon"] = normalize(module.get("icon"), module.get("ref_doctype"))
     return module
-
-
-def table(specs):
-    """Path data for the ``fa:`` names among ``specs``, keyed by name."""
-    out = {}
-    for spec in specs:
-        if spec and spec.startswith(PREFIX):
-            name = spec[len(PREFIX):]
-            if name in GLYPHS:
-                out[name] = list(GLYPHS[name])
-    return out
-
-
-def names():
-    """Every glyph name, for the Shell Module icon picker."""
-    return sorted(GLYPHS)

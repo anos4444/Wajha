@@ -93,9 +93,10 @@
   },
   {
    "fieldname": "icon",
-   "fieldtype": "Autocomplete",
+   "fieldtype": "Icon",
    "label": "الأيقونة",
-   "description": "رمز تعبيري، أو أيقونة Font Awesome بصيغة fa:coins (القائمة تقترح الأسماء). يُترك فارغًا لاختيار أيقونة مناسبة لنوع المستند تلقائيًا"
+   "description": "أيقونة من القائمة (أيقونات Frappe وأيقونات Font Awesome التي تبدأ بـ fa-) أو رمز تعبيري. يُترك فارغًا لاختيار أيقونة مناسبة لنوع المستند تلقائيًا",
+   "options": "Emojis"
   },
   {
    "fieldname": "group",
@@ -394,7 +395,7 @@
  "owner": "Administrator",
  "modified_by": "Administrator",
  "creation": "2026-08-07 09:00:00.000000",
- "modified": "2026-09-07 10:40:00.000000",
+ "modified": "2026-09-07 12:10:00.000000",
  "idx": 0,
  "links": [],
  "states": [],

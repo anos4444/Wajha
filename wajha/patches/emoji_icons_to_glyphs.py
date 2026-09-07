@@ -1,7 +1,7 @@
 """0.18.1: turn the emoji icons of existing Shell Module records into the
 Font Awesome glyphs 0.18 draws, so a site that installed earlier looks
 like a fresh one. Known emoji map by meaning (📍 → location-dot); anything
-else takes the DocType's own glyph. Records already on ``fa:`` are left
+else takes the DocType's own glyph. Records already on ``fa-`` are left
 alone, and modified stamps are not touched."""
 
 import frappe

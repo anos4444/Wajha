@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.19.0 — 2026-09-07
+
+**The Desk's own icon picker, with the Font Awesome glyphs in it.** The
+owner asked for the Shell Module icon field to work like Frappe's: a
+searchable grid with an Emoji tab, not a text box with names.
+
+- The icon field is Frappe's `Icon` control. Its grid lists every symbol
+  in the Desk sprite, so Wajha now ships the Font Awesome Free glyphs as
+  a sprite (`public/icons/fa.svg`, symbols `icon-fa-<name>`) through the
+  `app_include_icons` hook: they appear in the picker beside Frappe's
+  icons, search by name, and `frappe.utils.icon("fa-coins")` draws them
+  on any Desk page.
+- Glyph names are `fa-<name>` as the picker writes them; a patch rewrites
+  the `fa:<name>` spelling 0.18 stored on modules and action rows. The
+  shell draws every icon name through `frappe.utils.icon`, so a Frappe
+  icon an administrator picks and a glyph the pack chose render the same
+  way, and responses no longer carry path data.
+- Migrate reloads the Shell Module DocType and runs the rename patch.
+
 ## 0.18.1 — 2026-09-07
 
 **Existing modules get the glyphs too, and the user chip leads somewhere.**

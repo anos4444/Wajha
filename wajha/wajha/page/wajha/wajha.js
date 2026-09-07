@@ -71,19 +71,16 @@ function saved_page_length() {
 
 const esc = (x) => frappe.utils.escape_html(String(x === null || x === undefined ? '' : x));
 
-// A module icon is an emoji (drawn as text) or "fa:<name>", one of the
-// Font Awesome Free glyphs the server sends as path data alongside the
-// modules that use them. Inline SVG: no font file, no CDN, and the glyph
-// takes its colour from the surrounding text.
-const WJ_GLYPHS = {};
-function wj_learn_icons(table) { Object.assign(WJ_GLYPHS, table || {}); }
+// A module icon is whatever the Desk icon picker gives: an emoji (drawn
+// as text), a Frappe icon name, or one of the Font Awesome glyphs Wajha
+// adds to the Desk sprite as fa-<name>. Names go through frappe.utils.icon
+// so the same sprite serves the Desk and the shell.
+const WJ_EMOJI = /\p{Extended_Pictographic}/u;
 function wj_icon(spec, fallback) {
-	spec = spec || fallback || '';
-	if (spec.startsWith('fa:')) {
-		const g = WJ_GLYPHS[spec.slice(3)];
-		if (!g) return '▪';
-		return `<svg class="wj-fa" viewBox="0 0 ${g[0]} 512" aria-hidden="true" focusable="false"><path fill="currentColor" d="${g[1]}"/></svg>`;
-	}
+	spec = String(spec || fallback || '').trim();
+	if (!spec) return '';
+	if (/^fa:/.test(spec)) spec = 'fa-' + spec.slice(3); // 0.18 spelling
+	if (/^[a-z0-9][a-z0-9-]*$/.test(spec) && !WJ_EMOJI.test(spec) && frappe.utils.icon) return frappe.utils.icon(spec, 'md');
 	return esc(spec);
 }
 // Frappe ships cint/flt as bare globals, not under frappe.utils — on v16 a
@@ -122,7 +119,6 @@ class WajhaShell {
 		window.wajha.get_config().then((cfg) => {
 			this.cfg = cfg;
 			if (!cfg || !cfg.enabled) return this.render_disabled();
-			wj_learn_icons(cfg.icons);
 			this.render_shell();
 			this.apply_route(this.pending_route || []);
 		});
@@ -383,7 +379,7 @@ class WajhaShell {
 			// Desk's avatar menu would offer.
 			const me = this.cfg.user.name || '';
 			$(`<a class="wj-chip wj-chip-user" href="${esc(wj_url(['user', me]))}" title="${__("My Settings")}">
-				<span class="wj-btn-icon" aria-hidden="true">${wj_icon('fa:circle-user')}</span>${esc(this.cfg.user.full_name || me)}</a>`).appendTo($c);
+				<span class="wj-btn-icon" aria-hidden="true">${wj_icon('fa-circle-user')}</span>${esc(this.cfg.user.full_name || me)}</a>`).appendTo($c);
 		}
 		if (layout.show_clock) {
 			const $clock = $('<span class="wj-chip"></span>').appendTo($c);
@@ -454,7 +450,6 @@ class WajhaShell {
 		return frappe.call('wajha.api.get_module_meta', { module_key: m.module_key })
 			.then((r) => {
 				this.meta = r.message;
-				wj_learn_icons(this.meta && this.meta.icons);
 				if (m.virtual) {
 					m.module_label = this.meta.label;
 					m.ref_doctype = this.meta.doctype;
@@ -888,7 +883,6 @@ class WajhaShell {
 	}
 
 	render_detail(rec) {
-		wj_learn_icons(rec && rec.icons);
 		if (!this.$detail || !rec) return;
 		const $d = this.$detail;
 		$d.find('.wj-detail-title h3').text(rec.title || rec.name);
@@ -1084,7 +1078,6 @@ class WajhaShell {
 		this.$body.html(`<div class="wj-card wj-empty">${__("Loading…")}</div>`);
 		frappe.call('wajha.api.get_group', { group_key: key }).then((r) => {
 			const g = r.message || {};
-			wj_learn_icons(g.icons);
 			this.$title.text(g.label || '');
 			this.$body.empty();
 			$(`<div class="wj-group-head"><button type="button" class="wj-back wj-back-inline">${CHEVRON}</button>
@@ -1111,7 +1104,6 @@ class WajhaShell {
 		const m = this.state.module;
 		frappe.call('wajha.dashboard.get_module_dashboard', { module_key: m.module_key }).then((r) => {
 			if (!this.state.module || this.state.module.module_key !== m.module_key) return;
-			wj_learn_icons(r.message && r.message.icons);
 			this.render_dashboard((r.message && r.message.cards) || []);
 		}).catch(() => { /* the list stands on its own */ });
 	}

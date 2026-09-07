@@ -4,3 +4,4 @@
 wajha.patches.remove_swift_theme
 wajha.patches.remove_swift_theme_tables
 wajha.patches.emoji_icons_to_glyphs
+wajha.patches.fa_colon_to_symbol

@@ -240,3 +240,20 @@ Identity and trailers (the owner's standing instruction, 2026-09-06):
 - **Commit directly to `main`.** No feature branches, no PR branches, no
   release branches — `main` is the only branch, locally and on GitHub.
   Validate before committing (the checks below), then push `main`.
+
+## Icons (0.19)
+
+- `wajha/public/icons/fa.svg` is the single source for the Font Awesome
+  glyphs: a Frappe sprite (`<symbol id="icon-fa-<name>">`) registered via
+  `app_include_icons`. `wajha/icons.py` reads the names from it at import;
+  `frappe.utils.icon("fa-<name>")` draws one anywhere in the Desk, and the
+  shell's `wj_icon()` routes every non-emoji name through that helper.
+- Regenerate the sprite from `@fortawesome/fontawesome-free` (svgs/solid):
+  viewBox `0 0 W 512`, `<path fill="currentColor" stroke="none">`. Keep the
+  CC BY 4.0 attribution comment at the top.
+- Shell Module `icon` is Frappe's `Icon` control (options `Emojis`). Values
+  are `fa-<name>`, a Frappe icon name, or an emoji; `icons.normalize` still
+  accepts the 0.18 `fa:<name>` spelling.
+- Deploy: the sprite is a plain asset under `assets/wajha/icons/`; copy
+  `wajha/public` to the frontend as for CSS/JS. Frappe fetches it with its
+  own `?v=` so no content hash is needed in the hook.

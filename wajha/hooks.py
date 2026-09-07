@@ -44,6 +44,10 @@ app_include_css = [
 app_include_js = [
     _versioned("/assets/wajha/js/wajha_boot.js"),
 ]
+# Font Awesome Free glyphs as Desk symbols (icon-fa-<name>): the Shell
+# Module icon picker lists them and frappe.utils.icon draws them. Frappe
+# fetches the sprite with its own ?v= version, so no hash is needed here.
+app_include_icons = ["/assets/wajha/icons/fa.svg"]
 
 
 # Ship the resolved shell config in Frappe's boot payload so the first paint

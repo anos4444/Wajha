@@ -331,8 +331,6 @@ def group(key):
     ws_slug = key[len(GROUP_PREFIX):]
     for ws in _workspaces():
         if slug(ws.name) == ws_slug:
-            sections = workspace_sections(ws.name)
             return {"key": key, "kind": "group", "label": frappe._(ws.title or ws.name),
-                    "app": ws.get("app"), "tiles": [], "sections": sections,
-                    "icons": icons.table(m.get("icon") for sec in sections for m in sec["modules"])}
+                    "app": ws.get("app"), "tiles": [], "sections": workspace_sections(ws.name)}
     frappe.throw("مجموعة غير معروفة", frappe.DoesNotExistError)

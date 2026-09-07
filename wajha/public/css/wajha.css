@@ -1054,11 +1054,15 @@
 	text-align: start;
 }
 
-.wj-fa {
+/* Sprite icons inside the shell take the surrounding text colour: the
+   Desk's --icon-stroke is its own grey, not the tile's or sidebar's. */
+.wj-shell .icon {
+	--icon-stroke: currentColor;
 	width: 1em;
 	height: 1em;
 	vertical-align: -.125em;
 	flex: none;
+	margin: 0;
 }
 
 .wj-link-icon {
@@ -1161,8 +1165,10 @@ a.wj-chip-user:focus-visible {
 	line-height: 1;
 }
 
-.wj-tile-emoji .wj-fa {
+.wj-tile-emoji .icon {
 	display: block;
+	width: 22px;
+	height: 22px;
 }
 
 .wj-tile-label {
@@ -1302,7 +1308,7 @@ a.wj-chip-user:focus-visible {
 	opacity: .8;
 }
 
-.wj-dash-icon .wj-fa {
+.wj-dash-icon .icon {
 	color: var(--wj-primary);
 }
 
