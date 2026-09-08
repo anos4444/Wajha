@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.20.0 — 2026-09-08
+
+**English for non-Arabic users.** The shell was right-to-left for
+everyone, with the Arabic label first and a handful of Arabic strings
+that no translation could reach.
+
+- The shell follows each user's Frappe language (My Settings → Language).
+  Arabic and other right-to-left languages keep the layout as it was;
+  everyone else gets left-to-right — sidebar on the left, phone drawer
+  from the left, record card on the right — with the English label
+  first and the Arabic beneath it. Brand title, module labels, tabs,
+  tiles and the page title all switch.
+- Every fixed string is an English source string with an Arabic
+  translation, server errors included; a new `en.csv` gives the packs'
+  Arabic group and preset names their English. Sidebar groups are
+  translated per user, and the apps pack now stores the workspace's
+  source title so an English user on an Arabic site still reads
+  "Accounting".
+- Install fills an English brand title ("Management System") beside the
+  Arabic one when blank.
+
 ## 0.19.1 — 2026-09-07
 
 **A hovered tile lost its label under a dark Desk theme.** Frappe paints

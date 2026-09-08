@@ -88,7 +88,9 @@ def seed(app_name=None):
 def _create(dt, key, label, ws, order, lang):
     doc = build_module_doc(dt, key, frappe._(label or dt, lang=lang))
     doc.module_label_en = label or dt
-    doc.group = frappe._(ws.title or ws.name, lang=lang)
+    # The source title, not a translation: get_config translates it for each
+    # user, so an English user on an Arabic site still reads "Accounting".
+    doc.group = ws.title or ws.name
     doc.sequence = 1000 + int((ws.sequence_id or 0) * 100) + order
     doc.auto_generated = 1
     doc.flags.ignore_permissions = True

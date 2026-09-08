@@ -89,6 +89,24 @@ function wj_icon(spec, fallback) {
 // 2026-09-05). Local helpers: no dependence on which globals a Frappe
 // version happens to expose.
 const wj_int = (v) => parseInt(v, 10) || 0;
+
+// The shell follows the user's Frappe language: Arabic (and other RTL
+// languages) get a right-to-left layout with the Arabic label first and
+// the English one beneath; everyone else gets left-to-right with the
+// English label first. Every fixed string goes through __(), so Frappe's
+// translations decide the rest.
+const WJ_LANG = (frappe.boot && frappe.boot.lang) || 'en';
+const WJ_RTL = frappe.utils.is_rtl ? !!frappe.utils.is_rtl(WJ_LANG) : ['ar', 'he', 'fa', 'ur', 'ps'].includes(WJ_LANG.split('-')[0]);
+const WJ_AR = WJ_LANG.split('-')[0] === 'ar';
+const WJ_Q = WJ_AR ? '؟' : '?';
+// Primary and secondary label for a thing that carries an Arabic label
+// and an optional English one.
+function wj_labels(ar, en) {
+	ar = ar || ''; en = en || '';
+	if (WJ_AR || !en) return { main: ar || en, alt: en && en !== ar ? en : '' };
+	return { main: en, alt: ar && ar !== en ? ar : '' };
+}
+const wj_module_label = (m) => wj_labels(m.module_label, m.module_label_en).main;
 const wj_num = (v) => parseFloat(v) || 0;
 
 // Every place the shell navigates from is a real link: a plain click still
@@ -220,20 +238,20 @@ class WajhaShell {
 		const b = this.cfg.brand || {};
 		const layout = this.cfg.layout || {};
 		this.$shell = $(`
-			<div class="wj-shell">
+			<div class="wj-shell" dir="${WJ_RTL ? 'rtl' : 'ltr'}">
 				<div class="wj-backdrop" hidden></div>
 				<aside class="wj-sidebar" role="navigation" aria-label="${__("Main navigation")}">
 					<div class="wj-brand">
 						${b.logo ? `<img src="${esc(b.logo)}" alt="">` : ''}
 						<div>
-							<h1>${esc(b.title || '')}</h1>
+							<h1>${esc(wj_labels(b.title, b.title_en).main)}</h1>
 							${b.subtitle ? `<p>${esc(b.subtitle)}</p>` : ''}
 						</div>
 						<button type="button" class="wj-drawer-close" aria-label="${__("Close navigation menu")}">✕</button>
 					</div>
 					<nav class="wj-nav" id="wj-nav"></nav>
 					${layout.show_desk_link ? `<button class="wj-desk-link" type="button">
-						<span>↩ ${__("العودة إلى Frappe")}</span><span class="wj-en">Frappe Desk</span>
+						<span>↩ ${__("Back to Frappe")}</span>${WJ_AR ? '<span class="wj-en">Frappe Desk</span>' : ''}
 					</button>` : ''}
 					${b.footer_note ? `<div class="wj-foot">${esc(b.footer_note)}</div>` : ''}
 				</aside>
@@ -269,7 +287,7 @@ class WajhaShell {
 	render_nav() {
 		if (this.has_home()) {
 			wj_nav($(`<a class="wj-link wj-link-home" data-key="home" href="${wj_url(['wajha', 'home'])}">
-				<span>🏠 ${__("Home")}</span><span class="wj-en">Home</span></a>`),
+				<span>🏠 ${__("Home")}</span>${WJ_AR ? '<span class="wj-en">Home</span>' : ''}</a>`),
 				() => { this.close_drawer(); frappe.set_route('wajha', 'home'); })
 				.appendTo(this.$nav);
 		}
@@ -298,7 +316,7 @@ class WajhaShell {
 				if (b[0] === '') return 1;
 				const aa = auto_group(a[1]), ab = auto_group(b[1]);
 				if (aa !== ab) return aa ? 1 : -1;
-				return a[0].localeCompare(b[0], 'ar');
+				return a[0].localeCompare(b[0], WJ_LANG);
 			})
 			.forEach(([group, mods]) => {
 				const auto = group && auto_group(mods);
@@ -306,7 +324,7 @@ class WajhaShell {
 				const $g = $(`<div class="wj-group${open ? ' wj-group-open' : ''}${auto ? ' wj-group-auto' : ''}" data-group="${esc(group)}"></div>`).appendTo(this.$nav);
 				if (group) {
 					$(`<button type="button" class="wj-group-label" aria-expanded="${open}">
-						<span>${esc(group)}</span><span class="wj-group-count">${mods.length}</span></button>`)
+						<span>${esc((mods[0] && mods[0].group_label) || group)}</span><span class="wj-group-count">${mods.length}</span></button>`)
 						.on('click', () => {
 							const now = !$g.hasClass('wj-group-open');
 							$g.toggleClass('wj-group-open', now).find('.wj-group-label').attr('aria-expanded', String(now));
@@ -318,8 +336,8 @@ class WajhaShell {
 				const $items = $('<div class="wj-group-items"></div>').appendTo($g);
 				mods.forEach((m) => {
 					wj_nav($(`<a class="wj-link" data-key="${esc(m.module_key)}" href="${esc(this.href(m))}" data-text="${esc((m.module_label + ' ' + (m.module_label_en || '')).toLowerCase())}">
-						<span>${m.icon ? `<span class="wj-link-icon" aria-hidden="true">${wj_icon(m.icon)}</span>` : ''}${esc(m.module_label)}</span>
-						${m.module_label_en ? `<span class="wj-en">${esc(m.module_label_en)}</span>` : ''}
+						<span>${m.icon ? `<span class="wj-link-icon" aria-hidden="true">${wj_icon(m.icon)}</span>` : ''}${esc(wj_labels(m.module_label, m.module_label_en).main)}</span>
+						${wj_labels(m.module_label, m.module_label_en).alt ? `<span class="wj-en">${esc(wj_labels(m.module_label, m.module_label_en).alt)}</span>` : ''}
 					</a>`), () => this.go(m))
 						.appendTo($items);
 				});
@@ -362,7 +380,7 @@ class WajhaShell {
 		bar.forEach((m) => {
 			wj_nav($(`<a class="wj-tab" data-key="${esc(m.module_key)}" href="${esc(this.href(m))}">
 				<span class="wj-tab-icon" aria-hidden="true">${wj_icon(m.icon, '•')}</span>
-				<span class="wj-tab-label">${esc(m.module_label)}</span>
+				<span class="wj-tab-label">${esc(wj_module_label(m))}</span>
 			</a>`), () => this.go(m)).appendTo(this.$tabbar);
 		});
 		$(`<button class="wj-tab wj-tab-more" type="button" aria-controls="wj-nav">
@@ -436,7 +454,7 @@ class WajhaShell {
 		$active.closest('.wj-group').addClass('wj-group-open').find('.wj-group-label').attr('aria-expanded', 'true');
 		this.$tabbar.find('.wj-tab').removeAttr('aria-current');
 		this.$tabbar.find(`.wj-tab[data-key="${m.module_key}"]`).attr('aria-current', 'page');
-		this.$title.text(m.module_label || '');
+		this.$title.text(wj_module_label(m) || '');
 		this.$shell.find('.wj-tab-home').removeAttr('aria-current');
 		this.reset_state(m);
 		this.view = 'list';
@@ -1000,7 +1018,7 @@ class WajhaShell {
 						this.refresh_row(r.message);
 					}).catch(() => $a.find('button').prop('disabled', false));
 				};
-				if (a.confirm) frappe.confirm(`${esc(label)}${a.hint ? ' ← ' + esc(a.hint) : ''}؟`, run);
+				if (a.confirm) frappe.confirm(`${esc(label)}${a.hint ? ' ← ' + esc(a.hint) : ''}${WJ_Q}`, run);
 				else run();
 			});
 		});
@@ -1022,12 +1040,12 @@ class WajhaShell {
 		this.$tabbar.find('.wj-tab').removeAttr('aria-current');
 		this.$tabbar.find('.wj-tab-home').attr('aria-current', 'page');
 		const b = this.cfg.brand || {};
-		this.$title.text(b.title || __("Home"));
+		this.$title.text(wj_labels(b.title, b.title_en).main || __("Home"));
 		const hour = new Date().getHours();
 		const greet = hour < 12 ? __("Good morning") : hour < 17 ? __("Good afternoon") : __("Good evening");
 		const first = ((this.cfg.user || {}).full_name || '').split(' ')[0];
 		this.$body.empty();
-		$(`<div class="wj-home-head"><h2>${esc(greet)}${first ? '، ' + esc(first) : ''} 👋</h2>
+		$(`<div class="wj-home-head"><h2>${esc(greet)}${first ? (WJ_AR ? '، ' : ', ') + esc(first) : ''} 👋</h2>
 			<p>${__("Everything you can open, in one place.")}</p></div>`).appendTo(this.$body);
 
 		// Quick access: the modules someone chose — flagged for the bar, or
@@ -1036,7 +1054,7 @@ class WajhaShell {
 		if (!mods.length) mods = (this.cfg.modules || []).filter((m) => !wj_int(m.auto_generated));
 		if (mods.length) {
 			const $q = $(`<section class="wj-home-sec"><h3>${__("Quick access")}</h3><div class="wj-tiles wj-tiles-small"></div></section>`).appendTo(this.$body);
-			mods.slice(0, 12).forEach((m) => this.tile({ label: m.module_label, label_en: m.module_label_en, emoji: m.icon || '•', kind: 'handmade', module: m })
+			mods.slice(0, 12).forEach((m) => this.tile({ label: wj_module_label(m), emoji: m.icon || '•', kind: 'handmade', module: m })
 				.appendTo($q.find('.wj-tiles')));
 		}
 		const tiles = (this.cfg.home && this.cfg.home.tiles) || [];
@@ -1055,7 +1073,7 @@ class WajhaShell {
 			: wj_url(['wajha', t.key]);
 		const $t = $(`<a class="wj-tile wj-tile-${esc(t.kind || 'group')}${t.bg_color ? ' wj-bg-' + esc(t.bg_color) : ''}" href="${esc(href)}">
 			<span class="wj-tile-icon">${icon}</span>
-			<span class="wj-tile-label">${esc(t.label)}</span>
+			<span class="wj-tile-label">${esc(t.label_en !== undefined ? wj_labels(t.label, t.label_en).main : t.label)}</span>
 			${t.count ? `<span class="wj-tile-count">${wj_int(t.count)}</span>` : ''}
 		</a>`);
 		wj_nav($t, () => {
@@ -1089,7 +1107,7 @@ class WajhaShell {
 			}
 			(g.sections || []).forEach((sec) => {
 				const $s = $(`<section class="wj-home-sec">${sec.label ? `<h3>${esc(sec.label)}</h3>` : ''}<div class="wj-tiles wj-tiles-small"></div></section>`).appendTo(this.$body);
-				sec.modules.forEach((m) => this.tile({ label: m.module_label, emoji: m.icon || '▪', kind: m.virtual ? 'module' : 'handmade', key: m.module_key, module: m }).appendTo($s.find('.wj-tiles')));
+				sec.modules.forEach((m) => this.tile({ label: wj_module_label(m), emoji: m.icon || '▪', kind: m.virtual ? 'module' : 'handmade', key: m.module_key, module: m }).appendTo($s.find('.wj-tiles')));
 			});
 			if (!(g.tiles || []).length && !(g.sections || []).length) this.$body.append(`<div class="wj-card wj-empty">${__("Nothing to show.")}</div>`);
 		}).catch(() => this.$body.html(`<div class="wj-card wj-empty">${__("Could not load this group.")}</div>`));
@@ -1192,7 +1210,7 @@ class WajhaShell {
 				() => go({}),
 				{ enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 });
 		};
-		if (a.confirm) frappe.confirm(`${esc(a.label)}؟`, start);
+		if (a.confirm) frappe.confirm(`${esc(a.label)}${WJ_Q}`, start);
 		else start();
 	}
 

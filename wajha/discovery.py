@@ -327,10 +327,10 @@ def group(key):
             if t.get("key") == key:
                 return {"key": key, "kind": "folder", "label": t["label"], "app": t.get("app"),
                         "tiles": t.get("_children", []), "sections": []}
-        frappe.throw("مجموعة غير معروفة", frappe.DoesNotExistError)
+        frappe.throw(frappe._("Unknown group"), frappe.DoesNotExistError)
     ws_slug = key[len(GROUP_PREFIX):]
     for ws in _workspaces():
         if slug(ws.name) == ws_slug:
             return {"key": key, "kind": "group", "label": frappe._(ws.title or ws.name),
                     "app": ws.get("app"), "tiles": [], "sections": workspace_sections(ws.name)}
-    frappe.throw("مجموعة غير معروفة", frappe.DoesNotExistError)
+    frappe.throw(frappe._("Unknown group"), frappe.DoesNotExistError)

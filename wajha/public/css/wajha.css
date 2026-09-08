@@ -765,7 +765,7 @@
 	background: var(--wj-surface-bg);
 	color: var(--wj-ink);
 	font-family: var(--wj-font);
-	direction: rtl;
+	direction: inherit;
 	box-shadow: 6px 0 28px rgba(0, 0, 0, .2);
 	animation: wj-slide-in .2s ease;
 }
@@ -1617,7 +1617,7 @@ a.wj-chip-user:focus-visible {
 	background: var(--wj-surface-bg);
 	border-top: 1px solid var(--wj-border);
 	box-shadow: 0 -2px 12px rgba(0, 0, 0, .06);
-	direction: rtl;
+	direction: inherit;
 	text-align: start;
 	font-family: var(--wj-font);
 }
@@ -2119,4 +2119,34 @@ body[data-route^="wajha/"] .page-container {
 .wj-dl dd a:hover, .wj-dl dd a:focus, .wj-files a:hover, .wj-files a:focus,
 .wj-form-foot a:hover, .wj-form-foot a:focus, .wj-shell a:not([class]):hover, .wj-shell a:not([class]):focus {
 	color: var(--wj-primary);
+}
+
+/* Left-to-right for non-Arabic users (dir="ltr" on the shell root, set from
+   the user's Frappe language). Logical properties handle almost everything;
+   the pieces below are the ones pinned to a physical side on purpose: the
+   phone drawer and the record card, which must sit on the side the sidebar
+   occupies and slide from that edge. */
+.wj-shell[dir="ltr"] {
+	direction: ltr;
+}
+.wj-shell[dir="ltr"] .wj-detail {
+	left: auto;
+	right: 0;
+	box-shadow: -6px 0 28px rgba(0, 0, 0, .2);
+	animation-name: wj-slide-in-ltr;
+}
+@keyframes wj-slide-in-ltr {
+	from { opacity: .4; transform: translateX(24px); }
+	to { opacity: 1; transform: none; }
+}
+@media (max-width: 900px) {
+	.wj-shell[dir="ltr"] .wj-sidebar {
+		right: auto;
+		left: 0;
+		transform: translateX(-100%);
+		box-shadow: 6px 0 24px rgba(0, 0, 0, .18);
+	}
+	.wj-shell[dir="ltr"].wj-open .wj-sidebar {
+		transform: translateX(0);
+	}
 }

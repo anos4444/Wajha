@@ -56,7 +56,7 @@ def _load(module, name):
         if (doc.get(field) or None) != value:
             # Same message as a genuinely missing record on purpose: a scoped
             # list must not confirm that someone else's record exists.
-            frappe.throw("السجل غير موجود", frappe.DoesNotExistError)
+            frappe.throw(frappe._("Record not found"), frappe.DoesNotExistError)
     return doc
 
 
@@ -272,17 +272,17 @@ def _actions(module, doc, meta):
 def _run_custom(module, doc, idx):
     rows = module.actions or []
     if idx < 0 or idx >= len(rows):
-        frappe.throw("إجراء غير معروف")
+        frappe.throw(frappe._("Unknown action"))
     row = rows[idx]
     if not _visible(row, doc):
-        frappe.throw("هذا الإجراء غير متاح لهذا السجل")
+        frappe.throw(frappe._("This action is not available for this record"))
 
     if row.action_type == "Set Value":
         fieldname, _, value = row.value.partition("=")
         fieldname = fieldname.strip()
         df = doc.meta.get_field(fieldname)
         if not df or df.fieldtype in LAYOUT_TYPES or df.fieldtype == "Table":
-            frappe.throw(f"الحقل {fieldname} غير موجود")
+            frappe.throw(frappe._("Field {0} does not exist").format(fieldname))
         doc.check_permission("write")
         if df.permlevel not in _writable_permlevels(doc):
             frappe.throw(frappe._("Not permitted"), frappe.PermissionError)
@@ -295,9 +295,9 @@ def _run_custom(module, doc, idx):
         frappe.is_whitelisted(fn)
         frappe.call(fn, doctype=doc.doctype, name=doc.name)
     elif row.action_type == "Create":
-        frappe.throw("إجراء الإنشاء يُنفَّذ على مستوى الوحدة")
+        frappe.throw(frappe._("A Create action runs at module level"))
     else:
-        frappe.throw("هذا الإجراء يُنفَّذ من المتصفح")
+        frappe.throw(frappe._("This action runs in the browser"))
 
 
 # --------------------------------------------------------------------------- endpoints
@@ -347,7 +347,7 @@ def run_action(module_key, name, action):
 
     if kind == "workflow":
         if not cint(getattr(module, "auto_actions", 1)):
-            frappe.throw("الإجراءات التلقائية معطّلة لهذه الوحدة")
+            frappe.throw(frappe._("Automatic actions are disabled for this module"))
         # apply_workflow re-checks that this transition is allowed for the
         # user's roles and the document's current state.
         apply_workflow(doc.as_dict(), action.get("value"))
@@ -360,7 +360,7 @@ def run_action(module_key, name, action):
     elif kind == "custom":
         _run_custom(module, doc, cint(action.get("idx", -1)))
     else:
-        frappe.throw("إجراء غير معروف")
+        frappe.throw(frappe._("Unknown action"))
 
     return get_record(module_key, name)
 
@@ -371,7 +371,7 @@ def add_comment(module_key, name, text):
     doc = _load(module, name)
     text = (text or "").strip()
     if not text:
-        frappe.throw("اكتب تعليقًا")
+        frappe.throw(frappe._("Write a comment"))
     doc.add_comment("Comment", frappe.utils.escape_html(text[:2000]))
     return _comments(doc)
 
@@ -560,10 +560,10 @@ def run_module_action(module_key, idx, context=None):
     rows = module.actions or []
     idx = cint(idx)
     if idx < 0 or idx >= len(rows):
-        frappe.throw("إجراء غير معروف")
+        frappe.throw(frappe._("Unknown action"))
     row = rows[idx]
     if (row.level or "Record") != "Module" or row.action_type != "Create":
-        frappe.throw("هذا الإجراء ليس إجراء إنشاء على مستوى الوحدة")
+        frappe.throw(frappe._("This is not a module-level Create action"))
     if isinstance(context, str):
         context = json.loads(context or "{}")
     context = context or {}

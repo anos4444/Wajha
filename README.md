@@ -6,7 +6,7 @@ Wajha turns a Frappe site into a branded, single-column application: a right-to-
 
 It is **configuration, not code**. Adding a module to the sidebar means creating a `Shell Module` record — no JavaScript edits, no rebuild. On a fresh install every workspace DocType of every installed app already has one.
 
-Current release: **0.19.1**. `CHANGELOG.md` records each release and the reasoning behind it.
+Current release: **0.20.0**. `CHANGELOG.md` records each release and the reasoning behind it.
 
 ---
 
@@ -18,7 +18,7 @@ Wajha sits on top rather than replacing any of it. Browsing, navigation, the rec
 
 ## Highlights
 
-- **Arabic and RTL first.** Every label carries an Arabic primary and an optional English secondary; layout, drawer direction and spacing are built for RTL and work in LTR. Every shell string ships with an Arabic translation.
+- **Arabic and RTL first, English alongside.** Every label carries an Arabic primary and an optional English secondary. The shell follows each user's Frappe language: Arabic users get the right-to-left layout with the Arabic label first; everyone else gets left-to-right with the English label first. Every shell string is translatable and ships with its Arabic.
 - **Themes as data.** `Shell Theme` records hold the full token set — colours, font, radius, shadow, sidebar width. Four presets ship with the app; duplicate one and change it to match a client's brand. The theme is a site setting; a user's Light/Dark choice stays Frappe's own.
 - **No build step.** Plain CSS and vanilla JavaScript: the Desk loads exactly two Wajha files, `wajha.css` and `wajha_boot.js`. Installs on any v16 bench, including servers with no Node toolchain, and works offline apart from the optional map tiles.
 - **Permission-safe by construction.** The browser never names a DocType, a field or an operator. It names a *module key*; the server loads that module's saved configuration and builds the query from it, then Frappe's permission layer applies on top. A user cannot request data their roles forbid, even by editing the request.

@@ -83,6 +83,9 @@ def get_config():
             if not m.ref_doctype or not frappe.has_permission(m.ref_doctype, "read"):
                 continue
             m["can_create"] = bool(frappe.has_permission(m.ref_doctype, "create"))
+        # Group names are stored in the site's language (packs) or as typed;
+        # frappe._ gives each user their own where a translation exists.
+        m["group_label"] = frappe._(m.group) if m.group else ""
         modules.append(icons.attach(m))
 
     home = None
@@ -173,19 +176,19 @@ def _get_module(module_key):
         # A discovered DocType: an unsaved module built from its list view.
         # Permission is checked below exactly as for a saved module.
         if not discovery.enabled():
-            frappe.throw("الاكتشاف التلقائي معطّل", frappe.DoesNotExistError)
+            frappe.throw(frappe._("Automatic discovery is off"), frappe.DoesNotExistError)
         m = discovery.virtual_module(module_key)
         if not m:
-            frappe.throw("وحدة غير معروفة", frappe.DoesNotExistError)
+            frappe.throw(frappe._("Unknown module"), frappe.DoesNotExistError)
         frappe.has_permission(m.ref_doctype, "read", throw=True)
         return m
     if not module_key or not frappe.db.exists("Shell Module", module_key):
-        frappe.throw("وحدة غير معروفة", frappe.DoesNotExistError)
+        frappe.throw(frappe._("Unknown module"), frappe.DoesNotExistError)
     m = frappe.get_cached_doc("Shell Module", module_key)
     if not m.enabled:
-        frappe.throw("الوحدة غير مفعّلة")
+        frappe.throw(frappe._("This module is disabled"))
     if m.view_type != "List":
-        frappe.throw("هذه الوحدة ليست من نوع قائمة")
+        frappe.throw(frappe._("This module is not a List module"))
     frappe.has_permission(m.ref_doctype, "read", throw=True)
     return m
 
@@ -546,7 +549,7 @@ def get_group(group_key):
     from wajha import discovery
 
     if not discovery.enabled():
-        frappe.throw("الاكتشاف التلقائي معطّل", frappe.DoesNotExistError)
+        frappe.throw(frappe._("Automatic discovery is off"), frappe.DoesNotExistError)
     return discovery.group(group_key)
 
 
@@ -608,7 +611,7 @@ def scaffold_module_from_doctype(doctype, module_key=None, label=None,
     frappe.only_for(["Shell Manager", "System Manager"])
     key = (module_key or frappe.scrub(doctype)).lower()
     if frappe.db.exists("Shell Module", key):
-        frappe.throw(f"الوحدة {key} موجودة مسبقًا")
+        frappe.throw(frappe._("Module {0} already exists").format(key))
     doc = build_module_doc(doctype, key, label, field_include, field_exclude)
     doc.insert()
     return doc.name

@@ -134,6 +134,9 @@ def ensure_settings():
     if not s.brand_title:
         s.brand_title = "نظام الإدارة"
         changed = True
+    if s.meta.has_field("brand_title_en") and not s.brand_title_en:
+        s.brand_title_en = "Management System"
+        changed = True
     # The switches a fresh install should come up with. A brand-new site gets
     # these from the DocType defaults (get_single falls back to new_doc when no
     # row exists at all), but a site whose Settings row already exists — any
