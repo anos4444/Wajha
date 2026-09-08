@@ -95,7 +95,7 @@ def workspace_sections(workspace_name):
         if link.type == "Card Break":
             if current["modules"]:
                 sections.append(current)
-            current = {"label": frappe._(link.label or ""), "modules": []}
+            current = {"label": frappe._(link.label) if link.label else "", "modules": []}
             continue
         if link.hidden or link.link_type != "DocType" or not link.link_to:
             continue

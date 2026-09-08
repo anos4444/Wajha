@@ -257,3 +257,24 @@ Identity and trailers (the owner's standing instruction, 2026-09-06):
 - Deploy: the sprite is a plain asset under `assets/wajha/icons/`; copy
   `wajha/public` to the frontend as for CSS/JS. Frappe fetches it with its
   own `?v=` so no content hash is needed in the hook.
+
+## Translations (0.21)
+
+- Strings live in `wajha/locale/`: `main.pot` (the template) and one
+  `<locale>.po` per language. Never `translations/*.csv` — that legacy
+  path is still read by Frappe v16 but no tooling sees it, and an
+  unquoted comma in a source string silently truncates the entry.
+- Regenerate the template after adding or changing strings:
+  `bench generate-pot-file --app wajha`, then
+  `bench update-po-files --app wajha` to merge into the existing PO files.
+  A new language: `bench create-po-file <locale> --app wajha`.
+- `bench build` compiles PO to MO (into `sites/assets/locale/`). A deploy
+  that only pulls and migrates does **not** compile them — hub's deploy
+  runs `bench compile-po-to-mo --app wajha` explicitly.
+- Both directions are filled: English source strings have Arabic in
+  `ar.po`, and the DocTypes' Arabic labels and descriptions have English
+  in `en.po`. `en.po` also carries the Arabic strings that live in the
+  database (theme names, seeded group names, the default brand title),
+  which the extractor cannot see.
+- `frappe._("")` returns the PO header, not `""`. Guard blank values:
+  `frappe._(x) if x else ""`.

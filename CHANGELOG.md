@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.21.0 — 2026-09-08
+
+**Translations move to gettext, the format Frappe itself uses.** Wajha
+carried its strings as `translations/*.csv`, the legacy path; Frappe,
+ERPNext and HRMS all ship `locale/*.po` and no CSV at all. Frappe v16
+still reads CSV, so this was working — but no standard tool could see
+Wajha's strings, there was no template to hand a translator, and one
+translation was already broken: a source string containing a comma had
+been split by the CSV reader, so "Saved as draft…" mapped to the
+fragment after the comma.
+
+- `wajha/locale/main.pot` (275 strings, extracted by Frappe's own
+  `bench generate-pot-file`), plus `ar.po` and `en.po`. The CSVs are
+  gone. `bench build` compiles the PO files like any other app's.
+- Every extracted string is now translated **both ways**: the 165 English
+  strings have Arabic, and the 110 Arabic DocType labels and descriptions
+  have English — so an English administrator opening Shell Module, Shell
+  Settings or Shell Theme reads English labels instead of Arabic ones.
+  Theme names, seeded group names and the default brand title, which live
+  in the database rather than the source, are in `en.po` too.
+- `frappe._("")` returns the PO header rather than an empty string, so
+  the three places that could call it with a blank label now skip the
+  call.
+
+Adding a language is now the standard Frappe flow: `bench create-po-file
+<locale> --app wajha`, translate, `bench compile-po-to-mo --app wajha`.
+
 ## 0.20.1 — 2026-09-08
 
 **Sidebar groups in the reader's language.** On an Arabic site the apps

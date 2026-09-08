@@ -1,0 +1,1355 @@
+# Translations template for Wajha.
+# Copyright (C) 2026 ANAS ABDULLA
+# This file is distributed under the same license as the Wajha project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Wajha VERSION\n"
+"Report-Msgid-Bugs-To: anas.abdullah@gmail.com\n"
+"POT-Creation-Date: 2026-09-08 15:42+0000\n"
+"PO-Revision-Date: 2026-09-08 15:42+0000\n"
+"Last-Translator: anas.abdullah@gmail.com\n"
+"Language-Team: anas.abdullah@gmail.com\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.16.0\n"
+
+#: wajha/wajha/page/wajha/wajha.js:838
+msgid "(location)"
+msgstr ""
+
+#: wajha/records.py:298
+msgid "A Create action runs at module level"
+msgstr ""
+
+#. Description of the 'لوحة مؤشرات' (Check) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "A strip of cards above the list: status counts (tap to filter), totals of the module's numeric columns, app-specific cards (leave balance, upcoming holidays, last check-in…) and any Number Cards below."
+msgstr ""
+
+#. Option for the 'اتجاه الترتيب' (Select) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "ASC"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:942
+msgid "Add a comment"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:1361
+msgid "Add row"
+msgstr ""
+
+#. Option for the 'نطاق السجلات' (Select) field in DocType 'Shell Module'
+#. Name of a role
+#: wajha/wajha/doctype/shell_module/shell_module.json
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "All"
+msgstr ""
+
+#. Description of the 'نطاق السجلات' (Select) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "All: every record the user's roles allow. Mine: only the user's own records — by owner, by a field holding the user id, or by a field holding the Employee linked to the user. A self-service module for employees is a Mine module."
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:1061
+msgid "Apps"
+msgstr ""
+
+#. Option for the 'التنسيق' (Select) field in DocType 'Shell Module Column'
+#: wajha/wajha/doctype/shell_module_column/shell_module_column.json
+msgid "Attachment"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:936
+msgid "Attachments"
+msgstr ""
+
+#: wajha/records.py:350
+msgid "Automatic actions are disabled for this module"
+msgstr ""
+
+#: wajha/api.py:179 wajha/api.py:552
+msgid "Automatic discovery is off"
+msgstr ""
+
+#: wajha/packs/hrms_cards.py:61
+msgid "Awaiting approval"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:863 wajha/wajha/page/wajha/wajha.js:1227
+msgid "Back"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:254
+msgid "Back to Frappe"
+msgstr ""
+
+#. Option for the 'التنسيق' (Select) field in DocType 'Shell Module Column'
+#: wajha/wajha/doctype/shell_module_column/shell_module_column.json
+msgid "Badge"
+msgstr ""
+
+#. Description of the 'يظهر عند الحالة' (Select) field in DocType 'Shell Module
+#. Action'
+#: wajha/wajha/doctype/shell_module_action/shell_module_action.json
+msgid "Blank shows the action on every record; otherwise only on records in that docstatus."
+msgstr ""
+
+#: wajha/dashboard.py:59
+msgid "By status"
+msgstr ""
+
+#: wajha/records.py:259 wajha/wajha/page/wajha/wajha.js:1308
+msgid "Cancel"
+msgstr ""
+
+#. Option for the 'يظهر عند الحالة' (Select) field in DocType 'Shell Module
+#. Action'
+#: wajha/wajha/doctype/shell_module_action/shell_module_action.json
+msgid "Cancelled"
+msgstr ""
+
+#. Option for the 'التنسيق' (Select) field in DocType 'Shell Module Column'
+#: wajha/wajha/doctype/shell_module_column/shell_module_column.json
+msgid "Checkbox"
+msgstr ""
+
+#: wajha/packs/hrms_cards.py:87
+msgid "Checked in"
+msgstr ""
+
+#: wajha/packs/hrms_cards.py:87
+msgid "Checked out"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:609
+msgid "Clear"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:250 wajha/wajha/page/wajha/wajha.js:421
+msgid "Close navigation menu"
+msgstr ""
+
+#. Description of the 'حقول نموذج الإنشاء' (Small Text) field in DocType 'Shell
+#. Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "Comma-separated fieldnames for the in-shell New form, in order. Blank offers the DocType's mandatory fields. The scope field is always filled by the server."
+msgstr ""
+
+#. Description of the 'حقول بطاقة التفاصيل' (Small Text) field in DocType
+#. 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "Comma-separated fieldnames shown on the record card, in order. Blank shows every readable, non-empty field grouped by the form's own sections."
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:941
+msgid "Comments"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:1242
+msgid "Could not load the form."
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:1113
+msgid "Could not load this group."
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:480
+msgid "Could not load this module."
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:879
+msgid "Could not load this record."
+msgstr ""
+
+#. Option for the 'نوع الإجراء' (Select) field in DocType 'Shell Module Action'
+#: wajha/wajha/doctype/shell_module_action/shell_module_action.json
+msgid "Create"
+msgstr ""
+
+#. Description of the 'مولّدة تلقائيًا' (Check) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "Created by a Wajha pack (e.g. HRMS self-service). Edit freely; packs only fill blanks and never overwrite."
+msgstr ""
+
+#. Option for the 'التنسيق' (Select) field in DocType 'Shell Module Column'
+#: wajha/wajha/doctype/shell_module_column/shell_module_column.json
+msgid "Currency"
+msgstr ""
+
+#. Option for the 'اتجاه الترتيب' (Select) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "DESC"
+msgstr ""
+
+#. Option for the 'الشكل' (Select) field in DocType 'Shell Module Action'
+#: wajha/wajha/doctype/shell_module_action/shell_module_action.json
+msgid "Danger"
+msgstr ""
+
+#. Option for the 'التنسيق' (Select) field in DocType 'Shell Module Column'
+#: wajha/wajha/doctype/shell_module_column/shell_module_column.json
+msgid "Date"
+msgstr ""
+
+#. Option for the 'نوع الأداة' (Select) field in DocType 'Shell Module Filter'
+#: wajha/wajha/doctype/shell_module_filter/shell_module_filter.json
+msgid "Date Range"
+msgstr ""
+
+#. Option for the 'التنسيق' (Select) field in DocType 'Shell Module Column'
+#: wajha/wajha/doctype/shell_module_column/shell_module_column.json
+msgid "Datetime"
+msgstr ""
+
+#. Option for the 'نوع الأداة' (Select) field in DocType 'Shell Module Filter'
+#: wajha/wajha/doctype/shell_module_filter/shell_module_filter.json
+msgid "Datetime Range"
+msgstr ""
+
+#. Option for the 'الشكل' (Select) field in DocType 'Shell Module Action'
+#: wajha/wajha/doctype/shell_module_action/shell_module_action.json
+msgid "Default"
+msgstr ""
+
+#. Option for the 'صفحة البداية' (Select) field in DocType 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "Default module"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:521 wajha/wajha/page/wajha/wajha.js:1016
+#: wajha/wajha/page/wajha/wajha.js:1199
+msgid "Done"
+msgstr ""
+
+#. Option for the 'يظهر عند الحالة' (Select) field in DocType 'Shell Module
+#. Action'
+#: wajha/wajha/doctype/shell_module_action/shell_module_action.json
+msgid "Draft"
+msgstr ""
+
+#: wajha/dashboard.py:53
+msgctxt "Cancelled"
+msgid "Draft"
+msgstr ""
+
+#. Option for the 'التنسيق' (Select) field in DocType 'Shell Module Column'
+#: wajha/wajha/doctype/shell_module_column/shell_module_column.json
+msgid "Duration"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:1049
+msgid "Everything you can open, in one place."
+msgstr ""
+
+#: wajha/records.py:285
+msgid "Field {0} does not exist"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:506 wajha/wajha/page/wajha/wajha.js:520
+msgid "Filter"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:305
+msgid "Find a module"
+msgstr ""
+
+#. Option for the 'التنسيق' (Select) field in DocType 'Shell Module Column'
+#: wajha/wajha/doctype/shell_module_column/shell_module_column.json
+msgid "Float"
+msgstr ""
+
+#. Description of the 'بطاقات أرقام' (Table MultiSelect) field in DocType
+#. 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "Frappe Number Cards to show on this module's dashboard. Each card's own permission decides who sees it."
+msgstr ""
+
+#. Option for the 'التنسيق' (Select) field in DocType 'Shell Module Column'
+#: wajha/wajha/doctype/shell_module_column/shell_module_column.json
+msgid "Geolocation"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:1207
+msgid "Getting your location…"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:1045
+msgid "Good afternoon"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:1045
+msgid "Good evening"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:1045
+msgid "Good morning"
+msgstr ""
+
+#: wajha/packs/hrms_cards.py:103
+msgid "Gross"
+msgstr ""
+
+#. Option for the 'صفحة البداية' (Select) field in DocType 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+#: wajha/wajha/page/wajha/wajha.js:290 wajha/wajha/page/wajha/wajha.js:377
+#: wajha/wajha/page/wajha/wajha.js:1043
+msgid "Home"
+msgstr ""
+
+#. Description of the 'صفحة البداية' (Select) field in DocType 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "Home: a grid of the apps and workspaces this user may open (discovered from Frappe, adapts when apps are installed). Default module: open the module below directly."
+msgstr ""
+
+#. Option for the 'التنسيق' (Select) field in DocType 'Shell Module Column'
+#: wajha/wajha/doctype/shell_module_column/shell_module_column.json
+msgid "Image"
+msgstr ""
+
+#. Option for the 'التنسيق' (Select) field in DocType 'Shell Module Column'
+#: wajha/wajha/doctype/shell_module_column/shell_module_column.json
+msgid "Int"
+msgstr ""
+
+#. Option for the 'التنسيق' (Select) field in DocType 'Shell Module Column'
+#: wajha/wajha/doctype/shell_module_column/shell_module_column.json
+msgid "JSON"
+msgstr ""
+
+#: wajha/packs/hrms_cards.py:102
+msgid "Last net pay"
+msgstr ""
+
+#: wajha/packs/hrms_cards.py:42
+msgid "Leave balance"
+msgstr ""
+
+#. Option for the 'التنسيق' (Select) field in DocType 'Shell Module Column'
+#. Option for the 'نوع الأداة' (Select) field in DocType 'Shell Module Filter'
+#: wajha/wajha/doctype/shell_module_column/shell_module_column.json
+#: wajha/wajha/doctype/shell_module_filter/shell_module_filter.json
+msgid "Link"
+msgstr ""
+
+#. Option for the 'نوع العرض' (Select) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "List"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:631
+msgid "Load More"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:467 wajha/wajha/page/wajha/wajha.js:867
+#: wajha/wajha/page/wajha/wajha.js:1096 wajha/wajha/page/wajha/wajha.js:1230
+msgid "Loading…"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:243
+msgid "Main navigation"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:570
+msgid "Max"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:569
+msgid "Min"
+msgstr ""
+
+#. Option for the 'نطاق السجلات' (Select) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "Mine (Employee Field)"
+msgstr ""
+
+#. Option for the 'نطاق السجلات' (Select) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "Mine (Owner)"
+msgstr ""
+
+#. Option for the 'نطاق السجلات' (Select) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "Mine (User Field)"
+msgstr ""
+
+#. Option for the 'المستوى' (Select) field in DocType 'Shell Module Action'
+#: wajha/wajha/doctype/shell_module_action/shell_module_action.json
+msgid "Module"
+msgstr ""
+
+#: wajha/api.py:614
+msgid "Module {0} already exists"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:269
+msgid "Modules"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:388
+msgid "More"
+msgstr ""
+
+#. Option for the 'نوع الأداة' (Select) field in DocType 'Shell Module Filter'
+#: wajha/wajha/doctype/shell_module_filter/shell_module_filter.json
+msgid "MultiSelect"
+msgstr ""
+
+#. Option for the 'التنسيق' (Select) field in DocType 'Shell Module Column'
+#: wajha/wajha/doctype/shell_module_column/shell_module_column.json
+msgid "MultiSelectBadge"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:399
+msgid "My Settings"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:515 wajha/wajha/page/wajha/wajha.js:745
+#: wajha/wajha/page/wajha/wajha.js:1225 wajha/wajha/page/wajha/wajha.js:1228
+#: wajha/wajha/page/wajha/wajha.js:1250
+msgid "New"
+msgstr ""
+
+#: wajha/records.py:466
+msgid "New {0}"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:633
+msgid "Next"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:960
+msgid "No comments yet."
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:741
+msgid "No matching records."
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:188
+msgid "No modules configured yet. Create Shell Module records, or scaffold one from an existing DocType."
+msgstr ""
+
+#: wajha/packs/hrms_cards.py:85
+msgid "Not checked in"
+msgstr ""
+
+#: wajha/records.py:288
+msgid "Not permitted"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:921 wajha/wajha/page/wajha/wajha.js:1062
+#: wajha/wajha/page/wajha/wajha.js:1112
+msgid "Nothing to show."
+msgstr ""
+
+#. Label of the number_card (Link) field in DocType 'Shell Module Number Card'
+#: wajha/wajha/doctype/shell_module_number_card/shell_module_number_card.json
+msgid "Number Card"
+msgstr ""
+
+#. Option for the 'نوع الأداة' (Select) field in DocType 'Shell Module Filter'
+#: wajha/wajha/doctype/shell_module_filter/shell_module_filter.json
+msgid "Number Range"
+msgstr ""
+
+#. Description of the 'اكتشاف الوحدات تلقائيًا' (Check) field in DocType 'Shell
+#. Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "Offer every DocType of every installed app's workspaces as a shell module, without creating Shell Module records. Hand-made modules for the same DocType take precedence."
+msgstr ""
+
+#. Description of the 'إجراءات تلقائية' (Check) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "Offer the record's workflow transitions, or Submit / Cancel when it has no workflow, on the record card. Frappe's own permissions decide who sees which."
+msgstr ""
+
+#. Description of the 'إنشاء وحدات لكل التطبيقات' (Check) field in DocType
+#. 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "On install, migrate and whenever an app is installed, create a Shell Module record for every DocType the installed apps' workspaces link to — grouped by workspace, editable, never overwritten. Turn off to keep only hand-made modules and the discovered Home tiles."
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:825 wajha/wajha/page/wajha/wajha.js:976
+msgid "Open file"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:1025
+msgid "Open in Frappe"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:262 wajha/wajha/page/wajha/wajha.js:416
+msgid "Open navigation menu"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:1426
+msgid "Open record"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:1276
+msgid "Open the full form in Frappe"
+msgstr ""
+
+#. Option for the 'التنسيق' (Select) field in DocType 'Shell Module Column'
+#: wajha/wajha/doctype/shell_module_column/shell_module_column.json
+msgid "Percent"
+msgstr ""
+
+#. Description of the 'في شريط الجوال' (Check) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "Pin this module to the bottom bar on phones (the first four flagged modules; the first four modules when none is flagged)."
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:632
+msgid "Previous"
+msgstr ""
+
+#. Option for the 'الشكل' (Select) field in DocType 'Shell Module Action'
+#: wajha/wajha/doctype/shell_module_action/shell_module_action.json
+msgid "Primary"
+msgstr ""
+
+#. Option for the 'نوع الإجراء' (Select) field in DocType 'Shell Module Action'
+#: wajha/wajha/doctype/shell_module_action/shell_module_action.json
+msgid "Print"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:1056
+msgid "Quick access"
+msgstr ""
+
+#. Option for the 'التنسيق' (Select) field in DocType 'Shell Module Column'
+#: wajha/wajha/doctype/shell_module_column/shell_module_column.json
+msgid "Rating"
+msgstr ""
+
+#. Option for the 'المستوى' (Select) field in DocType 'Shell Module Action'
+#: wajha/wajha/doctype/shell_module_action/shell_module_action.json
+msgid "Record"
+msgstr ""
+
+#: wajha/records.py:59
+msgid "Record not found"
+msgstr ""
+
+#. Description of the 'المستوى' (Select) field in DocType 'Shell Module Action'
+#: wajha/wajha/doctype/shell_module_action/shell_module_action.json
+msgid "Record: a button on the record card. Module: a button above the list (e.g. check in / check out)."
+msgstr ""
+
+#: wajha/dashboard.py:84
+msgid "Records"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:1368
+msgid "Remove"
+msgstr ""
+
+#. Option for the 'نوع الإجراء' (Select) field in DocType 'Shell Module Action'
+#: wajha/wajha/doctype/shell_module_action/shell_module_action.json
+msgid "Route"
+msgstr ""
+
+#. Option for the 'نوع العرض' (Select) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "Route Link"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:629
+msgid "Rows per page"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:1302
+msgid "Save"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:1306
+msgid "Save and Submit"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:1294
+msgid "Saved"
+msgstr ""
+
+#: wajha/records.py:526
+msgid "Saved as draft. Submitting a {0} is for the approver, not for your role."
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:495 wajha/wajha/page/wajha/wajha.js:496
+msgid "Search"
+msgstr ""
+
+#. Option for the 'نوع الأداة' (Select) field in DocType 'Shell Module Filter'
+#: wajha/wajha/doctype/shell_module_filter/shell_module_filter.json
+msgid "Select"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:943
+msgid "Send"
+msgstr ""
+
+#. Option for the 'نوع الإجراء' (Select) field in DocType 'Shell Module Action'
+#: wajha/wajha/doctype/shell_module_action/shell_module_action.json
+msgid "Server Method"
+msgstr ""
+
+#. Option for the 'نوع الإجراء' (Select) field in DocType 'Shell Module Action'
+#: wajha/wajha/doctype/shell_module_action/shell_module_action.json
+msgid "Set Value"
+msgstr ""
+
+#. Description of the 'نوع الإجراء' (Select) field in DocType 'Shell Module
+#. Action'
+#: wajha/wajha/doctype/shell_module_action/shell_module_action.json
+msgid "Set Value: fieldname=value · Server Method: dotted path of a whitelisted function taking doctype and name · Route: a Desk route, {name} is replaced by the record name · Create: JSON of field values for a new record (placeholders {employee} {user} {now} {today} {lat} {lon} {name}); add \"__submit\": 1 to submit it · Print: a print format name (blank = default) to download the PDF"
+msgstr ""
+
+#. Name of a role
+#: wajha/wajha/doctype/shell_module/shell_module.json
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "Shell Manager"
+msgstr ""
+
+#. Name of a DocType
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "Shell Module"
+msgstr ""
+
+#. Name of a DocType
+#: wajha/wajha/doctype/shell_module_action/shell_module_action.json
+msgid "Shell Module Action"
+msgstr ""
+
+#. Name of a DocType
+#: wajha/wajha/doctype/shell_module_column/shell_module_column.json
+msgid "Shell Module Column"
+msgstr ""
+
+#. Name of a DocType
+#: wajha/wajha/doctype/shell_module_filter/shell_module_filter.json
+msgid "Shell Module Filter"
+msgstr ""
+
+#. Name of a DocType
+#: wajha/wajha/doctype/shell_module_number_card/shell_module_number_card.json
+msgid "Shell Module Number Card"
+msgstr ""
+
+#. Name of a DocType
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "Shell Settings"
+msgstr ""
+
+#. Name of a DocType
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "Shell Theme"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:932
+msgid "Showing the first {0} rows"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:648
+msgid "Status"
+msgstr ""
+
+#: wajha/records.py:257
+msgid "Submit"
+msgstr ""
+
+#. Option for the 'يظهر عند الحالة' (Select) field in DocType 'Shell Module
+#. Action'
+#: wajha/wajha/doctype/shell_module_action/shell_module_action.json
+msgid "Submitted"
+msgstr ""
+
+#. Name of a role
+#: wajha/wajha/doctype/shell_module/shell_module.json
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "System Manager"
+msgstr ""
+
+#. Option for the 'التنسيق' (Select) field in DocType 'Shell Module Column'
+#. Option for the 'نوع الأداة' (Select) field in DocType 'Shell Module Filter'
+#: wajha/wajha/doctype/shell_module_column/shell_module_column.json
+#: wajha/wajha/doctype/shell_module_filter/shell_module_filter.json
+msgid "Text"
+msgstr ""
+
+#. Description of the 'حقل النطاق' (Data) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "The fieldname compared against the user (User Field) or the user's Employee (Employee Field), e.g. employee."
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:1431
+msgid "The map library could not be loaded. Closed networks require a local tile server."
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:233
+msgid "The shell is not enabled. Enable it in Shell Settings."
+msgstr ""
+
+#: wajha/records.py:278
+msgid "This action is not available for this record"
+msgstr ""
+
+#: wajha/records.py:300
+msgid "This action runs in the browser"
+msgstr ""
+
+#: wajha/records.py:566
+msgid "This is not a module-level Create action"
+msgstr ""
+
+#: wajha/api.py:189
+msgid "This module is disabled"
+msgstr ""
+
+#: wajha/api.py:191
+msgid "This module is not a List module"
+msgstr ""
+
+#: wajha/packs/hrms_cards.py:76
+msgid "This month"
+msgstr ""
+
+#: wajha/packs/hrms_cards.py:85 wajha/packs/hrms_cards.py:88
+msgid "Today"
+msgstr ""
+
+#: wajha/dashboard.py:74
+msgid "Total"
+msgstr ""
+
+#: wajha/records.py:275 wajha/records.py:363 wajha/records.py:563
+msgid "Unknown action"
+msgstr ""
+
+#: wajha/discovery.py:330 wajha/discovery.py:336
+msgid "Unknown group"
+msgstr ""
+
+#: wajha/api.py:182 wajha/api.py:186
+msgid "Unknown module"
+msgstr ""
+
+#: wajha/packs/hrms_cards.py:53
+msgid "Upcoming holidays"
+msgstr ""
+
+#: wajha/records.py:374
+msgid "Write a comment"
+msgstr ""
+
+#: wajha/records.py:426
+msgid "You cannot pick a {0} here: your role has no read access to {0}. Ask the administrator for read access, or for a default value."
+msgstr ""
+
+#: wajha/records.py:519 wajha/records.py:577
+#: wajha/wajha/page/wajha/wajha.js:1253
+msgid "Your login is not linked to an Employee record. Ask HR to link it."
+msgstr ""
+
+#. Option for the 'المحاذاة' (Select) field in DocType 'Shell Module Column'
+#: wajha/wajha/doctype/shell_module_column/shell_module_column.json
+msgid "center"
+msgstr ""
+
+#. Option for the 'المحاذاة' (Select) field in DocType 'Shell Module Column'
+#: wajha/wajha/doctype/shell_module_column/shell_module_column.json
+msgid "end"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:785
+msgid "of"
+msgstr ""
+
+#. Option for the 'المحاذاة' (Select) field in DocType 'Shell Module Column'
+#: wajha/wajha/doctype/shell_module_column/shell_module_column.json
+msgid "start"
+msgstr ""
+
+#: wajha/packs/hrms_cards.py:118
+msgid "{0} claims, last 12 months"
+msgstr ""
+
+#: wajha/packs/hrms_cards.py:40
+msgid "{0} taken · {1} pending"
+msgstr ""
+
+#. Description of the 'حقول البحث' (Small Text) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "أسماء حقول مفصولة بفواصل تُستخدم في البحث الحر"
+msgstr ""
+
+#. Label of the favicon (Attach Image) field in DocType 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "أيقونة المتصفح"
+msgstr ""
+
+#. Description of the 'الأيقونة' (Icon) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "أيقونة من القائمة (أيقونات Frappe وأيقونات Font Awesome التي تبدأ بـ fa-) أو رمز تعبيري. يُترك فارغًا لاختيار أيقونة مناسبة لنوع المستند تلقائيًا"
+msgstr ""
+
+#. Label of the sec_actions (Section Break) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "إجراءات إضافية"
+msgstr ""
+
+#. Label of the auto_actions (Check) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "إجراءات تلقائية"
+msgstr ""
+
+#. Label of the hide_desk_sidebar (Check) field in DocType 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "إخفاء شريط Frappe داخل الواجهة"
+msgstr ""
+
+#. Label of the seed_modules (Check) field in DocType 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "إنشاء وحدات لكل التطبيقات"
+msgstr ""
+
+#. Label of the sort_order (Select) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "اتجاه الترتيب"
+msgstr ""
+
+#. Description of the 'رابط ملف الخط (اختياري)' (Data) field in DocType 'Shell
+#. Theme'
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "اتركه فارغًا للشبكات المغلقة واستخدم خطًا مضمّنًا في تطبيقك"
+msgstr ""
+
+#. Description of the 'حقل الحالة' (Data) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "اختياري. للمستندات القابلة للاعتماد يُستخدم docstatus تلقائيًا (مسودة/معتمد/ملغى) دون الحاجة لتعبئة هذا الحقل."
+msgstr ""
+
+#. Label of the radius (Data) field in DocType 'Shell Theme'
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "استدارة الحواف"
+msgstr ""
+
+#. Label of the fieldname (Data) field in DocType 'Shell Module Column'
+#. Label of the fieldname (Data) field in DocType 'Shell Module Filter'
+#: wajha/wajha/doctype/shell_module_column/shell_module_column.json
+#: wajha/wajha/doctype/shell_module_filter/shell_module_filter.json
+msgid "اسم الحقل"
+msgstr ""
+
+#. Label of the theme_name (Data) field in DocType 'Shell Theme'
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "اسم السمة"
+msgstr ""
+
+#. Label of the brand_title (Data) field in DocType 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "اسم النظام"
+msgstr ""
+
+#. Label of the auto_modules (Check) field in DocType 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "اكتشاف الوحدات تلقائيًا"
+msgstr ""
+
+#. Label of the primary_dark (Color) field in DocType 'Shell Theme'
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "الأساسي الداكن"
+msgstr ""
+
+#. Label of the sec_cols (Section Break) field in DocType 'Shell Module'
+#. Label of the columns (Table) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "الأعمدة"
+msgstr ""
+
+#. Label of the sec_colors (Section Break) field in DocType 'Shell Theme'
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "الألوان"
+msgstr ""
+
+#. Label of the icon (Icon) field in DocType 'Shell Module'
+#. Label of the icon (Data) field in DocType 'Shell Module Action'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+#: wajha/wajha/doctype/shell_module_action/shell_module_action.json
+msgid "الأيقونة"
+msgstr ""
+
+#. Label of the actions (Table) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "الإجراءات"
+msgstr ""
+
+#. Label of the brand_title_en (Data) field in DocType 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "الاسم بالإنجليزية"
+msgstr ""
+
+#. Label of the sec_layout (Section Break) field in DocType 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "التخطيط"
+msgstr ""
+
+#. Label of the sequence (Int) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "الترتيب"
+msgstr ""
+
+#. Label of the format (Select) field in DocType 'Shell Module Column'
+#: wajha/wajha/doctype/shell_module_column/shell_module_column.json
+msgid "التنسيق"
+msgstr ""
+
+#. Label of the brand_subtitle (Data) field in DocType 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "الجهة"
+msgstr ""
+
+#. Label of the sec_map (Section Break) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "الخريطة (اختياري)"
+msgstr ""
+
+#. Label of the sec_type (Section Break) field in DocType 'Shell Theme'
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "الخطوط والشكل"
+msgstr ""
+
+#. Label of the options (Small Text) field in DocType 'Shell Module Filter'
+#: wajha/wajha/doctype/shell_module_filter/shell_module_filter.json
+msgid "الخيارات / DocType المرتبط"
+msgstr ""
+
+#. Label of the sec_theme (Section Break) field in DocType 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "السمة"
+msgstr ""
+
+#. Label of the active_theme (Link) field in DocType 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "السمة النشطة"
+msgstr ""
+
+#. Label of the logo (Attach Image) field in DocType 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "الشعار"
+msgstr ""
+
+#. Label of the style (Select) field in DocType 'Shell Module Action'
+#: wajha/wajha/doctype/shell_module_action/shell_module_action.json
+msgid "الشكل"
+msgstr ""
+
+#. Label of the width (Data) field in DocType 'Shell Module Column'
+#: wajha/wajha/doctype/shell_module_column/shell_module_column.json
+msgid "العرض"
+msgstr ""
+
+#. Label of the module_label (Data) field in DocType 'Shell Module'
+#. Label of the label (Data) field in DocType 'Shell Module Action'
+#. Label of the label (Data) field in DocType 'Shell Module Column'
+#. Label of the label (Data) field in DocType 'Shell Module Filter'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+#: wajha/wajha/doctype/shell_module_action/shell_module_action.json
+#: wajha/wajha/doctype/shell_module_column/shell_module_column.json
+#: wajha/wajha/doctype/shell_module_filter/shell_module_filter.json
+msgid "العنوان"
+msgstr ""
+
+#. Label of the module_label_en (Data) field in DocType 'Shell Module'
+#. Label of the label_en (Data) field in DocType 'Shell Module Action'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+#: wajha/wajha/doctype/shell_module_action/shell_module_action.json
+msgid "العنوان بالإنجليزية"
+msgstr ""
+
+#. Label of the ref_doctype (Link) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "الـ DocType"
+msgstr ""
+
+#. Label of the value (Data) field in DocType 'Shell Module Action'
+#: wajha/wajha/doctype/shell_module_action/shell_module_action.json
+msgid "القيمة"
+msgstr ""
+
+#. Label of the primary (Color) field in DocType 'Shell Theme'
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "اللون الأساسي"
+msgstr ""
+
+#. Label of the group (Autocomplete) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "المجموعة"
+msgstr ""
+
+#. Label of the align (Select) field in DocType 'Shell Module Column'
+#: wajha/wajha/doctype/shell_module_column/shell_module_column.json
+msgid "المحاذاة"
+msgstr ""
+
+#. Label of the route (Data) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "المسار"
+msgstr ""
+
+#. Label of the level (Select) field in DocType 'Shell Module Action'
+#: wajha/wajha/doctype/shell_module_action/shell_module_action.json
+msgid "المستوى"
+msgstr ""
+
+#. Label of the module_key (Data) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "المعرّف البرمجي"
+msgstr ""
+
+#. Label of the muted_ink (Color) field in DocType 'Shell Theme'
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "النص الثانوي"
+msgstr ""
+
+#. Label of the sec_scope (Section Break) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "النطاق والتفاصيل"
+msgstr ""
+
+#. Label of the sec_brand (Section Break) field in DocType 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "الهوية"
+msgstr ""
+
+#. Label of the default_module (Link) field in DocType 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "الوحدة الافتراضية"
+msgstr ""
+
+#. Label of the number_cards (Table MultiSelect) field in DocType 'Shell
+#. Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "بطاقات أرقام"
+msgstr ""
+
+#. Label of the confirm (Check) field in DocType 'Shell Module Action'
+#: wajha/wajha/doctype/shell_module_action/shell_module_action.json
+msgid "تأكيد قبل التنفيذ"
+msgstr ""
+
+#. Label of the warning (Color) field in DocType 'Shell Theme'
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "تحذير"
+msgstr ""
+
+#. Label of the apply_theme_globally (Check) field in DocType 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "تطبيق ألوان السمة خارج الواجهة"
+msgstr ""
+
+#. Label of the apply_font_globally (Check) field in DocType 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "تطبيق الخط على كامل النظام"
+msgstr ""
+
+#. Label of the sec_id (Section Break) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "تعريف الوحدة"
+msgstr ""
+
+#. Label of the enabled (Check) field in DocType 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "تفعيل الواجهة"
+msgstr ""
+
+#. Label of the base_font_size (Data) field in DocType 'Shell Theme'
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "حجم الخط الأساسي"
+msgstr ""
+
+#. Description of the 'المعرّف البرمجي' (Data) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "حروف لاتينية صغيرة بدون مسافات، مثل: assets"
+msgstr ""
+
+#. Label of the sort_field (Data) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "حقل الترتيب"
+msgstr ""
+
+#. Label of the map_label_field (Data) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "حقل التسمية"
+msgstr ""
+
+#. Label of the map_color_field (Data) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "حقل التلوين"
+msgstr ""
+
+#. Label of the status_field (Data) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "حقل الحالة"
+msgstr ""
+
+#. Label of the scope_field (Data) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "حقل النطاق"
+msgstr ""
+
+#. Label of the map_lon_field (Data) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "حقل خط الطول"
+msgstr ""
+
+#. Label of the map_lat_field (Data) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "حقل خط العرض"
+msgstr ""
+
+#. Description of the 'حقل التلوين' (Data) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "حقل نصي/اختياري تُشتق منه ألوان النقاط"
+msgstr ""
+
+#. Label of the search_fields (Small Text) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "حقول البحث"
+msgstr ""
+
+#. Label of the detail_fields (Small Text) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "حقول بطاقة التفاصيل"
+msgstr ""
+
+#. Label of the form_fields (Small Text) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "حقول نموذج الإنشاء"
+msgstr ""
+
+#. Label of the danger (Color) field in DocType 'Shell Theme'
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "خطر"
+msgstr ""
+
+#. Label of the surface_bg (Color) field in DocType 'Shell Theme'
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "خلفية البطاقات"
+msgstr ""
+
+#. Label of the sidebar_bg (Color) field in DocType 'Shell Theme'
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "خلفية الشريط الجانبي"
+msgstr ""
+
+#. Label of the page_bg (Color) field in DocType 'Shell Theme'
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "خلفية الصفحة"
+msgstr ""
+
+#. Label of the sidebar_active_bg (Color) field in DocType 'Shell Theme'
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "خلفية العنصر النشط"
+msgstr ""
+
+#. Label of the font_css_url (Data) field in DocType 'Shell Theme'
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "رابط ملف الخط (اختياري)"
+msgstr ""
+
+#. Description of the 'عرض رابط العودة إلى Frappe' (Check) field in DocType
+#. 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "زر في أسفل الشريط الجانبي يفتح مكتب Frappe (/app/home) للانتقال إلى التطبيقات الأخرى. أوقفه إذا كان النظام يجب أن يبدو مغلقًا على الواجهة."
+msgstr ""
+
+#. Label of the is_preset (Check) field in DocType 'Shell Theme'
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "سمة جاهزة"
+msgstr ""
+
+#. Label of the landing (Select) field in DocType 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "صفحة البداية"
+msgstr ""
+
+#. Label of the card_shadow (Data) field in DocType 'Shell Theme'
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "ظل البطاقات"
+msgstr ""
+
+#. Label of the font_family (Data) field in DocType 'Shell Theme'
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "عائلة الخط"
+msgstr ""
+
+#. Label of the page_length (Int) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "عدد السجلات في الصفحة"
+msgstr ""
+
+#. Label of the show_user_chip (Check) field in DocType 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "عرض اسم المستخدم"
+msgstr ""
+
+#. Label of the show_clock (Check) field in DocType 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "عرض الساعة"
+msgstr ""
+
+#. Label of the sidebar_width (Data) field in DocType 'Shell Theme'
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "عرض الشريط الجانبي"
+msgstr ""
+
+#. Label of the show_map (Check) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "عرض خريطة"
+msgstr ""
+
+#. Label of the show_desk_link (Check) field in DocType 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "عرض رابط العودة إلى Frappe"
+msgstr ""
+
+#. Label of the sec_filters (Section Break) field in DocType 'Shell Module'
+#. Label of the filters (Table) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "عوامل التصفية"
+msgstr ""
+
+#. Label of the show_in_mobile_bar (Check) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "في شريط الجوال"
+msgstr ""
+
+#. Description of the 'المجموعة' (Autocomplete) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "لتجميع الوحدات الثانوية في الشريط الجانبي. اكتب اسمًا جديدًا أو اختر مجموعة موجودة من القائمة."
+msgstr ""
+
+#. Description of the 'الخيارات / DocType المرتبط' (Small Text) field in
+#. DocType 'Shell Module Filter'
+#: wajha/wajha/doctype/shell_module_filter/shell_module_filter.json
+msgid "لـ Select: خيار في كل سطر. لـ Link: اسم الـ DocType."
+msgstr ""
+
+#. Label of the show_dashboard (Check) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "لوحة مؤشرات"
+msgstr ""
+
+#. Label of the accent (Color) field in DocType 'Shell Theme'
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "لون التمييز"
+msgstr ""
+
+#. Label of the border (Color) field in DocType 'Shell Theme'
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "لون الحدود"
+msgstr ""
+
+#. Label of the ink (Color) field in DocType 'Shell Theme'
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "لون النص"
+msgstr ""
+
+#. Description of the 'المسار' (Data) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "مثال: /app/query-report/..."
+msgstr ""
+
+#. Label of the map_center_lon (Float) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "مركز الخريطة - خط الطول"
+msgstr ""
+
+#. Label of the map_center_lat (Float) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "مركز الخريطة - خط العرض"
+msgstr ""
+
+#. Label of the map_zoom (Int) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "مستوى التقريب"
+msgstr ""
+
+#. Label of the info (Color) field in DocType 'Shell Theme'
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "معلومة"
+msgstr ""
+
+#. Label of the auto_generated (Check) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "مولّدة تلقائيًا"
+msgstr ""
+
+#. Label of the enabled (Check) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "مُفعّلة"
+msgstr ""
+
+#. Label of the success (Color) field in DocType 'Shell Theme'
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "نجاح"
+msgstr ""
+
+#. Label of the footer_note (Data) field in DocType 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "نص أسفل الشريط الجانبي"
+msgstr ""
+
+#. Label of the sidebar_ink (Color) field in DocType 'Shell Theme'
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "نص الشريط الجانبي"
+msgstr ""
+
+#. Label of the sidebar_active_ink (Color) field in DocType 'Shell Theme'
+#: wajha/wajha/doctype/shell_theme/shell_theme.json
+msgid "نص العنصر النشط"
+msgstr ""
+
+#. Label of the scope (Select) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "نطاق السجلات"
+msgstr ""
+
+#. Label of the mobile_breakpoint (Int) field in DocType 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "نقطة التحول للجوال"
+msgstr ""
+
+#. Label of the control (Select) field in DocType 'Shell Module Filter'
+#: wajha/wajha/doctype/shell_module_filter/shell_module_filter.json
+msgid "نوع الأداة"
+msgstr ""
+
+#. Label of the action_type (Select) field in DocType 'Shell Module Action'
+#: wajha/wajha/doctype/shell_module_action/shell_module_action.json
+msgid "نوع الإجراء"
+msgstr ""
+
+#. Label of the sec_view (Section Break) field in DocType 'Shell Module'
+#. Label of the view_type (Select) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "نوع العرض"
+msgstr ""
+
+#. Label of the show_when (Select) field in DocType 'Shell Module Action'
+#: wajha/wajha/doctype/shell_module_action/shell_module_action.json
+msgid "يظهر عند الحالة"
+msgstr ""
+
+#. Description of the 'تطبيق ألوان السمة خارج الواجهة' (Check) field in DocType
+#. 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "يلوّن قوائم ونماذج Frappe لتتناسق مع الواجهة"
+msgstr ""
+

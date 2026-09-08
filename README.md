@@ -18,6 +18,7 @@ Wajha sits on top rather than replacing any of it. Browsing, navigation, the rec
 
 ## Highlights
 
+- **Translations the standard way.** Strings live in `wajha/locale/*.po` (gettext), the format Frappe and ERPNext use, with `main.pot` as the template. Arabic and English ship complete in both directions; another language is `bench create-po-file <locale> --app wajha` away.
 - **Arabic and RTL first, English alongside.** Every label carries an Arabic primary and an optional English secondary. The shell follows each user's Frappe language: Arabic users get the right-to-left layout with the Arabic label first; everyone else gets left-to-right with the English label first. Every shell string is translatable and ships with its Arabic.
 - **Themes as data.** `Shell Theme` records hold the full token set — colours, font, radius, shadow, sidebar width. Four presets ship with the app; duplicate one and change it to match a client's brand. The theme is a site setting; a user's Light/Dark choice stays Frappe's own.
 - **No build step.** Plain CSS and vanilla JavaScript: the Desk loads exactly two Wajha files, `wajha.css` and `wajha_boot.js`. Installs on any v16 bench, including servers with no Node toolchain, and works offline apart from the optional map tiles.
