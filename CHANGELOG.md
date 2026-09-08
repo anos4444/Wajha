@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.20.1 — 2026-09-08
+
+**Sidebar groups in the reader's language.** On an Arabic site the apps
+pack had stored each group as the workspace title already translated, so
+an English user read Arabic headers over English entries. 0.20.0 fixed
+what the pack seeds from now on; a patch rewrites what earlier releases
+stored, mapping each translated title back to the workspace's source
+title so `frappe._` can give every user their own. Groups that match no
+workspace are left alone — those were named by hand. Hand-made Arabic
+group names get their English from `en.csv`, or from a Translation
+record for names specific to a site.
+
 ## 0.20.0 — 2026-09-08
 
 **English for non-Arabic users.** The shell was right-to-left for
