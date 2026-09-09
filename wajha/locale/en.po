@@ -1352,6 +1352,78 @@ msgstr "Shown for docstatus"
 msgid "يلوّن قوائم ونماذج Frappe لتتناسق مع الواجهة"
 msgstr "Colours Frappe's lists and forms to match the shell."
 
+#: wajha/translatable.py:6
+msgid "HR Setup"
+msgstr ""
+
+#: wajha/translatable.py:7
+msgid "Invoicing"
+msgstr ""
+
+#: wajha/translatable.py:8
+msgid "Recruitment"
+msgstr ""
+
+#: wajha/translatable.py:9
+msgid "Tax & Benefits"
+msgstr ""
+
+#: wajha/translatable.py:10
+msgid "Tenure"
+msgstr ""
+
+#: wajha/translatable.py:11
+msgid "Website"
+msgstr ""
+
+#: wajha/translatable.py:20
+msgid "الأخضر المؤسسي"
+msgstr "Corporate Green"
+
+#: wajha/translatable.py:21
+msgid "الأزرق الحكومي"
+msgstr "Government Blue"
+
+#: wajha/translatable.py:22
+msgid "الرمادي المحايد"
+msgstr "Neutral Grey"
+
+#: wajha/translatable.py:23
+msgid "العنابي"
+msgstr "Burgundy"
+
+#: wajha/translatable.py:24
+msgid "نظام الإدارة"
+msgstr "Management System"
+
+#: wajha/translatable.py:25
+msgid "الخدمة الذاتية"
+msgstr "Self-service"
+
+#: wajha/translatable.py:32
+msgid "التطبيقات"
+msgstr "Apps"
+
+#: wajha/translatable.py:33
+msgid "الإجازات والمطالبات"
+msgstr "Leave & Claims"
+
+#: wajha/translatable.py:34
+msgid "الحضور والدوام"
+msgstr "Attendance & Shifts"
+
+#: wajha/translatable.py:35
+msgid "الرواتب"
+msgstr "Payroll"
+
+#: wajha/translatable.py:36
+msgid "الموارد البشرية"
+msgstr "Human Resources"
+
+#: wajha/translatable.py:37
+msgid "الموظفون"
+msgstr "Employees"
+
 msgid "الأخضر المؤسسي"
 msgstr "Corporate Green"
 

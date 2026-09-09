@@ -1352,6 +1352,78 @@ msgstr ""
 msgid "يلوّن قوائم ونماذج Frappe لتتناسق مع الواجهة"
 msgstr ""
 
+#: wajha/translatable.py:6
+msgid "HR Setup"
+msgstr "إعداد الموارد البشرية"
+
+#: wajha/translatable.py:7
+msgid "Invoicing"
+msgstr "الفوترة"
+
+#: wajha/translatable.py:8
+msgid "Recruitment"
+msgstr "التوظيف"
+
+#: wajha/translatable.py:9
+msgid "Tax & Benefits"
+msgstr "الضرائب والمزايا"
+
+#: wajha/translatable.py:10
+msgid "Tenure"
+msgstr "شؤون الخدمة"
+
+#: wajha/translatable.py:11
+msgid "Website"
+msgstr "الموقع الإلكتروني"
+
+#: wajha/translatable.py:20
+msgid "الأخضر المؤسسي"
+msgstr ""
+
+#: wajha/translatable.py:21
+msgid "الأزرق الحكومي"
+msgstr ""
+
+#: wajha/translatable.py:22
+msgid "الرمادي المحايد"
+msgstr ""
+
+#: wajha/translatable.py:23
+msgid "العنابي"
+msgstr ""
+
+#: wajha/translatable.py:24
+msgid "نظام الإدارة"
+msgstr ""
+
+#: wajha/translatable.py:25
+msgid "الخدمة الذاتية"
+msgstr ""
+
+#: wajha/translatable.py:32
+msgid "التطبيقات"
+msgstr ""
+
+#: wajha/translatable.py:33
+msgid "الإجازات والمطالبات"
+msgstr ""
+
+#: wajha/translatable.py:34
+msgid "الحضور والدوام"
+msgstr ""
+
+#: wajha/translatable.py:35
+msgid "الرواتب"
+msgstr ""
+
+#: wajha/translatable.py:36
+msgid "الموارد البشرية"
+msgstr ""
+
+#: wajha/translatable.py:37
+msgid "الموظفون"
+msgstr ""
+
 msgid "Approve"
 msgstr "موافقة"
 

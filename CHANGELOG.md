@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.21.1 — 2026-09-09
+
+**Arabic for the six workspace names that were still English.** HR Setup,
+Invoicing, Recruitment, Tax & Benefits, Tenure and Website are standard
+workspaces from frappe, erpnext and hrms — each carries the string in its
+own `ar.po` with an empty translation, so an Arabic user read English
+sidebar headers over Arabic module names. Wajha fills the gap; because
+apps load in install order, its catalogue applies last.
+
+Each title was translated for what the workspace actually holds, not word
+by word: **Tenure** covers onboarding, training, grievances and daily work
+summaries, so it is شؤون الخدمة rather than the literal مدة الخدمة, and
+**Tax & Benefits** sits in Payroll, so المزايا reads as employee benefits.
+
+- New `wajha/translatable.py` declares, with Frappe's `_lt` marker, the
+  strings that never appear in the source as literals: these workspace
+  titles, the theme names and seeded group the packs write, and the group
+  names a site types by hand. The extractor now sees them, so they are in
+  `main.pot` and survive `bench update-po-files` — before this they lived
+  only in the PO files and the first template merge would have marked them
+  obsolete.
+
 ## 0.21.0 — 2026-09-08
 
 **Translations move to gettext, the format Frappe itself uses.** Wajha
