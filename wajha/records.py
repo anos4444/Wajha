@@ -247,10 +247,11 @@ def _actions(module, doc, meta):
         except Exception:
             transitions = []
         for t in transitions:
+            next_state = t.get("next_state")
             actions.append({
                 "kind": "workflow", "value": t.get("action"),
                 "label": frappe._(t.get("action")), "style": "Primary",
-                "hint": frappe._(t["next_state"]) if t.get("next_state") else "", "confirm": 1,
+                "hint": frappe._(next_state) if next_state else "", "confirm": 1,
             })
     elif auto and meta.is_submittable:
         if cint(doc.docstatus) == 0 and doc.has_permission("submit"):

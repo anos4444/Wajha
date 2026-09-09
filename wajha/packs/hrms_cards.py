@@ -47,8 +47,14 @@ def leave_cards(module, ctx):
             from hrms.hr.utils import get_holidays_for_employee
 
             holidays = get_holidays_for_employee(emp, nowdate(), add_days(nowdate(), 60), raise_exception=False) or []
-            items = [{"label": frappe._(h["description"]) if h.get("description") else "", "hint": formatdate(h.get("holiday_date"))}
-                     for h in holidays if not cint(h.get("weekly_off"))][:5]
+            items = []
+            for h in holidays:
+                if cint(h.get("weekly_off")):
+                    continue
+                name = h.get("description")
+                items.append({"label": frappe._(name) if name else "", "hint": formatdate(h.get("holiday_date"))})
+                if len(items) == 5:
+                    break
             if items:
                 cards.append({"kind": "list", "label": frappe._("Upcoming holidays"), "items": items})
         except Exception:

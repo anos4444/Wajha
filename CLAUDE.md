@@ -283,6 +283,9 @@ Identity and trailers (the owner's standing instruction, 2026-09-06):
   administrator typed) must be declared in `wajha/translatable.py` with
   `_lt(...)`. Otherwise it is absent from `main.pot` and the next
   `bench update-po-files` marks the PO entry obsolete and drops it.
+- Never put a subscript inside a translation call: babel takes the first
+  string literal in `_(...)`, so `_(row["next_state"])` adds "next_state"
+  to the template. Bind the value first, then translate it.
 - Translate for the module the term sits in, not word by word: `Stock`
   under Inventory is المخزون, `Tenure` (onboarding, training, grievances)
   is شؤون الخدمة, `Benefits` under Payroll is المزايا. Read the

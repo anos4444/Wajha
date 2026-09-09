@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.21.2 — 2026-09-09
+
+**Two stray strings kept out of the translation template.** Babel reads
+the first string literal inside a `_()` call, so `_(t["next_state"])`
+put the *key* — "next_state" — into `main.pot` as if it were UI text, and
+`_(h["description"])` did the same. Both now bind the value first. A
+fresh extraction matches the committed template exactly, which is the
+check that keeps `bench update-po-files` from surprising anyone.
+
 ## 0.21.1 — 2026-09-09
 
 **Arabic for the six workspace names that were still English.** HR Setup,
