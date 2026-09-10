@@ -124,6 +124,8 @@ def _virtual_summary(dt, label=None):
 
 
 def _handmade_by_doctype():
+    from wajha.api import module_label
+
     out = {}
     for m in frappe.get_all(
         "Shell Module", filters={"enabled": 1, "view_type": "List"},
@@ -134,6 +136,7 @@ def _handmade_by_doctype():
             continue
         if m.ref_doctype and frappe.has_permission(m.ref_doctype, "read"):
             m["view_type"] = "List"
+            m["module_label"] = module_label(m)
             out.setdefault(m.ref_doctype, icons.attach(m))
     return out
 

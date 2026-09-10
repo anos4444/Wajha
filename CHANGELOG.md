@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.22.0 — 2026-09-10
+
+**Sidebar module names follow the reader's language.** On a site with a
+full Arabic catalogue installed, the Home tiles read Arabic while the
+sidebar entries under them read English — Expense Claim Type, Vehicle,
+Driver, Google Contacts, Webhook. The catalogue had all of them; Wajha
+was not asking.
+
+The apps pack stored `module_label` already translated, once, using the
+site language at the moment it seeded the module. Anything seeded before
+an Arabic catalogue was installed kept its English label for good. The
+Home tiles were right because `discovery` translates at request time —
+the same split the group names had before 0.20.1.
+
+- The pack now stores the DocType's own English label, and
+  `api.module_label` translates it for each user, so a catalogue
+  installed later is picked up immediately and one site can serve both
+  languages from the same row.
+- A label an administrator typed differs from the English one and is
+  returned exactly as typed — the rule only applies while the stored
+  label is still the source text.
+- A migrate patch resets rows earlier releases seeded, but only those
+  still holding precisely what the pack would have written, so hand-edited
+  labels survive.
+
 ## 0.21.2 — 2026-09-09
 
 **Two stray strings kept out of the translation template.** Babel reads

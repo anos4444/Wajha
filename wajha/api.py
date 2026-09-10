@@ -55,6 +55,25 @@ def _settings():
     return frappe.get_cached_doc("Shell Settings")
 
 
+def module_label(m):
+    """The label this user should read for a module.
+
+    The apps pack stores the DocType's own English label, so ``frappe._``
+    can give each user their own language at request time — the same rule
+    the group name follows. A label an administrator typed differs from the
+    English one and is returned exactly as typed.
+
+    Before 0.22 the pack stored the label already translated into the site
+    language, which froze it: a site that gained an Arabic catalogue later
+    kept reading English in the sidebar while the Home tiles, translated
+    live, were Arabic.
+    """
+    label = m.get("module_label") or ""
+    if label and label == (m.get("module_label_en") or ""):
+        return frappe._(label)
+    return label
+
+
 def _theme_tokens(theme_name):
     if not theme_name or not frappe.db.exists("Shell Theme", theme_name):
         return {}
@@ -83,9 +102,10 @@ def get_config():
             if not m.ref_doctype or not frappe.has_permission(m.ref_doctype, "read"):
                 continue
             m["can_create"] = bool(frappe.has_permission(m.ref_doctype, "create"))
-        # Group names are stored in the site's language (packs) or as typed;
+        # Group names and pack-seeded labels are stored as their source text;
         # frappe._ gives each user their own where a translation exists.
         m["group_label"] = frappe._(m.group) if m.group else ""
+        m["module_label"] = module_label(m)
         modules.append(icons.attach(m))
 
     home = None

@@ -286,6 +286,12 @@ Identity and trailers (the owner's standing instruction, 2026-09-06):
 - Never put a subscript inside a translation call: babel takes the first
   string literal in `_(...)`, so `_(row["next_state"])` adds "next_state"
   to the template. Bind the value first, then translate it.
+- Never store a translated string in a record. Store the source text and
+  translate at request time (`api.module_label`, `group_label`,
+  `discovery._virtual_summary`): a stored translation freezes to whatever
+  the catalogue held when the row was written, and one row cannot serve two
+  languages. This has now bitten twice — group names (0.20.1) and module
+  labels (0.22.0).
 - Translate for the module the term sits in, not word by word: `Stock`
   under Inventory is المخزون, `Tenure` (onboarding, training, grievances)
   is شؤون الخدمة, `Benefits` under Payroll is المزايا. Read the

@@ -86,7 +86,10 @@ def seed(app_name=None):
 
 
 def _create(dt, key, label, ws, order, lang):
-    doc = build_module_doc(dt, key, frappe._(label or dt, lang=lang))
+    # The DocType's own label, not a translation: get_config translates it
+    # per user, so the sidebar follows each reader's language and a site
+    # that installs an Arabic catalogue later picks it up.
+    doc = build_module_doc(dt, key, label or dt)
     doc.module_label_en = label or dt
     # The source title, not a translation: get_config translates it for each
     # user, so an English user on an Arabic site still reads "Accounting".
