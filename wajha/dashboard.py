@@ -20,7 +20,8 @@ import frappe
 from frappe.utils import cint, flt
 
 
-from wajha.api import _allowed_fields, _get_module, scope_filters
+from wajha import icons
+from wajha.api import _allowed_fields, _get_module, _settings, module_label, scope_filters
 
 MAX_STATUS_CHIPS = 8
 MAX_SUM_COLUMNS = 3
@@ -107,18 +108,19 @@ def _number_cards(module):
 
 
 # --------------------------------------------------------------------------- endpoint
-@frappe.whitelist()
-def get_module_dashboard(module_key):
-    module = _get_module(module_key)
-    if not cint(getattr(module, "show_dashboard", 1)):
-        return {"cards": []}
+def _module_cards(module, generic="all"):
+    """The cards for one module. ``generic="count"`` keeps only the record
+    count from the generic set — the Home page wants a module's own cards
+    (leave balance, last check-in) without a status strip per module."""
     meta = frappe.get_meta(module.ref_doctype)
     _fields, _real, status_field = _allowed_fields(module)
     cards = []
 
-    for step in (lambda: [_count_card(module)],
-                 lambda: [c for c in [_status_chips(module, meta, status_field)] if c],
-                 lambda: _sum_cards(module, meta)):
+    steps = [lambda: [_count_card(module)]]
+    if generic == "all":
+        steps += [lambda: [c for c in [_status_chips(module, meta, status_field)] if c],
+                  lambda: _sum_cards(module, meta)]
+    for step in steps:
         try:
             cards.extend(step())
         except Exception:
@@ -137,7 +139,128 @@ def get_module_dashboard(module_key):
     except Exception:
         frappe.log_error(title=f"wajha: number cards failed for {module.name}")
 
-    return {"cards": [c for c in cards if c]}
+    return [c for c in cards if c]
+
+
+@frappe.whitelist()
+def get_module_dashboard(module_key):
+    module = _get_module(module_key)
+    if not cint(getattr(module, "show_dashboard", 1)):
+        return {"cards": []}
+    return {"cards": _module_cards(module)}
+
+
+# --------------------------------------------------------------------------- home dashboard
+# Frappe's own Number Cards and Dashboard Charts, grouped by a Frappe
+# Dashboard, mapped to a role in Shell Settings. The data definitions stay
+# in Frappe where an administrator edits them; only the rendering is the
+# shell's. Below that, every module flagged for the phone bar contributes
+# its own cards, so an employee's Home carries leave balance, last check-in
+# and last salary slip with no configuration.
+INTERVAL_WORDS = {"Daily": "vs yesterday", "Weekly": "vs last week", "Monthly": "vs last month", "Yearly": "vs last year"}
+
+
+def _dashboard_for(roles):
+    """The first Shell Settings row whose role the user holds."""
+    for row in _settings().get("dashboards") or []:
+        if row.role in roles and row.dashboard and frappe.db.exists("Dashboard", row.dashboard):
+            return row.dashboard
+    return None
+
+
+def _number_card_stat(card):
+    from frappe.desk.doctype.number_card.number_card import get_percentage_difference, get_result
+
+    filters = frappe.parse_json(card.filters_json) if card.filters_json else []
+    value = get_result(card, list(filters or []))
+    hint = None
+    if card.get("show_percentage_stats"):
+        try:
+            diff = get_percentage_difference(card, list(filters or []), value)
+            if diff is not None:
+                hint = f"{'+' if diff > 0 else ''}{flt(diff):.0f}% {frappe._(INTERVAL_WORDS.get(card.stats_time_interval, 'vs last month'))}"
+        except Exception:
+            frappe.log_error(title=f"wajha: number card trend {card.name} failed")
+    return stat(frappe._(card.label or card.name),
+                frappe.format_value(flt(value), {"fieldtype": "Float", "precision": 0}),
+                hint=hint, icon="fa-chart-simple")
+
+
+def _frappe_dashboard(name):
+    from frappe.desk.doctype.dashboard_chart.dashboard_chart import get as get_chart
+
+    dash = frappe.get_doc("Dashboard", name)
+    cards, charts = [], []
+    for row in dash.get("cards") or []:
+        try:
+            card = frappe.get_doc("Number Card", row.card)
+            # Frappe's own rule for who may see a card, then the data's own.
+            if not card.has_permission("read"):
+                continue
+            if (card.get("type") or "Document Type") != "Document Type":
+                continue  # Report and Custom cards need the Desk's own runners
+            if not frappe.has_permission(card.document_type, "read"):
+                continue
+            cards.append(_number_card_stat(card))
+        except Exception:
+            frappe.log_error(title=f"wajha: number card {row.card} failed")
+    for row in dash.get("charts") or []:
+        try:
+            chart = frappe.get_doc("Dashboard Chart", row.chart)
+            if not chart.has_permission("read"):
+                continue
+            if chart.chart_type not in ("Count", "Sum", "Average", "Group By") or chart.type == "Heatmap":
+                continue
+            if chart.document_type and not frappe.has_permission(chart.document_type, "read"):
+                continue
+            data = get_chart(chart_name=chart.name)
+            if not data or not data.get("labels"):
+                continue
+            charts.append({
+                "kind": "chart", "name": chart.name, "label": frappe._(chart.chart_name or chart.name),
+                "type": chart.type, "color": chart.color, "timeseries": cint(chart.timeseries),
+                "width": row.width or "Half", "data": data,
+            })
+        except Exception:
+            frappe.log_error(title=f"wajha: dashboard chart {row.chart} failed")
+    return {"name": dash.name, "label": frappe._(dash.dashboard_name or dash.name), "cards": cards, "charts": charts}
+
+
+@frappe.whitelist()
+def get_home_dashboard():
+    """What the Home page shows above Quick access: the Frappe Dashboard
+    mapped to one of the user's roles (if any), then one card group per
+    module flagged for the phone bar."""
+    out = {"admin": None, "mine": []}
+    name = _dashboard_for(set(frappe.get_roles()))
+    if name:
+        try:
+            out["admin"] = _frappe_dashboard(name)
+        except Exception:
+            frappe.log_error(title=f"wajha: dashboard {name} failed")
+
+    for m in frappe.get_all(
+        "Shell Module",
+        filters={"enabled": 1, "show_in_mobile_bar": 1, "view_type": "List"},
+        fields=["name", "module_key", "module_label", "module_label_en", "ref_doctype", "icon", "sequence"],
+        order_by="sequence asc, module_label asc",
+    ):
+        if not m.ref_doctype or not frappe.has_permission(m.ref_doctype, "read"):
+            continue
+        try:
+            module = _get_module(m.module_key)
+            if not cint(getattr(module, "show_dashboard", 1)):
+                continue
+            cards = _module_cards(module, generic="count")
+        except Exception:
+            frappe.log_error(title=f"wajha: home cards failed for {m.module_key}")
+            continue
+        if cards:
+            out["mine"].append({
+                "module_key": m.module_key, "label": module_label(m), "label_en": m.module_label_en,
+                "icon": icons.normalize(m.icon, m.ref_doctype), "cards": cards,
+            })
+    return out
 
 
 def _load_packs():

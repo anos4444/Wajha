@@ -1048,6 +1048,11 @@ class WajhaShell {
 		$(`<div class="wj-home-head"><h2>${esc(greet)}${first ? (WJ_AR ? '، ' : ', ') + esc(first) : ''} 👋</h2>
 			<p>${__("Everything you can open, in one place.")}</p></div>`).appendTo(this.$body);
 
+		// The dashboard block: the Frappe Dashboard mapped to one of this
+		// user's roles, then a card group per module flagged for the phone
+		// bar. Fetched after the frame so Home never waits for a query.
+		this.load_home_dashboard($('<div class="wj-home-dash"></div>').appendTo(this.$body));
+
 		// Quick access: the modules someone chose — flagged for the bar, or
 		// hand-made — never the hundreds a pack seeded.
 		let mods = (this.cfg.modules || []).filter((m) => wj_int(m.show_in_mobile_bar));
@@ -1130,6 +1135,22 @@ class WajhaShell {
 		const $d = this.$body.find('.wj-dash');
 		if (!$d.length) return;
 		$d.empty().prop('hidden', !cards.length);
+		this.paint_cards($d, cards, {
+			chip: (c, it, active) => this.set_status_value(active ? '' : it.value),
+			stat: (c) => {
+				if (c.filter && c.filter.field === this.meta.status_field) {
+					this.set_status_value(String(this.state.status_value) === String(c.filter.value) ? '' : c.filter.value);
+				} else if (c.filter) {
+					this.state.filters[c.filter.field] = c.filter.value; this.state.page_no = 1; this.paint_list_frame(); this.load_rows();
+				}
+			},
+		});
+	}
+
+	// Paints dashboard cards into $d. `on.chip(card, item, active)` and
+	// `on.stat(card)` decide what a tap does: filter the list beneath, or
+	// open the module the card belongs to on Home.
+	paint_cards($d, cards, on) {
 		const tone = (t) => (t ? ` wj-tone-${esc(t)}` : '');
 		cards.forEach((c) => {
 			if (c.kind === 'chips') {
@@ -1137,7 +1158,7 @@ class WajhaShell {
 				c.items.forEach((it) => {
 					const active = String(this.state.status_value) === String(it.value);
 					$(`<button type="button" class="wj-chip wj-dash-chip${active ? ' active' : ''}">${esc(it.label)} <b>${wj_int(it.count)}</b></button>`)
-						.on('click', () => this.set_status_value(active ? '' : it.value)).appendTo($c.find('.wj-dash-chiprow'));
+						.on('click', () => on.chip && on.chip(c, it, active)).appendTo($c.find('.wj-dash-chiprow'));
 				});
 			} else if (c.kind === 'list') {
 				const $c = $(`<div class="wj-dash-card wj-dash-list"><div class="wj-dash-label">${esc(c.label)}</div><ul></ul></div>`).appendTo($d);
@@ -1152,19 +1173,70 @@ class WajhaShell {
 						${it.hint ? `<small><bdi>${esc(it.hint)}</bdi></small>` : ''}</div>`);
 				});
 			} else {
-				const $c = $(`<button type="button" class="wj-dash-card wj-dash-stat${tone(c.tone)}${c.filter ? ' wj-dash-clickable' : ''}">
+				const clickable = on.always || !!c.filter;
+				const $c = $(`<button type="button" class="wj-dash-card wj-dash-stat${tone(c.tone)}${clickable ? ' wj-dash-clickable' : ''}">
 					${c.icon ? `<span class="wj-dash-icon" aria-hidden="true">${wj_icon(c.icon)}</span>` : ''}
 					<span class="wj-dash-value">${esc(c.value)}</span>
 					<span class="wj-dash-label">${esc(c.label)}</span>
 					${c.hint ? `<span class="wj-dash-hint"><bdi>${esc(c.hint)}</bdi></span>` : ''}
 				</button>`).appendTo($d);
-				if (c.filter && c.filter.field === this.meta.status_field) {
-					$c.on('click', () => this.set_status_value(String(this.state.status_value) === String(c.filter.value) ? '' : c.filter.value));
-				} else if (c.filter) {
-					$c.on('click', () => { this.state.filters[c.filter.field] = c.filter.value; this.state.page_no = 1; this.paint_list_frame(); this.load_rows(); });
-				}
+				if (clickable && on.stat) $c.on('click', () => on.stat(c));
 			}
 		});
+	}
+
+	// ------------------------------------------------------------------ home dashboard
+	load_home_dashboard($dash) {
+		frappe.call('wajha.dashboard.get_home_dashboard', {}).then((r) => {
+			if (this.view !== 'home' || !$dash.closest('body').length) return;
+			this.render_home_dashboard($dash, r.message || {});
+		}).catch(() => { /* Home stands on its own */ });
+	}
+
+	render_home_dashboard($dash, d) {
+		$dash.empty();
+		const admin = d.admin;
+		if (admin && ((admin.cards || []).length || (admin.charts || []).length)) {
+			const $s = $(`<section class="wj-home-sec wj-home-admin"><h3>${esc(admin.label)}</h3></section>`).appendTo($dash);
+			if ((admin.cards || []).length) this.paint_cards($('<div class="wj-dash"></div>').appendTo($s), admin.cards, {});
+			if ((admin.charts || []).length) {
+				const $g = $('<div class="wj-charts"></div>').appendTo($s);
+				admin.charts.forEach((c) => {
+					const $c = $(`<div class="wj-chart-card${c.width === 'Full' ? ' wj-chart-full' : ''}"><div class="wj-dash-label">${esc(c.label)}</div><div class="wj-chart" dir="ltr"></div></div>`).appendTo($g);
+					this.draw_chart($c.find('.wj-chart'), c);
+				});
+			}
+		}
+		(d.mine || []).forEach((g) => {
+			const m = (this.cfg.modules || []).find((x) => x.module_key === g.module_key);
+			const $s = $(`<section class="wj-home-sec wj-home-mine"><h3>${m ? `<a href="${esc(this.href(m))}">` : ''}${g.icon ? `<span class="wj-link-icon" aria-hidden="true">${wj_icon(g.icon)}</span>` : ''}${esc(g.label)}${m ? '</a>' : ''}</h3></section>`).appendTo($dash);
+			if (m) wj_nav($s.find('h3 a'), () => this.go(m));
+			this.paint_cards($('<div class="wj-dash"></div>').appendTo($s), g.cards || [], {
+				always: !!m,
+				stat: () => m && this.go(m),
+				chip: () => m && this.go(m),
+			});
+		});
+	}
+
+	// A Frappe Dashboard Chart drawn with the chart library the Desk already
+	// ships; a plain table of the same numbers when it is not there.
+	draw_chart($el, c) {
+		const type = { Line: 'line', Bar: 'bar', Percentage: 'percentage', Pie: 'pie', Donut: 'donut' }[c.type] || 'bar';
+		const primary = (getComputedStyle(this.$shell[0]).getPropertyValue('--wj-primary') || '').trim() || '#0F4C81';
+		const circular = ['pie', 'donut', 'percentage'].includes(type);
+		const args = {
+			data: c.data, type, height: 220, truncateLegends: 0, maxSlices: 8,
+			colors: c.color ? [c.color] : (circular ? [] : [primary]),
+			axisOptions: { xIsSeries: !!c.timeseries, shortenYAxisNumbers: 1 },
+		};
+		try {
+			if (frappe.utils && frappe.utils.make_chart) { frappe.utils.make_chart($el[0], args); return; }
+			if (frappe.Chart) { new frappe.Chart($el[0], args); return; }
+		} catch (e) { /* fall through to the table */ }
+		const labels = (c.data && c.data.labels) || [], values = (((c.data || {}).datasets || [])[0] || {}).values || [];
+		const $t = $('<table class="wj-chart-table"></table>').appendTo($el.attr('dir', null));
+		labels.forEach((l, i) => $t.append(`<tr><td>${esc(l)}</td><td><b>${esc(values[i] === undefined ? '' : values[i])}</b></td></tr>`));
 	}
 
 	set_status_value(v) {

@@ -2150,3 +2150,72 @@ body[data-route^="wajha/"] .page-container {
 		transform: translateX(0);
 	}
 }
+
+/* ---------------------------------------------------------------- home dashboard */
+.wj-home-dash .wj-dash {
+	margin-bottom: 12px;
+}
+
+.wj-home-sec h3 a {
+	color: inherit;
+	text-decoration: none;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.wj-home-sec h3 a:hover,
+.wj-home-sec h3 a:focus {
+	color: var(--wj-primary);
+}
+
+.wj-charts {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px;
+	margin-bottom: 18px;
+}
+
+.wj-chart-card {
+	background: var(--wj-surface-bg);
+	border: 1px solid var(--wj-border);
+	border-radius: var(--wj-radius);
+	box-shadow: var(--wj-shadow);
+	padding: 12px 14px 6px;
+	min-width: 0;
+}
+
+.wj-chart-card.wj-chart-full {
+	grid-column: 1 / -1;
+}
+
+.wj-chart-card .wj-dash-label {
+	font-weight: 600;
+	margin-bottom: 4px;
+}
+
+.wj-chart {
+	direction: ltr;
+	min-height: 200px;
+}
+
+.wj-chart-table {
+	width: 100%;
+	font-size: 13px;
+	border-collapse: collapse;
+}
+
+.wj-chart-table td {
+	padding: 4px 6px;
+	border-bottom: 1px solid var(--wj-border);
+}
+
+.wj-chart-table td:last-child {
+	text-align: end;
+}
+
+@media (max-width: 700px) {
+	.wj-charts {
+		grid-template-columns: 1fr;
+	}
+}

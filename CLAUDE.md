@@ -296,3 +296,26 @@ Identity and trailers (the owner's standing instruction, 2026-09-06):
   under Inventory is المخزون, `Tenure` (onboarding, training, grievances)
   is شؤون الخدمة, `Benefits` under Payroll is المزايا. Read the
   workspace's or DocType's own contents before naming it.
+
+## Home dashboard (0.23)
+
+- Data definitions are Frappe's: Number Card, Dashboard Chart, Dashboard.
+  Wajha never stores KPI or chart definitions of its own; it renders what
+  Frappe holds. `Shell Settings.dashboards` (child `Shell Dashboard Role`)
+  maps role → Dashboard, first match wins (`dashboard._dashboard_for`).
+- `wajha.dashboard.get_home_dashboard` returns `{admin, mine}`: the mapped
+  Dashboard's cards (via Frappe's `number_card.get_result`) and charts (via
+  `dashboard_chart.get`, the same call the Desk widget makes, cached by
+  Frappe), then one card group per module flagged `show_in_mobile_bar`
+  built with `_module_cards(module, generic="count")`.
+- Skipped on purpose: Number Cards of type Report/Custom, Report charts,
+  heatmaps, and `dynamic_filters_json` (those are JavaScript expressions
+  the Desk evaluates in the browser; there is no safe server-side
+  equivalent). Say so if a card silently does not appear.
+- Charts are drawn with `frappe.utils.make_chart` (frappe-charts, already
+  in the Desk bundle); the `.wj-chart` container is `dir="ltr"` so axes and
+  legends keep their geometry inside an RTL page. A plain table is the
+  fallback when the library is missing.
+- The HR pack (`packs/hr_dashboard.py`) creates records only when absent,
+  looks Number Cards up by label + document_type because Number Card has
+  no autoname, and fills the role table only while it is empty.

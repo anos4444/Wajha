@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.23.0 — 2026-09-12
+
+**Dashboards on Home: Frappe's data, Wajha's rendering.** The Home page
+now opens with a dashboard, in two parts.
+
+- **By role.** A `Dashboards` table on Shell Settings maps a role to a
+  Frappe Dashboard; the first row matching the user's roles is shown. The
+  Dashboard's Number Cards become KPI tiles and its Dashboard Charts are
+  drawn with the chart library the Desk already ships (bar, line, pie,
+  donut, percentage; half or full width), so every definition stays a
+  normal Frappe record an administrator edits in the Desk with no code.
+  Frappe's own permission rules for cards and charts apply, then the
+  DocType's read permission on top.
+- **Self-service.** Below that, each module flagged for the phone bar
+  contributes its own cards — leave balance, last check-in, last salary
+  slip, claims by status — grouped under the module's name, a tap away
+  from its list. No configuration: the flag you already set for the
+  phone bar decides.
+- **HR pack.** With HRMS installed, migrate seeds an "HR Overview"
+  Dashboard — active employees, pending leave approvals, pending expense
+  claims, open job openings; employees per department, leave applications
+  by status, joining trend — and maps HR Manager and HR User to it. The
+  pack creates only what is missing and leaves the role table alone once
+  it has been filled.
+
+Report and Custom cards, Report charts and heatmaps are skipped in this
+release; they need the Desk's own runners.
+
 ## 0.22.1 — 2026-09-12
 
 **List headers and filter labels follow the reader's language.** A

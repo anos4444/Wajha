@@ -44,3 +44,16 @@ SITE_GROUPS = [
     _lt("الموارد البشرية"),
     _lt("الموظفون"),
 ]
+
+# Names the HR dashboard pack writes into Number Card, Dashboard Chart and
+# Dashboard records; the Home page reads them back through frappe._.
+HR_DASHBOARD = [
+    _lt("HR Overview"),
+    _lt("Active employees"),
+    _lt("Pending leave approvals"),
+    _lt("Pending expense claims"),
+    _lt("Open job openings"),
+    _lt("Employees per department"),
+    _lt("Leave applications by status"),
+    _lt("Joining trend"),
+]

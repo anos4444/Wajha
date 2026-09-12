@@ -1,0 +1,38 @@
+{
+ "doctype": "DocType",
+ "name": "Shell Dashboard Role",
+ "module": "Wajha",
+ "istable": 1,
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "creation": "2026-09-12 12:00:00.000000",
+ "modified": "2026-09-12 12:00:00.000000",
+ "modified_by": "Administrator",
+ "owner": "Administrator",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "field_order": [
+  "role",
+  "dashboard"
+ ],
+ "fields": [
+  {
+   "fieldname": "role",
+   "fieldtype": "Link",
+   "options": "Role",
+   "label": "الدور",
+   "reqd": 1,
+   "in_list_view": 1,
+   "description": "أول صف يطابق أحد أدوار المستخدم هو الذي يُعرض"
+  },
+  {
+   "fieldname": "dashboard",
+   "fieldtype": "Link",
+   "options": "Dashboard",
+   "label": "لوحة المؤشرات",
+   "reqd": 1,
+   "in_list_view": 1
+  }
+ ],
+ "permissions": []
+}

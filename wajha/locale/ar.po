@@ -1424,6 +1424,78 @@ msgstr ""
 msgid "الموظفون"
 msgstr ""
 
+#: wajha/translatable.py:44
+msgid "HR Overview"
+msgstr "نظرة عامة على الموارد البشرية"
+
+#: wajha/translatable.py:45
+msgid "Active employees"
+msgstr "الموظفون النشطون"
+
+#: wajha/translatable.py:46
+msgid "Pending leave approvals"
+msgstr "طلبات إجازة بانتظار الاعتماد"
+
+#: wajha/translatable.py:47
+msgid "Pending expense claims"
+msgstr "مطالبات نفقات بانتظار الاعتماد"
+
+#: wajha/translatable.py:48
+msgid "Open job openings"
+msgstr "وظائف شاغرة"
+
+#: wajha/translatable.py:49
+msgid "Employees per department"
+msgstr "الموظفون حسب القسم"
+
+#: wajha/translatable.py:50
+msgid "Leave applications by status"
+msgstr "طلبات الإجازة حسب الحالة"
+
+#: wajha/translatable.py:51
+msgid "Joining trend"
+msgstr "اتجاه الالتحاق"
+
+#: wajha/dashboard.py:170
+msgid "vs yesterday"
+msgstr "مقارنة بالأمس"
+
+#: wajha/dashboard.py:170
+msgid "vs last week"
+msgstr "مقارنة بالأسبوع الماضي"
+
+#: wajha/dashboard.py:170
+msgid "vs last month"
+msgstr "مقارنة بالشهر الماضي"
+
+#: wajha/dashboard.py:170
+msgid "vs last year"
+msgstr "مقارنة بالعام الماضي"
+
+#: wajha/wajha/doctype/shell_dashboard_role/shell_dashboard_role.json
+msgid "الدور"
+msgstr ""
+
+#: wajha/wajha/doctype/shell_dashboard_role/shell_dashboard_role.json
+msgid "لوحة المؤشرات"
+msgstr ""
+
+#: wajha/wajha/doctype/shell_dashboard_role/shell_dashboard_role.json
+msgid "أول صف يطابق أحد أدوار المستخدم هو الذي يُعرض"
+msgstr ""
+
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "لوحات المؤشرات"
+msgstr ""
+
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "لوحات المؤشرات حسب الدور"
+msgstr ""
+
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "لوحة مؤشرات Frappe (بطاقات أرقام ومخططات) تُعرض في الصفحة الرئيسية لأصحاب الدور. أول صف يطابق أدوار المستخدم يُعرض؛ ومن لا يطابقه أي صف يرى بطاقات الخدمة الذاتية فقط."
+msgstr ""
+
 msgid "Approve"
 msgstr "موافقة"
 
