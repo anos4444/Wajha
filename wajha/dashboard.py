@@ -199,6 +199,8 @@ def _limit_groups(data, n):
     values = list(sets[0].get("values") or [])
     keep = n - 1
     rest = sum(flt(v) for v in values[keep:])
+    if rest == int(rest):
+        rest = int(rest)  # a whole-number total keeps the axis free of ".00"
     out = dict(data)
     out["labels"] = labels[:keep] + [frappe._("Others")]
     out["datasets"] = [dict(sets[0], values=values[:keep] + [rest])] + list(sets[1:])

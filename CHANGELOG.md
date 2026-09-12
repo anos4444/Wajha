@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.23.2 — 2026-09-12
+
+- The "Others" bar sums whole numbers to a whole number, so a count chart's axis no longer shows "300.00".
+
 ## 0.23.1 — 2026-09-12
 
 - Group By charts now honour their `number_of_groups`: the Desk applies
