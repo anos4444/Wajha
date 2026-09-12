@@ -1225,10 +1225,19 @@ class WajhaShell {
 		const type = { Line: 'line', Bar: 'bar', Percentage: 'percentage', Pie: 'pie', Donut: 'donut' }[c.type] || 'bar';
 		const primary = (getComputedStyle(this.$shell[0]).getPropertyValue('--wj-primary') || '').trim() || '#0F4C81';
 		const circular = ['pie', 'donut', 'percentage'].includes(type);
+		// Tick values reach the formatter with float noise (300.00000000000006);
+		// the Desk's default formatter then prints "300.00". Round first.
+		const tick = (v) => {
+			const n = Math.round(Number(v) * 100) / 100;
+			if (!isFinite(n)) return v;
+			const short = (d, s) => String(Math.round((n / d) * 10) / 10).replace(/\.0$/, '') + s;
+			return Math.abs(n) >= 1e6 ? short(1e6, 'M') : Math.abs(n) >= 1e3 ? short(1e3, 'K') : String(n);
+		};
 		const args = {
 			data: c.data, type, height: 220, truncateLegends: 0, maxSlices: 8,
 			colors: c.color ? [c.color] : (circular ? [] : [primary]),
-			axisOptions: { xIsSeries: !!c.timeseries, shortenYAxisNumbers: 1 },
+			axisOptions: { xIsSeries: !!c.timeseries, shortenYAxisNumbers: 1, numberFormatter: tick },
+			tooltipOptions: { formatTooltipY: tick },
 		};
 		try {
 			if (frappe.utils && frappe.utils.make_chart) { frappe.utils.make_chart($el[0], args); return; }

@@ -1,8 +1,16 @@
 # Changelog
 
+## 0.23.3 — 2026-09-12
+
+- Chart axis ticks are rounded before they are printed. The Desk's default
+  tick formatter receives values with float noise (300.00000000000006) and
+  prints "300.00"; Wajha's charts now format ticks and tooltips themselves
+  (plain integers, K and M above a thousand and a million).
+
 ## 0.23.2 — 2026-09-12
 
-- The "Others" bar sums whole numbers to a whole number, so a count chart's axis no longer shows "300.00".
+- The "Others" bar sums whole-number counts to a whole number instead of a
+  float.
 
 ## 0.23.1 — 2026-09-12
 
