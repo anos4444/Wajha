@@ -254,7 +254,7 @@ class WajhaShell {
 					</div>
 					<nav class="wj-nav" id="wj-nav"></nav>
 					${layout.show_language_switch ? `<button class="wj-desk-link wj-lang-link" type="button" title="${__("Switch language")}">
-						<span><span class="wj-btn-icon" aria-hidden="true">${wj_icon('fa-language')}</span> ${esc(WJ_OTHER_LANG.label)}</span>
+						<span><span class="wj-btn-icon" aria-hidden="true">${wj_icon('fa-globe')}</span> ${esc(WJ_OTHER_LANG.label)}</span>
 					</button>` : ''}
 					${layout.show_desk_link ? `<button class="wj-desk-link" type="button">
 						<span>↩ ${__("Back to Frappe")}</span>${WJ_AR ? '<span class="wj-en">Frappe Desk</span>' : ''}
@@ -398,6 +398,14 @@ class WajhaShell {
 
 	render_chips(layout) {
 		const $c = this.$shell.find('.wj-chips').empty();
+		if (layout.show_language_switch) {
+			// First in the row so it is found without hunting: one click flips
+			// the user's language and reloads. The pill names the language it
+			// switches *to*, in that language's own script.
+			$(`<button type="button" class="wj-chip wj-chip-lang" title="${__("Switch language")}">
+				<span class="wj-btn-icon" aria-hidden="true">${wj_icon('fa-globe')}</span>${esc(WJ_OTHER_LANG.label)}</button>`)
+				.on('click', () => this.switch_language()).appendTo($c);
+		}
 		if (layout.show_user_chip && this.cfg.user) {
 			// The chip is the way to the user's own settings page (name,
 			// photo, password, language): Frappe's, one link away, as the
@@ -405,13 +413,6 @@ class WajhaShell {
 			const me = this.cfg.user.name || '';
 			$(`<a class="wj-chip wj-chip-user" href="${esc(wj_url(['user', me]))}" title="${__("My Settings")}">
 				<span class="wj-btn-icon" aria-hidden="true">${wj_icon('fa-circle-user')}</span>${esc(this.cfg.user.full_name || me)}</a>`).appendTo($c);
-		}
-		if (layout.show_language_switch) {
-			// One click flips the user's language and reloads; the chip names
-			// the language it switches *to*, in that language's own script.
-			$(`<button type="button" class="wj-chip wj-chip-lang" title="${__("Switch language")}">
-				<span class="wj-btn-icon" aria-hidden="true">${wj_icon('fa-language')}</span>${esc(WJ_OTHER_LANG.label)}</button>`)
-				.on('click', () => this.switch_language()).appendTo($c);
 		}
 		if (layout.show_clock) {
 			const $clock = $('<span class="wj-chip"></span>').appendTo($c);

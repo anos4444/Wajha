@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.25.0 — 2026-09-12
+
+- **Icons are back.** Every Font Awesome glyph in the shell (header chips,
+  sidebar modules, tiles, cards) had silently collapsed to 0×0 on Frappe 16:
+  the Desk bundle gives `.icon` a font-size of 0 and the shell sized them
+  at 1em. The shell now restores the surrounding font size first.
+- **Language pill first in the header.** The switch is now the first chip,
+  outlined in the theme colour with a globe glyph and the target language's
+  name, so it reads as a button and is found without scrolling. The
+  sidebar copy is shown on phones only, where the header chips are hidden.
+
 ## 0.24.3 — 2026-09-12
 
 - The 0.24.2 patch failed on migrate: reading tabSingles through

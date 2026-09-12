@@ -263,10 +263,10 @@
 	opacity: .75;
 }
 
-/* The language switch sits just above the desk link; only the first of the
-   two takes the flexible gap. */
-.wj-lang-link + .wj-desk-link {
-	margin-top: 8px;
+/* The sidebar language button is the phone path only: on wide screens the
+   header pill does the job, so the sidebar stays uncluttered. */
+.wj-lang-link {
+	display: none;
 }
 
 .wj-lang-link .wj-btn-icon {
@@ -286,6 +286,7 @@
 	}
 
 	.wj-sidebar .wj-lang-link {
+		display: flex;
 		order: -1;
 		margin-top: 0;
 		margin-bottom: 4px;
@@ -1087,6 +1088,9 @@
    Desk's --icon-stroke is its own grey, not the tile's or sidebar's. */
 .wj-shell .icon {
 	--icon-stroke: currentColor;
+	/* The Desk bundle gives .icon a font-size of 0 (Frappe 16), which made
+	   the 1em box below collapse to nothing; take the surrounding size. */
+	font-size: inherit;
 	width: 1em;
 	height: 1em;
 	vertical-align: -.125em;
@@ -1108,19 +1112,34 @@
 	vertical-align: -.1em;
 }
 
+/* The language pill reads as an action, not a status chip: outlined in the
+   theme colour, first in the row, a globe glyph before the target name. */
 button.wj-chip-lang {
-	border: 0;
+	border: 1px solid var(--wj-primary);
+	background: var(--wj-surface-bg);
+	color: var(--wj-primary);
 	font: inherit;
 	font-size: 13px;
+	font-weight: 600;
 	cursor: pointer;
 	display: inline-flex;
 	align-items: center;
-	gap: 4px;
+	gap: 6px;
+}
+
+button.wj-chip-lang .wj-btn-icon {
+	margin: 0;
+}
+
+button.wj-chip-lang .icon {
+	width: 1.2em;
+	height: 1.2em;
 }
 
 button.wj-chip-lang:hover,
 button.wj-chip-lang:focus-visible {
-	color: var(--wj-primary);
+	background: var(--wj-primary);
+	color: #fff;
 	outline: none;
 }
 

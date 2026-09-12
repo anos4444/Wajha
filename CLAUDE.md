@@ -331,8 +331,9 @@ Identity and trailers (the owner's standing instruction, 2026-09-06):
   place because every label, `dir` and the translation table are fixed at
   boot. The control names the target language in its own script
   (`WJ_OTHER_LANG`), never "Arabic"/"English" translated.
-- The sidebar button is the phone path (chips are hidden under 900px); a
-  media query moves it under the drawer header with `order`, so keep
+- The header pill is the desktop path (first chip, outlined); the sidebar
+  button is the phone path only (`display: none` above 900px, shown and
+  moved under the drawer header with `order` below it), so keep
   `.wj-brand` first in the sidebar DOM.
 - **Adding a Check to Shell Settings (a Single):** the JSON `default` is
   never written for an existing site, and `get_single_value`, `doc.get`
@@ -340,3 +341,12 @@ Identity and trailers (the owner's standing instruction, 2026-09-06):
   of "on" therefore needs a patch that inspects the raw `tabSingles` row
   (plain SQL on `tabSingles`; `get_value` with a dict filter orders by a `creation` column that table lacks) and writes
   the 1 once. `show_language_switch` is the worked example.
+
+## Sprite icons and the Desk's font-size: 0 (0.25)
+
+- Frappe 16's desk bundle sets `.icon { font-size: 0; width: 20px }`. The
+  shell sizes icons with `1em`, so `.wj-shell .icon` must set
+  `font-size: inherit` before `width: 1em`, or every glyph collapses to
+  nothing while the DOM looks right (`<svg><use href="#icon-fa-…">`
+  present, symbol present, bounding box 0×0). Check bounding boxes, not
+  markup, when verifying icons in a browser.
