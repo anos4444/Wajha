@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.24.1 — 2026-09-12
+
+- The switch now actually appears on existing sites: a Single's new Check
+  field holds None rather than its default, which read as "off". A patch
+  sets it once and the config treats "never chosen" as on.
+
 ## 0.24.0 — 2026-09-12
 
 **One-click language switch.** A chip in the header (desktop) and a button
