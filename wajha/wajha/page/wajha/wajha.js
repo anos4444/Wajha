@@ -99,6 +99,9 @@ const WJ_LANG = (frappe.boot && frappe.boot.lang) || 'en';
 const WJ_RTL = frappe.utils.is_rtl ? !!frappe.utils.is_rtl(WJ_LANG) : ['ar', 'he', 'fa', 'ur', 'ps'].includes(WJ_LANG.split('-')[0]);
 const WJ_AR = WJ_LANG.split('-')[0] === 'ar';
 const WJ_Q = WJ_AR ? '؟' : '?';
+// The language the switch flips to: Arabic users get English, everyone
+// else gets Arabic. Labelled in its own script so it reads either way.
+const WJ_OTHER_LANG = WJ_AR ? { code: 'en', label: 'English' } : { code: 'ar', label: 'العربية' };
 // Primary and secondary label for a thing that carries an Arabic label
 // and an optional English one.
 function wj_labels(ar, en) {
@@ -250,6 +253,9 @@ class WajhaShell {
 						<button type="button" class="wj-drawer-close" aria-label="${__("Close navigation menu")}">✕</button>
 					</div>
 					<nav class="wj-nav" id="wj-nav"></nav>
+					${layout.show_language_switch ? `<button class="wj-desk-link wj-lang-link" type="button" title="${__("Switch language")}">
+						<span><span class="wj-btn-icon" aria-hidden="true">${wj_icon('fa-language')}</span> ${esc(WJ_OTHER_LANG.label)}</span>
+					</button>` : ''}
 					${layout.show_desk_link ? `<button class="wj-desk-link" type="button">
 						<span>↩ ${__("Back to Frappe")}</span>${WJ_AR ? '<span class="wj-en">Frappe Desk</span>' : ''}
 					</button>` : ''}
@@ -277,6 +283,7 @@ class WajhaShell {
 		this.render_nav();
 		this.render_tabbar();
 		this.render_chips(layout);
+		this.$shell.find('.wj-lang-link').on('click', () => this.switch_language());
 		this.bind_drawer();
 		// The shell hides Frappe's own sidebar and app switcher on its route, so
 		// without this a user has no visible way to reach the other apps; the
@@ -399,6 +406,13 @@ class WajhaShell {
 			$(`<a class="wj-chip wj-chip-user" href="${esc(wj_url(['user', me]))}" title="${__("My Settings")}">
 				<span class="wj-btn-icon" aria-hidden="true">${wj_icon('fa-circle-user')}</span>${esc(this.cfg.user.full_name || me)}</a>`).appendTo($c);
 		}
+		if (layout.show_language_switch) {
+			// One click flips the user's language and reloads; the chip names
+			// the language it switches *to*, in that language's own script.
+			$(`<button type="button" class="wj-chip wj-chip-lang" title="${__("Switch language")}">
+				<span class="wj-btn-icon" aria-hidden="true">${wj_icon('fa-language')}</span>${esc(WJ_OTHER_LANG.label)}</button>`)
+				.on('click', () => this.switch_language()).appendTo($c);
+		}
 		if (layout.show_clock) {
 			const $clock = $('<span class="wj-chip"></span>').appendTo($c);
 			const tick = () => $clock.text(frappe.datetime.now_datetime().replace('T', ' '));
@@ -406,6 +420,21 @@ class WajhaShell {
 			this._clock = setInterval(tick, 1000);
 			$(window).on('hashchange', () => clearInterval(this._clock));
 		}
+	}
+
+	switch_language() {
+		if (this._switching) return;
+		this._switching = true;
+		this.$shell.find('.wj-chip-lang, .wj-lang-link').prop('disabled', true);
+		frappe.call({
+			method: 'wajha.api.set_language',
+			args: { lang: WJ_OTHER_LANG.code },
+			callback: () => window.location.reload(),
+			error: () => {
+				this._switching = false;
+				this.$shell.find('.wj-chip-lang, .wj-lang-link').prop('disabled', false);
+			},
+		});
 	}
 
 	bind_drawer() {

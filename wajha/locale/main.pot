@@ -1500,3 +1500,22 @@ msgstr ""
 #: wajha/wajha/doctype/shell_settings/shell_settings.json
 msgid "لوحة مؤشرات Frappe (بطاقات أرقام ومخططات) تُعرض في الصفحة الرئيسية لأصحاب الدور. أول صف يطابق أدوار المستخدم يُعرض؛ ومن لا يطابقه أي صف يرى بطاقات الخدمة الذاتية فقط."
 msgstr ""
+
+#. Label of the show_language_switch (Check) field in DocType 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "عرض مبدّل اللغة"
+msgstr ""
+
+#. Description of the show_language_switch (Check) field in DocType 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "زر في شريط الرأس وفي القائمة الجانبية يبدّل لغة المستخدم بين العربية والإنجليزية بنقرة واحدة."
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:256
+#: wajha/wajha/page/wajha/wajha.js:412
+msgid "Switch language"
+msgstr ""
+
+#: wajha/api.py:167
+msgid "Unknown language: {0}"
+msgstr ""

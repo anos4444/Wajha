@@ -35,6 +35,7 @@
   "col_l1",
   "show_clock",
   "show_user_chip",
+  "show_language_switch",
   "show_desk_link",
   "footer_note",
   "sec_dashboards",
@@ -150,6 +151,13 @@
    "default": "1"
   },
   {
+   "fieldname": "show_language_switch",
+   "fieldtype": "Check",
+   "label": "عرض مبدّل اللغة",
+   "default": "1",
+   "description": "زر في شريط الرأس وفي القائمة الجانبية يبدّل لغة المستخدم بين العربية والإنجليزية بنقرة واحدة."
+  },
+  {
    "default": "1",
    "fieldname": "show_desk_link",
    "fieldtype": "Check",
@@ -237,7 +245,7 @@
  "owner": "Administrator",
  "modified_by": "Administrator",
  "creation": "2026-08-07 09:00:00.000000",
- "modified": "2026-09-12 12:00:00.000000",
+ "modified": "2026-09-12 14:00:00.000000",
  "idx": 0,
  "links": [],
  "states": []

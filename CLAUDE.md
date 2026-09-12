@@ -319,3 +319,18 @@ Identity and trailers (the owner's standing instruction, 2026-09-06):
 - The HR pack (`packs/hr_dashboard.py`) creates records only when absent,
   looks Number Cards up by label + document_type because Number Card has
   no autoname, and fills the role table only while it is empty.
+
+## Language switch (0.24)
+
+- `wajha.api.set_language(lang)` writes `User.language` and then calls
+  `frappe.clear_cache(user=...)`. Both halves matter: Frappe caches the
+  resolved language per user (`lang` hash) and the whole boot payload
+  (`bootinfo`, carrying `__messages` and `wajha_config`); without the
+  clear the next reload would still come up in the old language.
+- The client reloads the page after the call; nothing is re-rendered in
+  place because every label, `dir` and the translation table are fixed at
+  boot. The control names the target language in its own script
+  (`WJ_OTHER_LANG`), never "Arabic"/"English" translated.
+- The sidebar button is the phone path (chips are hidden under 900px); a
+  media query moves it under the drawer header with `order`, so keep
+  `.wj-brand` first in the sidebar DOM.

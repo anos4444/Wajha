@@ -136,6 +136,7 @@ def get_config():
             "mobile_breakpoint": cint(s.mobile_breakpoint) or 900,
             "show_clock": bool(s.show_clock),
             "show_user_chip": bool(s.show_user_chip),
+            "show_language_switch": bool(s.show_language_switch) if s.meta.has_field("show_language_switch") else True,
             # Absent field (site not yet migrated to 0.9) counts as on: the exit
             # to the rest of the Desk must never disappear by accident.
             "show_desk_link": bool(s.show_desk_link) if s.meta.has_field("show_desk_link") else True,
@@ -150,6 +151,26 @@ def get_config():
             "full_name": frappe.utils.get_fullname(frappe.session.user),
         },
     }
+
+
+@frappe.whitelist()
+def set_language(lang):
+    """Switch the signed-in user's language; the shell reloads afterwards.
+
+    Writes User.language the way the user's own settings page would, then
+    clears that user's caches: Frappe keeps the resolved language and the
+    whole boot payload (with the translated `__messages` and the shell
+    config) per user, and both would otherwise serve the old language
+    until they expired."""
+    lang = (lang or "").strip()
+    if not lang or not frappe.db.exists("Language", lang):
+        frappe.throw(frappe._("Unknown language: {0}").format(lang))
+    user = frappe.session.user
+    if user == "Guest":
+        frappe.throw(frappe._("Not permitted"), frappe.PermissionError)
+    frappe.db.set_value("User", user, "language", lang, update_modified=False)
+    frappe.clear_cache(user=user)
+    return lang
 
 
 @frappe.whitelist(allow_guest=True)

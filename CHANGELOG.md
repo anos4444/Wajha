@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.24.0 — 2026-09-12
+
+**One-click language switch.** A chip in the header (desktop) and a button
+in the side menu (under the drawer header on phones) flip the signed-in
+user's language between Arabic and English and reload the shell. The
+control is labelled with the language it switches *to*, in that
+language's own script ("English" on the Arabic shell, "العربية" on the
+English one). It writes `User.language` exactly as the user's own settings
+page would, so the Desk and every other app follow, and clears that user's
+boot and language caches so the change is immediate. Off switch: Shell
+Settings → "Show the language switch".
+
 ## 0.23.3 — 2026-09-12
 
 - Chart axis ticks are rounded before they are printed. The Desk's default

@@ -263,6 +263,35 @@
 	opacity: .75;
 }
 
+/* The language switch sits just above the desk link; only the first of the
+   two takes the flexible gap. */
+.wj-lang-link + .wj-desk-link {
+	margin-top: 8px;
+}
+
+.wj-lang-link .wj-btn-icon {
+	margin-inline-end: 4px;
+}
+
+.wj-desk-link:disabled {
+	opacity: .5;
+	cursor: wait;
+}
+
+/* In the phone drawer the module list is long, so the language switch moves
+   up under the brand header where a thumb finds it without scrolling. */
+@media (max-width: 900px) {
+	.wj-sidebar .wj-brand {
+		order: -2;
+	}
+
+	.wj-sidebar .wj-lang-link {
+		order: -1;
+		margin-top: 0;
+		margin-bottom: 4px;
+	}
+}
+
 /* When the desk link is present it takes the flexible gap; the footer note
    sits just below it instead of pushing to the bottom on its own. */
 .wj-desk-link + .wj-foot {
@@ -1077,6 +1106,27 @@
 	display: inline-flex;
 	margin-inline-end: 6px;
 	vertical-align: -.1em;
+}
+
+button.wj-chip-lang {
+	border: 0;
+	font: inherit;
+	font-size: 13px;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+}
+
+button.wj-chip-lang:hover,
+button.wj-chip-lang:focus-visible {
+	color: var(--wj-primary);
+	outline: none;
+}
+
+button.wj-chip-lang:disabled {
+	opacity: .5;
+	cursor: wait;
 }
 
 a.wj-chip-user {

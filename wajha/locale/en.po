@@ -1535,3 +1535,22 @@ msgstr "Human Resources"
 
 msgid "الموظفون"
 msgstr "Employees"
+
+#. Label of the show_language_switch (Check) field in DocType 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "عرض مبدّل اللغة"
+msgstr "Show the language switch"
+
+#. Description of the show_language_switch (Check) field in DocType 'Shell Settings'
+#: wajha/wajha/doctype/shell_settings/shell_settings.json
+msgid "زر في شريط الرأس وفي القائمة الجانبية يبدّل لغة المستخدم بين العربية والإنجليزية بنقرة واحدة."
+msgstr "A button in the header and in the side menu that flips the user's language between Arabic and English in one click."
+
+#: wajha/wajha/page/wajha/wajha.js:256
+#: wajha/wajha/page/wajha/wajha.js:412
+msgid "Switch language"
+msgstr ""
+
+#: wajha/api.py:167
+msgid "Unknown language: {0}"
+msgstr ""
