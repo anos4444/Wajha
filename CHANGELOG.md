@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.22.1 — 2026-09-12
+
+**List headers and filter labels follow the reader's language.** A
+Translation record for "Time" changed the record card but not the column
+header above the check-in list: `get_module_meta` returned the stored
+column and filter labels as they were, with no `frappe._`, while the
+record card had translated its labels at request time since the start.
+The same call now translates column labels, filter labels and the module
+title, so a list header reads Arabic for an Arabic user and any
+Translation record reaches it the moment it is saved.
+
 ## 0.22.0 — 2026-09-10
 
 **Sidebar module names follow the reader's language.** On a site with a

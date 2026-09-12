@@ -498,9 +498,13 @@ def get_module_meta(module_key):
     by_name = {df.fieldname: df for df in meta.fields}
     _fields, _real, status_field = _allowed_fields(module)
 
+    # Column and filter labels are stored as the DocType's own English label
+    # (or as an administrator typed them); frappe._ gives each reader their
+    # language and lets a Translation record reach the list header, exactly
+    # as it already reaches the record card.
     columns = [{
         "fieldname": c.fieldname,
-        "label": c.label or (by_name[c.fieldname].label if c.fieldname in by_name else c.fieldname),
+        "label": frappe._(c.label or (by_name[c.fieldname].label if c.fieldname in by_name else c.fieldname)),
         "format": c.format or "Text",
         "width": c.width,
         "align": c.align or "start",
@@ -516,7 +520,7 @@ def get_module_meta(module_key):
                 options = [o for o in (by_name[f.fieldname].options or "").split("\n") if o.strip()]
         filters.append({
             "fieldname": f.fieldname,
-            "label": f.label or (by_name[f.fieldname].label if f.fieldname in by_name else f.fieldname),
+            "label": frappe._(f.label or (by_name[f.fieldname].label if f.fieldname in by_name else f.fieldname)),
             "control": f.control or "Text",
             "options": options,
             "link_doctype": f.options if f.control == "Link" else None,
@@ -524,7 +528,7 @@ def get_module_meta(module_key):
 
     return {
         "module_key": module.module_key,
-        "label": module.module_label,
+        "label": module_label(module),
         "label_en": module.module_label_en,
         "virtual": bool(getattr(module, "name", "") and str(module.name).startswith("~")),
         "doctype": module.ref_doctype,
