@@ -1429,7 +1429,7 @@ msgid "HR Overview"
 msgstr "نظرة عامة على الموارد البشرية"
 
 #: wajha/translatable.py:45
-msgid "Active employees"
+msgid "Active Employees"
 msgstr "الموظفون النشطون"
 
 #: wajha/translatable.py:46
@@ -1455,6 +1455,10 @@ msgstr "طلبات الإجازة حسب الحالة"
 #: wajha/translatable.py:51
 msgid "Joining trend"
 msgstr "اتجاه الالتحاق"
+
+#: wajha/dashboard.py:203
+msgid "Others"
+msgstr "أخرى"
 
 #: wajha/dashboard.py:170
 msgid "vs yesterday"

@@ -186,6 +186,25 @@ def _number_card_stat(card):
                 hint=hint, icon="fa-chart-simple")
 
 
+def _limit_groups(data, n):
+    """Keep the n-1 largest groups and fold the rest into one "Others" bar.
+
+    The Desk applies a Group By chart's `number_of_groups` in the browser;
+    the server call returns every group, so a chart over 60 departments
+    would come back as 60 hair-thin bars. Same rule as the Desk widget."""
+    labels = list(data.get("labels") or [])
+    sets = data.get("datasets") or []
+    if n < 2 or len(labels) <= n or not sets:
+        return data
+    values = list(sets[0].get("values") or [])
+    keep = n - 1
+    rest = sum(flt(v) for v in values[keep:])
+    out = dict(data)
+    out["labels"] = labels[:keep] + [frappe._("Others")]
+    out["datasets"] = [dict(sets[0], values=values[:keep] + [rest])] + list(sets[1:])
+    return out
+
+
 def _frappe_dashboard(name):
     from frappe.desk.doctype.dashboard_chart.dashboard_chart import get as get_chart
 
@@ -216,6 +235,8 @@ def _frappe_dashboard(name):
             data = get_chart(chart_name=chart.name)
             if not data or not data.get("labels"):
                 continue
+            if chart.chart_type == "Group By":
+                data = _limit_groups(data, cint(chart.number_of_groups))
             charts.append({
                 "kind": "chart", "name": chart.name, "label": frappe._(chart.chart_name or chart.name),
                 "type": chart.type, "color": chart.color, "timeseries": cint(chart.timeseries),

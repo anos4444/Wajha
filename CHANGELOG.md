@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.23.1 — 2026-09-12
+
+- Group By charts now honour their `number_of_groups`: the Desk applies
+  that limit in the browser, the server call does not, so "Employees per
+  department" arrived as sixty hair-thin bars. Wajha keeps the largest
+  groups and folds the rest into one "Others" bar, as the Desk widget does.
+- The HR pack's first card is "Active Employees", the label HRMS already
+  ships on its own Number Card, so the pack reuses that card instead of
+  creating a near-duplicate, and the label is translated.
+
 ## 0.23.0 — 2026-09-12
 
 **Dashboards on Home: Frappe's data, Wajha's rendering.** The Home page

@@ -49,7 +49,7 @@ SITE_GROUPS = [
 # Dashboard records; the Home page reads them back through frappe._.
 HR_DASHBOARD = [
     _lt("HR Overview"),
-    _lt("Active employees"),
+    _lt("Active Employees"),
     _lt("Pending leave approvals"),
     _lt("Pending expense claims"),
     _lt("Open job openings"),

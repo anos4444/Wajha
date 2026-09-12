@@ -18,7 +18,7 @@ ROLES = ["HR Manager", "HR User"]
 
 # label, doctype, filters
 CARDS = [
-    ("Active employees", "Employee", [["Employee", "status", "=", "Active"]]),
+    ("Active Employees", "Employee", [["Employee", "status", "=", "Active"]]),
     ("Pending leave approvals", "Leave Application",
      [["Leave Application", "status", "=", "Open"], ["Leave Application", "docstatus", "=", 0]]),
     ("Pending expense claims", "Expense Claim",
