@@ -1,10 +1,16 @@
 # Changelog
 
+## 0.24.2 — 2026-09-12
+
+- The switch now actually appears on existing sites. A Single never
+  receives the default of a Check field added after its creation, and
+  Frappe reads the missing value as 0, not None, so the 0.24.1 patch saw
+  "already chosen" and did nothing. The patch now looks at the raw
+  tabSingles row and writes the default once.
+
 ## 0.24.1 — 2026-09-12
 
-- The switch now actually appears on existing sites: a Single's new Check
-  field holds None rather than its default, which read as "off". A patch
-  sets it once and the config treats "never chosen" as on.
+- First attempt at the fix above; superseded by 0.24.2.
 
 ## 0.24.0 — 2026-09-12
 

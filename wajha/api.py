@@ -136,9 +136,9 @@ def get_config():
             "mobile_breakpoint": cint(s.mobile_breakpoint) or 900,
             "show_clock": bool(s.show_clock),
             "show_user_chip": bool(s.show_user_chip),
-            # A site that never chose keeps the default (on); a Single holds
-            # None for a field added after it was created.
-            "show_language_switch": s.get("show_language_switch") is None or bool(s.show_language_switch),
+            # Default on; the language_switch_default patch writes the 1 that
+            # a Single never receives for a field added after its creation.
+            "show_language_switch": bool(s.show_language_switch),
             # Absent field (site not yet migrated to 0.9) counts as on: the exit
             # to the rest of the Desk must never disappear by accident.
             "show_desk_link": bool(s.show_desk_link) if s.meta.has_field("show_desk_link") else True,

@@ -334,3 +334,9 @@ Identity and trailers (the owner's standing instruction, 2026-09-06):
 - The sidebar button is the phone path (chips are hidden under 900px); a
   media query moves it under the drawer header with `order`, so keep
   `.wj-brand` first in the sidebar DOM.
+- **Adding a Check to Shell Settings (a Single):** the JSON `default` is
+  never written for an existing site, and `get_single_value`, `doc.get`
+  and the attribute all cast the missing row to 0, never None. A default
+  of "on" therefore needs a patch that inspects the raw `tabSingles` row
+  (`frappe.db.get_value("Singles", {...}, "value") is None`) and writes
+  the 1 once. `show_language_switch` is the worked example.

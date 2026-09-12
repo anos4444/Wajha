@@ -7,4 +7,4 @@ wajha.patches.emoji_icons_to_glyphs
 wajha.patches.fa_colon_to_symbol
 wajha.patches.group_source_titles
 wajha.patches.module_label_source
-wajha.patches.language_switch_default
+wajha.patches.language_switch_default #0.24.2 raw tabSingles check
