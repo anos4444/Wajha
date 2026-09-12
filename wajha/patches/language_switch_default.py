@@ -11,9 +11,12 @@ import frappe
 
 
 def execute():
-    stored = frappe.db.get_value(
-        "Singles", {"doctype": "Shell Settings", "field": "show_language_switch"}, "value"
+    # Plain SQL: tabSingles has no creation column, and get_value with a
+    # dict filter orders by it.
+    row = frappe.db.sql(
+        "select value from `tabSingles` where doctype=%s and field=%s",
+        ("Shell Settings", "show_language_switch"),
     )
-    if stored is None:
+    if not row:
         frappe.db.set_single_value("Shell Settings", "show_language_switch", 1)
         frappe.clear_cache()

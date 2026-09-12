@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.24.3 — 2026-09-12
+
+- The 0.24.2 patch failed on migrate: reading tabSingles through
+  get_value with a filter orders by a creation column that table lacks.
+  It now reads the row with plain SQL.
+
 ## 0.24.2 — 2026-09-12
 
 - The switch now actually appears on existing sites. A Single never
