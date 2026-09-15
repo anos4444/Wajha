@@ -1554,3 +1554,110 @@ msgstr ""
 #: wajha/api.py:167
 msgid "Unknown language: {0}"
 msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:559
+msgid "View"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:560
+msgid "Table"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:560
+msgid "Cards"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:560
+msgid "Kanban"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:898
+msgid "records"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:895
+msgid "+{0} more"
+msgstr ""
+
+#: wajha/api.py:632
+msgid "Not set"
+msgstr ""
+
+#: wajha/api.py:606
+msgid "This module has no Kanban field"
+msgstr ""
+
+#. Label of the sec_views (Section Break) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "طرق العرض"
+msgstr "Views"
+
+#. Label of the default_view (Select) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "طريقة العرض الافتراضية"
+msgstr "Default view"
+
+#. Description of the default_view (Select) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "جدول، أو بطاقات بصورة وعنوان، أو كانبان بأعمدة حسب حقل. يبدّل المستخدم بينها من أزرار أعلى القائمة ويُحفظ اختياره."
+msgstr "A table, cards with a picture and a title, or a kanban board with one column per value of a field. Users switch with the buttons above the list and their choice is remembered."
+
+#. Label of the card_image_field (Data) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "حقل الصورة"
+msgstr "Image field"
+
+#. Description of the card_image_field (Data) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "اختياري. حقل صورة على المستند (image مثلًا). يُكتشف تلقائيًا من نوع المستند إن تُرك فارغًا."
+msgstr "Optional. An image field on the document (image, say). Detected from the DocType when left blank."
+
+#. Label of the card_title_field (Data) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "حقل العنوان"
+msgstr "Title field"
+
+#. Description of the card_title_field (Data) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "اختياري. الافتراضي: حقل العنوان في نوع المستند ثم أول عمود."
+msgstr "Optional. Default: the DocType's title field, then the first column."
+
+#. Label of the card_subtitle_field (Data) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "حقل العنوان الفرعي"
+msgstr "Subtitle field"
+
+#. Description of the card_subtitle_field (Data) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "اختياري. المسمى الوظيفي مثلًا. الافتراضي: العمود التالي."
+msgstr "Optional. The designation, say. Default: the next column."
+
+#. Label of the card_meta_fields (Data) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "حقول إضافية على البطاقة"
+msgstr "Extra card fields"
+
+#. Description of the card_meta_fields (Data) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "أسماء حقول مفصولة بفواصل تظهر أسطرًا على البطاقة؛ البريد والهاتف يأخذان أيقونتهما تلقائيًا."
+msgstr "Comma-separated field names shown as lines on the card; email and phone get their own glyph automatically."
+
+#. Label of the card_badge_fields (Data) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "حقول الوسوم"
+msgstr "Badge fields"
+
+#. Description of the card_badge_fields (Data) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "أسماء حقول مفصولة بفواصل تظهر وسومًا ملونة على البطاقة (القسم، نوع التوظيف…)."
+msgstr "Comma-separated field names shown as coloured badges on the card (department, employment type…)."
+
+#. Label of the kanban_field (Data) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "حقل الكانبان"
+msgstr "Kanban field"
+
+#. Description of the kanban_field (Data) field in DocType 'Shell Module'
+#: wajha/wajha/doctype/shell_module/shell_module.json
+msgid "اختياري. حقل اختيار أو ارتباط تُبنى أعمدة الكانبان من قيمه. الافتراضي: حقل الحالة إن كان حقل اختيار."
+msgstr "Optional. A Select or Link field whose values become the kanban columns. Default: the status field when it is a Select."
