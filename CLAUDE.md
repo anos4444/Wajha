@@ -350,3 +350,22 @@ Identity and trailers (the owner's standing instruction, 2026-09-06):
   nothing while the DOM looks right (`<svg><use href="#icon-fa-…">`
   present, symbol present, bounding box 0×0). Check bounding boxes, not
   markup, when verifying icons in a browser.
+
+## Views: table, cards, kanban (0.26)
+
+- One list frame, three containers (`.wj-table-wrap` + phone `.wj-cards`,
+  `.wj-kcards`, `.wj-kanban`); `state.view` puts `wj-view-<v>` on the list
+  card and CSS decides what shows. `load_rows()` hands off to
+  `load_kanban()` when the view is kanban, so search, filters and status
+  chips need no view-specific code.
+- `api._card_config` is the single resolver for what a card draws (image,
+  title, subtitle, meta lines with a kind: email/phone/text, badges, the
+  kanban field). It runs inside `_compute_allowed_fields` too, so those
+  fields ride along in every row; the field cache clears on Shell Module
+  save as before.
+- `get_module_kanban` groups server-side, at most `KANBAN_MAX_ROWS` rows
+  and `KANBAN_MAX_PER_COLUMN` cards per column; a Select keeps its options'
+  order with empty columns, other fields sort by count.
+- The two view glyphs (`icon-wj-cards`, `icon-wj-kanban`) are hand-drawn
+  symbols at the end of `fa.svg`, not Font Awesome; `icons.py` only lists
+  `icon-fa-*` names, so they stay out of the picker on purpose.

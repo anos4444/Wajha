@@ -399,6 +399,14 @@
 	align-items: flex-end;
 	flex: 1 1 260px;
 	min-width: 0;
+	/* The view switch and New must never overflow under the filter fields
+	   painted after them; wrap instead. */
+	flex-wrap: wrap;
+}
+
+.wj-search-row .wj-view-switch,
+.wj-search-row .wj-new {
+	flex: none;
 }
 
 .wj-search-row .wj-search-field {
@@ -2286,5 +2294,266 @@ body[data-route^="wajha/"] .page-container {
 @media (max-width: 700px) {
 	.wj-charts {
 		grid-template-columns: 1fr;
+	}
+}
+
+/* ------------------------------------------------------------ views (0.26)
+   Table, Cards or Kanban for a list module. The switch sits with the search;
+   which of the three containers shows is one class on the list card. */
+.wj-view-switch {
+	display: inline-flex;
+	gap: 2px;
+	padding: 2px;
+	border-radius: 10px;
+	background: var(--wj-page-bg);
+	align-self: end;
+}
+
+.wj-view-btn {
+	appearance: none;
+	border: 0;
+	background: transparent;
+	color: var(--wj-muted-ink);
+	padding: 7px 10px;
+	border-radius: 8px;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	font: inherit;
+	line-height: 1;
+}
+
+.wj-view-btn .icon {
+	width: 1.15em;
+	height: 1.15em;
+}
+
+.wj-view-btn:hover,
+.wj-view-btn:focus-visible {
+	color: var(--wj-primary);
+	outline: none;
+}
+
+.wj-view-btn[aria-pressed="true"] {
+	background: var(--wj-surface-bg);
+	color: var(--wj-primary);
+	box-shadow: var(--wj-shadow);
+}
+
+.wj-kcards,
+.wj-kanban {
+	display: none;
+}
+
+.wj-list-card.wj-view-cards .wj-kcards {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+	gap: 12px;
+	padding: 12px 16px;
+}
+
+.wj-list-card.wj-view-cards .wj-table-wrap,
+.wj-list-card.wj-view-cards .wj-cards,
+.wj-list-card.wj-view-kanban .wj-table-wrap,
+.wj-list-card.wj-view-kanban .wj-cards,
+.wj-list-card.wj-view-kanban .wj-pager-controls,
+.wj-list-card.wj-view-kanban .wj-pager-bottom,
+.wj-list-card.wj-view-kanban .wj-sentinel {
+	display: none !important;
+}
+
+.wj-list-card.wj-view-kanban .wj-kanban {
+	display: flex;
+	gap: 12px;
+	align-items: flex-start;
+	overflow-x: auto;
+	padding: 12px 16px 16px;
+	scroll-snap-type: x proximity;
+}
+
+.wj-kanban-col {
+	flex: 0 0 290px;
+	max-width: 290px;
+	display: flex;
+	flex-direction: column;
+	max-height: 72vh;
+	background: var(--wj-page-bg);
+	border-radius: 12px;
+	padding: 8px;
+	scroll-snap-align: start;
+}
+
+.wj-kanban-col header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 8px 10px;
+	font-weight: 600;
+}
+
+.wj-kanban-count {
+	color: var(--wj-muted-ink);
+	font-weight: 500;
+	font-size: 13px;
+}
+
+.wj-kanban-body {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	overflow-y: auto;
+	min-height: 40px;
+}
+
+.wj-kanban-more {
+	text-align: center;
+	color: var(--wj-muted-ink);
+	font-size: 13px;
+	padding: 6px;
+}
+
+.wj-kcard {
+	display: flex;
+	gap: 12px;
+	padding: 12px;
+	background: var(--wj-surface-bg);
+	border: 1px solid var(--wj-border);
+	border-radius: 12px;
+	color: var(--wj-ink);
+	text-decoration: none;
+	text-align: start;
+	cursor: pointer;
+	min-width: 0;
+}
+
+.wj-kcard:hover,
+.wj-kcard:focus-visible {
+	border-color: var(--wj-primary);
+	box-shadow: var(--wj-shadow);
+	color: var(--wj-ink);
+	outline: none;
+}
+
+.wj-kcard-img,
+.wj-kcard-initials {
+	flex: none;
+	width: 64px;
+	height: 64px;
+	border-radius: 12px;
+	object-fit: cover;
+	background: var(--wj-page-bg);
+}
+
+.wj-kcard-initials {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 700;
+	font-size: 20px;
+	background: hsl(var(--wj-hue) 55% 90%);
+	color: hsl(var(--wj-hue) 45% 32%);
+}
+
+.wj-kcard-main {
+	flex: 1 1 auto;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.wj-kcard-head {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	gap: 8px;
+}
+
+.wj-kcard-title {
+	font-weight: 600;
+	font-size: 15px;
+	line-height: 1.35;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.wj-kcard-sub {
+	color: var(--wj-muted-ink);
+	font-size: 13px;
+}
+
+.wj-kcard-line {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 13px;
+	min-width: 0;
+}
+
+.wj-kcard-line > span {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.wj-kcard-line .icon {
+	color: var(--wj-muted-ink);
+	flex: none;
+}
+
+.wj-kind-phone > span {
+	direction: ltr;
+	unicode-bidi: isolate;
+}
+
+.wj-kcard-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	margin-top: 2px;
+}
+
+.wj-tag {
+	font-size: 12px;
+	padding: 2px 9px;
+	border-radius: 999px;
+	background: hsl(var(--wj-hue) 60% 90%);
+	color: hsl(var(--wj-hue) 45% 30%);
+	white-space: nowrap;
+}
+
+.wj-kcard-compact {
+	padding: 10px;
+	gap: 10px;
+}
+
+.wj-kcard-compact .wj-kcard-img,
+.wj-kcard-compact .wj-kcard-initials {
+	width: 44px;
+	height: 44px;
+	border-radius: 10px;
+	font-size: 16px;
+}
+
+.wj-kcard-compact .wj-kcard-title {
+	font-size: 14px;
+}
+
+@media (max-width: 700px) {
+	.wj-list-card.wj-view-cards .wj-kcards {
+		grid-template-columns: 1fr;
+		padding: 10px;
+	}
+
+	.wj-kanban-col {
+		flex-basis: 84vw;
+		max-width: 84vw;
+	}
+
+	.wj-view-btn {
+		padding: 8px 9px;
 	}
 }

@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.26.0 — 2026-09-15
+
+**Table, Cards or Kanban for every list module.** A switch beside the
+search (remembered per module in the browser) offers three ways to read
+the same records:
+
+- **Cards.** A grid, one card per record: the document's image or coloured
+  initials, the title, a subtitle, extra lines (email and phone with their
+  glyph), coloured badges and the status chip. Employees read the way an
+  HR app shows them.
+- **Kanban.** One column per value of a field, the columns of a Select in
+  its options' order (empty ones included), anything else by size; cards
+  inside, "+n more" when a column is long. The grouping runs on the server
+  in one round trip and respects the module's scope, filters and search.
+- **Table.** As before.
+
+Shell Module gains a *Views* section: default view, image, title,
+subtitle, extra and badge fields, kanban field. Everything is optional and
+derived from the DocType when blank (its image and title fields, then the
+ordered columns), so existing modules get sensible cards with no edits.
+
 ## 0.25.0 — 2026-09-12
 
 - **Icons are back.** Every Font Awesome glyph in the shell (header chips,

@@ -32,6 +32,8 @@ TOKEN_FIELDS = [
 ]
 
 MAX_PAGE_LENGTH = 500  # ERPNext's own largest list page
+KANBAN_MAX_ROWS = 500  # rows a kanban board groups at most; beyond that, filter first
+KANBAN_MAX_PER_COLUMN = 40  # cards shown per column before "+n more"
 
 # Native ERPNext docstatus values, exposed to the client so it never has to
 # guess badge text/colour on its own.
@@ -341,9 +343,92 @@ def _compute_allowed_fields(module):
     if status_field and status_field not in out:
         out.append(status_field)
 
+    # Whatever the card and kanban views draw has to come back in every row.
+    for f in _card_config(module, meta, by_name, out, status_field)["fields"]:
+        if f in real and f not in out:
+            out.append(f)
+
     if "name" not in out:
         out.insert(0, "name")
     return out, real, status_field
+
+
+def _card_config(module, meta, by_name, columns, status_field):
+    """What the Cards and Kanban views draw for a module, resolved from the
+    module's own settings first and the DocType's shape second.
+
+    An administrator may name each part on the Shell Module; anything left
+    blank is derived: the DocType's image field, its title field, then the
+    ordered columns minus the status. Everything is checked against the real
+    fields, so a typo or a field renamed upstream degrades to "not drawn"
+    rather than to a broken list."""
+    real = set(by_name.keys()) | {"name", "modified", "creation", "owner"}
+    if meta.is_submittable:
+        real.add("docstatus")
+
+    def ok(f):
+        if not f or f not in real:
+            return False
+        df = by_name.get(f)
+        return not (df and df.fieldtype in ("Table", "Table MultiSelect"))
+
+    def setting(name):
+        return (getattr(module, name, None) or "").strip()
+
+    def label_of(f):
+        df = by_name.get(f)
+        return frappe._(df.label) if df and df.label else f
+
+    plain = [c for c in columns if c != status_field and c != "name"]
+    image = setting("card_image_field") or (meta.image_field or "") or next(
+        (df.fieldname for df in meta.fields if df.fieldtype == "Attach Image"), "")
+    title = setting("card_title_field") or (meta.title_field or "") or (plain[0] if plain else "name")
+    if title != "name" and not ok(title):
+        title = plain[0] if plain else "name"
+    rest = [c for c in plain if c != title]
+    subtitle = setting("card_subtitle_field") or (rest[0] if rest else "")
+    rest = [c for c in rest if c != subtitle]
+    meta_fields = _split_fieldnames(setting("card_meta_fields")) or rest[:2]
+    badge_fields = _split_fieldnames(setting("card_badge_fields"))
+
+    def kind_of(f):
+        df = by_name.get(f)
+        opts = (df.options or "") if df else ""
+        if df and df.fieldtype == "Data" and opts in ("Email", "Phone"):
+            return opts.lower()
+        lf = f.lower()
+        if "email" in lf:
+            return "email"
+        if any(h in lf for h in ("mobile", "phone", "cell", "tel")):
+            return "phone"
+        return "text"
+
+    kanban = setting("kanban_field")
+    if not kanban and status_field and status_field != "docstatus":
+        df = by_name.get(status_field)
+        if df and df.fieldtype == "Select":
+            kanban = status_field
+    kb = None
+    if kanban == "docstatus" and meta.is_submittable:
+        kb = {"field": "docstatus", "label": frappe._("Status"),
+              "options": [str(k) for k in DOCSTATUS_LABELS], "docstatus": True}
+    elif ok(kanban):
+        df = by_name[kanban]
+        options = [o for o in (df.options or "").split("\n") if o.strip()] if df.fieldtype == "Select" else None
+        kb = {"field": kanban, "label": label_of(kanban), "options": options, "docstatus": False}
+
+    fields = [f for f in [image, title, subtitle] + list(meta_fields) + list(badge_fields) + [kb["field"] if kb else ""] if f]
+    return {
+        "image": image if ok(image) else "",
+        "title": title,
+        "subtitle": [subtitle] if ok(subtitle) else [],
+        "meta": [{"fieldname": f, "label": label_of(f), "kind": kind_of(f),
+                  "format": _fmt_for(by_name[f].fieldtype) if f in by_name else "Text"}
+                 for f in meta_fields if ok(f)],
+        "badges": [{"fieldname": f, "label": label_of(f)} for f in badge_fields if ok(f)],
+        "kanban": kb,
+        "fields": [f for f in fields if f in real],
+    }
 
 
 def _allowed_fields(module):
@@ -503,6 +588,60 @@ def get_module_data(module_key, page=1, filters=None, search=None,
     }
 
 
+@frappe.whitelist()
+def get_module_kanban(module_key, filters=None, search=None, status_value=None):
+    """The module's rows grouped by its kanban field: one column per value.
+
+    Same permissions, scope, filters and search as the list; the grouping
+    happens here so a board of a few hundred cards is one round trip. A
+    Select field keeps its options' order (empty columns included, the way a
+    pipeline board reads); anything else is ordered by size."""
+    module = _get_module(module_key)
+    fields, real, status_field = _allowed_fields(module)
+    meta = frappe.get_meta(module.ref_doctype)
+    by_name = {df.fieldname: df for df in meta.fields}
+    card = _card_config(module, meta, by_name, [c.fieldname for c in module.columns], status_field)
+    kb = card.get("kanban")
+    if not kb:
+        frappe.throw(frappe._("This module has no Kanban field"))
+
+    if isinstance(filters, str):
+        filters = json.loads(filters or "{}")
+    applied = scope_filters(module) + _build_filters(module, filters, real)
+    if status_value not in (None, "") and status_field:
+        applied.append([status_field, "=", status_value])
+    or_filters = _search_filters(module, search, real)
+
+    sf = module.sort_field if module.sort_field in real else "modified"
+    kwargs = dict(doctype=module.ref_doctype, fields=fields, filters=applied,
+                  order_by=f"{sf} desc", limit_page_length=KANBAN_MAX_ROWS)
+    if or_filters:
+        kwargs["or_filters"] = or_filters
+    rows = frappe.get_list(**kwargs)
+
+    field = kb["field"]
+    groups = {}
+    for o in kb.get("options") or []:
+        groups[o] = []
+    for r in rows:
+        v = r.get(field)
+        groups.setdefault("" if v is None else str(v), []).append(r)
+
+    def label(v):
+        if not v:
+            return frappe._("Not set")
+        if kb.get("docstatus") and v.isdigit():
+            return frappe._(DOCSTATUS_LABELS[int(v)])
+        return frappe._(v)
+
+    columns = [{"value": v, "label": label(v), "count": len(rs), "rows": rs[:KANBAN_MAX_PER_COLUMN]}
+               for v, rs in groups.items()]
+    if not kb.get("options"):
+        columns.sort(key=lambda c: -c["count"])
+    return {"field": field, "label": kb["label"], "columns": columns,
+            "total": len(rows), "truncated": len(rows) >= KANBAN_MAX_ROWS}
+
+
 def _module_actions(module):
     from wajha.records import module_actions
 
@@ -567,13 +706,11 @@ def get_module_meta(module_key):
         # check out) sit above the list.
         "has_form": bool(frappe.has_permission(module.ref_doctype, "create")),
         "module_actions": _module_actions(module),
-        # The phone card: the first column is the title, the next two the
-        # subtitle, status_field the chip. Chosen from the columns the module
-        # already orders, so nobody maintains a second list for phones.
-        "card": {
-            "title": columns[0]["fieldname"] if columns else "name",
-            "subtitle": [c["fieldname"] for c in columns[1:3]],
-        },
+        # The card (phone rows, the Cards grid, Kanban tiles): image, title,
+        # subtitle, extra lines and badges, from the module's own settings or
+        # derived from the DocType, so nobody maintains a second field list.
+        "card": _card_config(module, meta, by_name, [c["fieldname"] for c in columns], status_field),
+        "views": {"default": (getattr(module, "default_view", None) or "Table")},
         "status_field": status_field,
         "show_dashboard": bool(cint(getattr(module, "show_dashboard", 1))),
         "docstatus_labels": DOCSTATUS_LABELS if status_field == "docstatus" else None,

@@ -49,6 +49,20 @@ frappe.pages['wajha'].on_page_hide = function () {
 // ERPNext's own list-view sizes, so the shell paginates the way the rest of
 // the Desk does; the server clamps at MAX_PAGE_LENGTH (500), the same ceiling.
 const PAGE_LENGTHS = [20, 100, 500];
+// The three ways a list module can be read: the table, a grid of cards
+// (photo, title, subtitle, lines, badges), or a kanban board grouped by one
+// field. The choice is remembered per module in this browser.
+const VIEWS = ['table', 'cards', 'kanban'];
+const VIEW_ICONS = { table: 'fa-table-list', cards: 'wj-cards', kanban: 'wj-kanban' };
+function wj_hue(text) {
+	let h = 0;
+	for (const ch of String(text || '')) h = (h * 31 + ch.codePointAt(0)) % 360;
+	return h;
+}
+function wj_initials(text) {
+	const words = String(text || '').replace(/[|/\-]+/g, ' ').trim().split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.test(w));
+	return words.slice(0, 2).map((w) => [...w][0]).join('').toUpperCase() || '·';
+}
 
 // Below this width the list is a stack of cards, filters live in a bottom
 // sheet and the modules sit in a bottom bar. Kept apart from the 900px drawer
@@ -541,6 +555,14 @@ class WajhaShell {
 				$filter_btn.attr('aria-expanded', String(open));
 			});
 		if (!(meta.filters || []).length) $filter_btn.hide();
+		this.state.view = this.saved_view(meta);
+		const $switch = $(`<div class="wj-view-switch" role="group" aria-label="${__("View")}"></div>`).appendTo($search_row);
+		const view_labels = { table: __("Table"), cards: __("Cards"), kanban: __("Kanban") };
+		VIEWS.filter((v) => v !== 'kanban' || (meta.card && meta.card.kanban)).forEach((v) => {
+			$(`<button type="button" class="wj-view-btn" data-view="${v}" title="${view_labels[v]}" aria-label="${view_labels[v]}"
+				aria-pressed="${String(v === this.state.view)}">${wj_icon(VIEW_ICONS[v])}</button>`)
+				.on('click', () => this.set_view(v)).appendTo($switch);
+		});
 		if (meta.can_create) {
 			$(`<button class="wj-btn wj-new">＋ ${__("New")}</button>`).appendTo($search_row)
 				.on('click', () => this.open_new());
@@ -670,8 +692,11 @@ class WajhaShell {
 		$(`<div class="wj-table-wrap"><table class="wj-table">
 			<thead><tr></tr></thead><tbody></tbody></table></div>`).appendTo($card);
 		$('<div class="wj-cards" role="list"></div>').appendTo($card);
+		$('<div class="wj-kcards" role="list"></div>').appendTo($card);
+		$('<div class="wj-kanban" role="list"></div>').appendTo($card);
 		$('<div class="wj-sentinel" aria-hidden="true"></div>').appendTo($card);
 		$(pager('bottom')).appendTo($card);
+		this.apply_view();
 
 		const $tr = $card.find('thead tr');
 		if (meta.status_field) {
@@ -734,6 +759,7 @@ class WajhaShell {
 	// append=true is Load More: keep what is on screen and add the next page
 	// under it, the way ERPNext's list grows; the count then reads from row 1.
 	load_rows(append = false) {
+		if (this.state.view === 'kanban') return this.load_kanban();
 		const req_module = this.state.module.module_key;
 		this.state.loading = true;
 		if (!append && !this.state.rows.length) this.$body.find('.wj-cards').addClass('wj-skeleton');
@@ -761,9 +787,121 @@ class WajhaShell {
 		});
 	}
 
+	// ------------------------------------------------------------------ views
+	saved_view(meta) {
+		let v = '';
+		try { v = localStorage.getItem('wj_view:' + this.state.module.module_key) || ''; } catch (e) { /* private mode */ }
+		if (!VIEWS.includes(v)) v = String((meta.views && meta.views.default) || 'Table').toLowerCase();
+		if (v === 'kanban' && !(meta.card && meta.card.kanban)) v = 'table';
+		return VIEWS.includes(v) ? v : 'table';
+	}
+
+	set_view(v) {
+		if (!VIEWS.includes(v) || v === this.state.view) return;
+		this.state.view = v;
+		try { localStorage.setItem('wj_view:' + this.state.module.module_key, v); } catch (e) { /* private mode */ }
+		this.apply_view();
+		this.state.page_no = 1;
+		this.load_rows();
+	}
+
+	apply_view() {
+		const v = this.state.view || 'table';
+		const $card = this.$body.find('.wj-list-card');
+		$card.removeClass('wj-view-table wj-view-cards wj-view-kanban').addClass('wj-view-' + v);
+		$card.find('.wj-view-btn').each((_, b) => b.setAttribute('aria-pressed', String(b.dataset.view === v)));
+	}
+
+	open_row(row) {
+		this._detail_via_list = true;
+		frappe.set_route('wajha', this.state.module.module_key, row.name);
+	}
+
+	// One record as a card: photo or initials, title, subtitle, the extra
+	// lines (mail and phone get their glyph), badges, and the status chip.
+	kcard(row, compact) {
+		const meta = this.meta, card = meta.card || {};
+		const col_fmt = (f) => { const c = (meta.columns || []).find((x) => x.fieldname === f); return c ? c.format : 'Text'; };
+		const title = row[card.title] || row.name;
+		const sub = (card.subtitle || []).map((f) => this.fmt(row[f], col_fmt(f))).filter(Boolean).join(' · ');
+		const img = card.image && row[card.image];
+		const avatar = img
+			? `<img class="wj-kcard-img" src="${esc(img)}" alt="" loading="lazy">`
+			: `<span class="wj-kcard-initials" style="--wj-hue:${wj_hue(title)}" aria-hidden="true">${esc(wj_initials(title))}</span>`;
+		const lines = (card.meta || []).map((m) => {
+			const v = row[m.fieldname];
+			if (v === null || v === undefined || v === '') return '';
+			const icon = m.kind === 'email' ? wj_icon('fa-envelope') : m.kind === 'phone' ? wj_icon('fa-phone') : '';
+			return `<span class="wj-kcard-line wj-kind-${m.kind}" title="${esc(m.label)}">${icon}<span>${this.fmt(v, m.format)}</span></span>`;
+		}).join('');
+		const tags = (card.badges || []).map((b) => {
+			const v = row[b.fieldname];
+			return v ? `<span class="wj-tag" style="--wj-hue:${wj_hue(v)}" title="${esc(b.label)}">${esc(v)}</span>` : '';
+		}).join('');
+		const status = meta.status_field ? this.status_badge(row[meta.status_field]) : '';
+		return $(`<a class="wj-kcard${compact ? ' wj-kcard-compact' : ''}" role="listitem" href="${esc(wj_url(['wajha', this.state.module.module_key, row.name]))}">
+			${avatar}
+			<span class="wj-kcard-main">
+				<span class="wj-kcard-head"><span class="wj-kcard-title">${esc(title)}</span>${status}</span>
+				${sub ? `<span class="wj-kcard-sub">${sub}</span>` : ''}
+				${lines}
+				${tags ? `<span class="wj-kcard-tags">${tags}</span>` : ''}
+			</span>
+		</a>`);
+	}
+
+	render_cards() {
+		const s = this.state;
+		const $k = this.$body.find('.wj-kcards').empty();
+		if (!s.rows.length) $k.append(`<div class="wj-empty">${__("No matching records.")}</div>`);
+		s.rows.forEach((row) => wj_nav(this.kcard(row, false), () => this.open_row(row)).appendTo($k));
+		this.update_pager();
+	}
+
+	update_pager() {
+		const s = this.state;
+		const from = s.rows.length ? s.first_row : 0;
+		const to = s.rows.length ? s.first_row + s.rows.length - 1 : 0;
+		this.$body.find('.wj-count').text(`${from}–${to} ${__("of")} ${s.total}`);
+		this.$body.find('.wj-prev').prop('disabled', (s.page || 1) <= 1);
+		this.$body.find('.wj-next, .wj-more').prop('disabled', to >= s.total);
+	}
+
+	load_kanban() {
+		const req_module = this.state.module.module_key;
+		this.state.loading = true;
+		const $kb = this.$body.find('.wj-kanban');
+		if (!$kb.children().length) $kb.html(`<div class="wj-empty">${__("Loading…")}</div>`);
+		return frappe.call('wajha.api.get_module_kanban', {
+			module_key: req_module,
+			status_value: this.state.status_value || '',
+			filters: JSON.stringify(this.state.filters || {}),
+			search: this.state.search || '',
+		}).then((r) => {
+			if (!this.state.module || this.state.module.module_key !== req_module) return;
+			this.render_kanban(r.message || { columns: [], total: 0 });
+		}).always(() => { this.state.loading = false; });
+	}
+
+	render_kanban(d) {
+		const $kb = this.$body.find('.wj-kanban').empty();
+		if (!(d.columns || []).length) $kb.append(`<div class="wj-empty">${__("No matching records.")}</div>`);
+		(d.columns || []).forEach((col) => {
+			const $c = $(`<section class="wj-kanban-col"><header>
+				<span class="wj-kanban-title">${esc(col.label)}</span><span class="wj-kanban-count">${wj_int(col.count)}</span></header>
+				<div class="wj-kanban-body"></div></section>`);
+			const $b = $c.find('.wj-kanban-body');
+			(col.rows || []).forEach((row) => wj_nav(this.kcard(row, true), () => this.open_row(row)).appendTo($b));
+			if (col.count > (col.rows || []).length) $b.append(`<div class="wj-kanban-more">${esc(__("+{0} more", [col.count - col.rows.length]))}</div>`);
+			$kb.append($c);
+		});
+		this.$body.find('.wj-count').text(`${wj_int(d.total || 0)} ${__("records")}${d.truncated ? ' +' : ''}`);
+	}
+
 	render_rows() {
 		const meta = this.meta;
 		const s = this.state;
+		if (s.view === 'cards') return this.render_cards();
 		const $tb = this.$body.find('tbody').empty();
 		const $cards = this.$body.find('.wj-cards').empty();
 		const col_count = (meta.columns || []).length + (meta.status_field ? 1 : 0) || 1;
@@ -776,10 +914,7 @@ class WajhaShell {
 					.on('click', () => this.open_new()).appendTo($cards);
 			}
 		}
-		const open = (row) => {
-			this._detail_via_list = true;
-			frappe.set_route('wajha', s.module.module_key, row.name);
-		};
+		const open = (row) => this.open_row(row);
 		if (this.is_phone()) {
 			const card = meta.card || {};
 			const subtitle = card.subtitle || [];
@@ -810,11 +945,7 @@ class WajhaShell {
 				$tr.appendTo($tb);
 			});
 		}
-		const from = s.rows.length ? s.first_row : 0;
-		const to = s.rows.length ? s.first_row + s.rows.length - 1 : 0;
-		this.$body.find('.wj-count').text(`${from}–${to} ${__("of")} ${s.total}`);
-		this.$body.find('.wj-prev').prop('disabled', (s.page || 1) <= 1);
-		this.$body.find('.wj-next, .wj-more').prop('disabled', to >= s.total);
+		this.update_pager();
 	}
 
 	// After an action on the card, keep the list truthful without refetching
@@ -824,7 +955,7 @@ class WajhaShell {
 		const row = this.state.rows.find((r) => r.name === record.name);
 		if (!row || !meta.status_field || !record.status) return;
 		row[meta.status_field] = record.status.value;
-		this.render_rows();
+		if (this.state.view === 'kanban') this.load_kanban(); else this.render_rows();
 	}
 
 	fmt(v, format) {

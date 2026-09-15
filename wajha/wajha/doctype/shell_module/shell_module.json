@@ -42,6 +42,15 @@
   "auto_actions",
   "show_dashboard",
   "number_cards",
+  "sec_views",
+  "default_view",
+  "card_image_field",
+  "card_title_field",
+  "col_vw1",
+  "card_subtitle_field",
+  "card_meta_fields",
+  "card_badge_fields",
+  "kanban_field",
   "sec_cols",
   "columns",
   "sec_filters",
@@ -181,6 +190,61 @@
    "fieldtype": "Data",
    "label": "حقل الحالة",
    "description": "اختياري. للمستندات القابلة للاعتماد يُستخدم docstatus تلقائيًا (مسودة/معتمد/ملغى) دون الحاجة لتعبئة هذا الحقل."
+  },
+  {
+   "fieldname": "sec_views",
+   "fieldtype": "Section Break",
+   "label": "طرق العرض",
+   "collapsible": 1,
+   "depends_on": "eval:doc.view_type=='List'"
+  },
+  {
+   "fieldname": "default_view",
+   "fieldtype": "Select",
+   "label": "طريقة العرض الافتراضية",
+   "options": "Table\nCards\nKanban",
+   "default": "Table",
+   "description": "جدول، أو بطاقات بصورة وعنوان، أو كانبان بأعمدة حسب حقل. يبدّل المستخدم بينها من أزرار أعلى القائمة ويُحفظ اختياره."
+  },
+  {
+   "fieldname": "card_image_field",
+   "fieldtype": "Data",
+   "label": "حقل الصورة",
+   "description": "اختياري. حقل صورة على المستند (image مثلًا). يُكتشف تلقائيًا من نوع المستند إن تُرك فارغًا."
+  },
+  {
+   "fieldname": "card_title_field",
+   "fieldtype": "Data",
+   "label": "حقل العنوان",
+   "description": "اختياري. الافتراضي: حقل العنوان في نوع المستند ثم أول عمود."
+  },
+  {
+   "fieldname": "col_vw1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "card_subtitle_field",
+   "fieldtype": "Data",
+   "label": "حقل العنوان الفرعي",
+   "description": "اختياري. المسمى الوظيفي مثلًا. الافتراضي: العمود التالي."
+  },
+  {
+   "fieldname": "card_meta_fields",
+   "fieldtype": "Data",
+   "label": "حقول إضافية على البطاقة",
+   "description": "أسماء حقول مفصولة بفواصل تظهر أسطرًا على البطاقة؛ البريد والهاتف يأخذان أيقونتهما تلقائيًا."
+  },
+  {
+   "fieldname": "card_badge_fields",
+   "fieldtype": "Data",
+   "label": "حقول الوسوم",
+   "description": "أسماء حقول مفصولة بفواصل تظهر وسومًا ملونة على البطاقة (القسم، نوع التوظيف…)."
+  },
+  {
+   "fieldname": "kanban_field",
+   "fieldtype": "Data",
+   "label": "حقل الكانبان",
+   "description": "اختياري. حقل اختيار أو ارتباط تُبنى أعمدة الكانبان من قيمه. الافتراضي: حقل الحالة إن كان حقل اختيار."
   },
   {
    "fieldname": "sec_cols",
@@ -395,7 +459,7 @@
  "owner": "Administrator",
  "modified_by": "Administrator",
  "creation": "2026-08-07 09:00:00.000000",
- "modified": "2026-09-07 12:10:00.000000",
+ "modified": "2026-09-15 15:00:00.000000",
  "idx": 0,
  "links": [],
  "states": [],
