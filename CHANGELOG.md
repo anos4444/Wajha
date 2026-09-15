@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.26.2 — 2026-09-15
+
+- Kanban groups up to 1000 rows (was 500): an employee list of 899 lost a
+  third of its cards to the cap, and the count read as partial.
+
 ## 0.26.1 — 2026-09-15
 
 - Kanban is offered for more modules: when no status field is configured

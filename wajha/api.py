@@ -32,7 +32,7 @@ TOKEN_FIELDS = [
 ]
 
 MAX_PAGE_LENGTH = 500  # ERPNext's own largest list page
-KANBAN_MAX_ROWS = 500  # rows a kanban board groups at most; beyond that, filter first
+KANBAN_MAX_ROWS = 1000  # rows a kanban board groups at most; beyond that, filter first
 KANBAN_MAX_PER_COLUMN = 40  # cards shown per column before "+n more"
 
 # Native ERPNext docstatus values, exposed to the client so it never has to
