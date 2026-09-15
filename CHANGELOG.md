@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.26.1 — 2026-09-15
+
+- Kanban is offered for more modules: when no status field is configured
+  the shell now tries the DocType's own `status` Select, then the first
+  Select column, then docstatus for submittable documents.
+- Card presets for the DocTypes people compare with an HR or CRM app
+  (Employee, Customer, Supplier, Lead, Opportunity, Job Applicant, Task,
+  Issue, Project): job title or group as the subtitle, email and phone
+  lines, department and type badges, a board by status. Used only for the
+  parts an administrator left blank.
+
 ## 0.26.0 — 2026-09-15
 
 **Table, Cards or Kanban for every list module.** A switch beside the

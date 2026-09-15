@@ -363,6 +363,9 @@ Identity and trailers (the owner's standing instruction, 2026-09-06):
   kanban field). It runs inside `_compute_allowed_fields` too, so those
   fields ride along in every row; the field cache clears on Shell Module
   save as before.
+- `CARD_PRESETS` fills only blank parts, only with fields that exist; the
+  kanban fallback order is: setting, Select status field, preset, a
+  `status` Select, the first Select column, docstatus.
 - `get_module_kanban` groups server-side, at most `KANBAN_MAX_ROWS` rows
   and `KANBAN_MAX_PER_COLUMN` cards per column; a Select keeps its options'
   order with empty columns, other fields sort by count.

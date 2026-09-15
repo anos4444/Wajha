@@ -353,6 +353,28 @@ def _compute_allowed_fields(module):
     return out, real, status_field
 
 
+# What a card shows for DocTypes whose fields we know, used only for the
+# parts an administrator left blank and only when the field exists. Employee
+# is the one people compare with an HR app: photo, name, job title, contact
+# lines, department and employment type as badges, a board by status.
+CARD_PRESETS = {
+    "Employee": {
+        "subtitle": "designation",
+        "meta": ["company_email", "cell_number"],
+        "badges": ["department", "employment_type"],
+        "kanban": "status",
+    },
+    "Customer": {"subtitle": "customer_group", "meta": ["email_id", "mobile_no"], "badges": ["territory", "customer_type"]},
+    "Supplier": {"subtitle": "supplier_group", "meta": ["email_id", "mobile_no"], "badges": ["country", "supplier_type"]},
+    "Lead": {"subtitle": "company_name", "meta": ["email_id", "mobile_no"], "badges": ["source"], "kanban": "status"},
+    "Opportunity": {"subtitle": "party_name", "meta": ["contact_email", "contact_mobile"], "badges": ["opportunity_type"], "kanban": "status"},
+    "Job Applicant": {"subtitle": "job_title", "meta": ["email_id", "phone_number"], "badges": ["source"], "kanban": "status"},
+    "Task": {"subtitle": "project", "meta": ["exp_end_date"], "badges": ["priority"], "kanban": "status"},
+    "Issue": {"subtitle": "customer", "meta": ["raised_by"], "badges": ["priority", "issue_type"], "kanban": "status"},
+    "Project": {"subtitle": "customer", "meta": ["expected_end_date"], "badges": ["priority"], "kanban": "status"},
+}
+
+
 def _card_config(module, meta, by_name, columns, status_field):
     """What the Cards and Kanban views draw for a module, resolved from the
     module's own settings first and the DocType's shape second.
@@ -379,6 +401,7 @@ def _card_config(module, meta, by_name, columns, status_field):
         df = by_name.get(f)
         return frappe._(df.label) if df and df.label else f
 
+    preset = CARD_PRESETS.get(meta.name, {})
     plain = [c for c in columns if c != status_field and c != "name"]
     image = setting("card_image_field") or (meta.image_field or "") or next(
         (df.fieldname for df in meta.fields if df.fieldtype == "Attach Image"), "")
@@ -386,10 +409,12 @@ def _card_config(module, meta, by_name, columns, status_field):
     if title != "name" and not ok(title):
         title = plain[0] if plain else "name"
     rest = [c for c in plain if c != title]
-    subtitle = setting("card_subtitle_field") or (rest[0] if rest else "")
+    subtitle = setting("card_subtitle_field") or (preset.get("subtitle") if ok(preset.get("subtitle")) else "") \
+        or (rest[0] if rest else "")
     rest = [c for c in rest if c != subtitle]
-    meta_fields = _split_fieldnames(setting("card_meta_fields")) or rest[:2]
-    badge_fields = _split_fieldnames(setting("card_badge_fields"))
+    meta_fields = _split_fieldnames(setting("card_meta_fields")) \
+        or [f for f in preset.get("meta", []) if ok(f)] or rest[:2]
+    badge_fields = _split_fieldnames(setting("card_badge_fields")) or [f for f in preset.get("badges", []) if ok(f)]
 
     def kind_of(f):
         df = by_name.get(f)
@@ -403,11 +428,21 @@ def _card_config(module, meta, by_name, columns, status_field):
             return "phone"
         return "text"
 
+    def is_select(f):
+        df = by_name.get(f)
+        return bool(df and df.fieldtype == "Select" and (df.options or "").strip())
+
     kanban = setting("kanban_field")
-    if not kanban and status_field and status_field != "docstatus":
-        df = by_name.get(status_field)
-        if df and df.fieldtype == "Select":
-            kanban = status_field
+    if not kanban and status_field and status_field != "docstatus" and is_select(status_field):
+        kanban = status_field
+    if not kanban and is_select(preset.get("kanban", "")):
+        kanban = preset["kanban"]
+    if not kanban and is_select("status"):
+        kanban = "status"
+    if not kanban:
+        kanban = next((c for c in columns if is_select(c)), "")
+    if not kanban and status_field == "docstatus":
+        kanban = "docstatus"
     kb = None
     if kanban == "docstatus" and meta.is_submittable:
         kb = {"field": "docstatus", "label": frappe._("Status"),
