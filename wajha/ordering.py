@@ -26,7 +26,8 @@ BUSINESS_ORDER = [
     "Tax Compliance", "Assets",
     # people
     "HR", "Human Resources", "Employee", "Employee Lifecycle", "Attendance", "Shift", "Leaves",
-    "Recruitment", "Performance", "Expense Claims", "Payroll", "Salary", "Loans",
+    "Recruitment", "Performance", "Tenure", "Expense Claims", "Expenses", "Payroll", "Salary",
+    "Tax & Benefits", "Benefits", "Loans",
     # operations that custom apps usually add
     "Fleet", "Vehicle", "Cars", "Timesheet", "Fuel",
 ]

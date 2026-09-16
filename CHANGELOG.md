@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.27.1 — 2026-09-16
+
+- The report groups by a Select or Link column first; free-text columns
+  come last in the picker, so Employees opens grouped by company rather
+  than 934 names of one each.
+- Workspace links seeded into one group (hub's "Apps" group) follow the
+  business order as well; Expenses, Tax & Benefits and Tenure take their
+  place among the HR groups instead of the unknown slot.
+
 ## 0.27.0 — 2026-09-16
 
 - **Report view.** The fourth view on every list module: the records

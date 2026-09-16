@@ -110,6 +110,9 @@ def get_config():
         # Where the group sits in the business order (see wajha.ordering):
         # the sidebar sorts pack-seeded groups by this, not by the alphabet.
         m["group_rank"] = ordering.rank(m.group) if m.group else 0
+        # A pack-seeded link to a workspace takes the workspace's place too,
+        # so an "Apps" group of links reads Selling, Buying, Stock, …
+        m["module_rank"] = ordering.rank(m.module_label_en) if m.auto_generated else 0
         m["module_label"] = module_label(m)
         modules.append(icons.attach(m))
 
@@ -641,11 +644,14 @@ def get_module_report(module_key, group_by=None, filters=None, search=None, stat
     meta = frappe.get_meta(module.ref_doctype)
     by_name = {df.fieldname: df for df in meta.fields}
 
+    # Select and Link columns first (a department, a status), free text
+    # last: grouping 900 employees by their name is 900 rows of one.
     choices = []
-    for c in module.columns:
-        df = by_name.get(c.fieldname)
-        if df and df.fieldtype in REPORT_GROUP_FIELDTYPES and c.fieldname not in choices:
-            choices.append(c.fieldname)
+    for want in (("Select", "Link", "Autocomplete"), ("Check",), ("Data",)):
+        for c in module.columns:
+            df = by_name.get(c.fieldname)
+            if df and df.fieldtype in want and c.fieldname not in choices:
+                choices.append(c.fieldname)
     if status_field and status_field not in choices and (status_field == "docstatus" or status_field in by_name):
         choices.append(status_field)
     card = _card_config(module, meta, by_name, [c.fieldname for c in module.columns], status_field)

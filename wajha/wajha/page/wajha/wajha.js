@@ -360,6 +360,12 @@ class WajhaShell {
 						.appendTo($g);
 				}
 				const $items = $('<div class="wj-group-items"></div>').appendTo($g);
+				// Pack-seeded workspace links inside a group follow the business
+				// order too (Selling, Buying, Stock, …); hand-made lists keep the
+				// order their administrator gave them.
+				if (mods.every((m) => wj_int(m.auto_generated) && m.view_type === 'Route Link')) {
+					mods = mods.slice().sort((x, y) => wj_int(x.module_rank) - wj_int(y.module_rank) || wj_int(x.sequence) - wj_int(y.sequence));
+				}
 				mods.forEach((m) => {
 					wj_nav($(`<a class="wj-link" data-key="${esc(m.module_key)}" href="${esc(this.href(m))}" data-text="${esc((m.module_label + ' ' + (m.module_label_en || '')).toLowerCase())}">
 						<span>${m.icon ? `<span class="wj-link-icon" aria-hidden="true">${wj_icon(m.icon)}</span>` : ''}${esc(wj_labels(m.module_label, m.module_label_en).main)}</span>
