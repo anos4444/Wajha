@@ -360,10 +360,10 @@ class WajhaShell {
 						.appendTo($g);
 				}
 				const $items = $('<div class="wj-group-items"></div>').appendTo($g);
-				// Pack-seeded workspace links inside a group follow the business
-				// order too (Selling, Buying, Stock, …); hand-made lists keep the
-				// order their administrator gave them.
-				if (mods.every((m) => wj_int(m.auto_generated) && m.view_type === 'Route Link')) {
+				// A group made only of workspace links (the "Apps" group) follows
+				// the business order too (Selling, Buying, Stock, …); groups of
+				// list modules keep the order their administrator gave them.
+				if (mods.every((m) => m.view_type === 'Route Link')) {
 					mods = mods.slice().sort((x, y) => wj_int(x.module_rank) - wj_int(y.module_rank) || wj_int(x.sequence) - wj_int(y.sequence));
 				}
 				mods.forEach((m) => {

@@ -112,7 +112,7 @@ def get_config():
         m["group_rank"] = ordering.rank(m.group) if m.group else 0
         # A pack-seeded link to a workspace takes the workspace's place too,
         # so an "Apps" group of links reads Selling, Buying, Stock, …
-        m["module_rank"] = ordering.rank(m.module_label_en) if m.auto_generated else 0
+        m["module_rank"] = ordering.rank(m.module_label_en or m.module_label) if (m.auto_generated or m.view_type == "Route Link") else 0
         m["module_label"] = module_label(m)
         modules.append(icons.attach(m))
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.27.2 — 2026-09-16
+
+- Any sidebar group made only of workspace links follows the business
+  order, whether the pack or an administrator created it; the 0.27.1 rule
+  only caught pack-flagged links and left hub's "Apps" group as it was.
+
 ## 0.27.1 — 2026-09-16
 
 - The report groups by a Select or Link column first; free-text columns
