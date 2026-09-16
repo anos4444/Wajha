@@ -2298,24 +2298,25 @@ body[data-route^="wajha/"] .page-container {
 }
 
 /* ------------------------------------------------------------ views (0.26)
-   Table, Cards or Kanban for a list module. The switch sits with the search;
-   which of the three containers shows is one class on the list card. */
+   Table, Cards, Kanban or Report for a list module. Styled like the Desk's
+   own list, kanban and report views: flat surfaces, one-pixel borders in
+   the theme's border colour, no drop shadows, small grey pills. */
 .wj-view-switch {
 	display: inline-flex;
-	gap: 2px;
-	padding: 2px;
-	border-radius: 10px;
-	background: var(--wj-page-bg);
+	border: 1px solid var(--wj-border);
+	border-radius: 8px;
+	overflow: hidden;
 	align-self: end;
+	background: var(--wj-surface-bg);
 }
 
 .wj-view-btn {
 	appearance: none;
 	border: 0;
+	border-inline-end: 1px solid var(--wj-border);
 	background: transparent;
 	color: var(--wj-muted-ink);
 	padding: 7px 10px;
-	border-radius: 8px;
 	cursor: pointer;
 	display: inline-flex;
 	align-items: center;
@@ -2323,33 +2324,38 @@ body[data-route^="wajha/"] .page-container {
 	line-height: 1;
 }
 
+.wj-view-btn:last-child {
+	border-inline-end: 0;
+}
+
 .wj-view-btn .icon {
-	width: 1.15em;
-	height: 1.15em;
+	width: 1.05em;
+	height: 1.05em;
 }
 
 .wj-view-btn:hover,
 .wj-view-btn:focus-visible {
-	color: var(--wj-primary);
+	background: var(--wj-page-bg);
+	color: var(--wj-ink);
 	outline: none;
 }
 
 .wj-view-btn[aria-pressed="true"] {
-	background: var(--wj-surface-bg);
-	color: var(--wj-primary);
-	box-shadow: var(--wj-shadow);
+	background: var(--wj-page-bg);
+	color: var(--wj-ink);
 }
 
 .wj-kcards,
-.wj-kanban {
+.wj-kanban,
+.wj-report {
 	display: none;
 }
 
 .wj-list-card.wj-view-cards .wj-kcards {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-	gap: 12px;
-	padding: 12px 16px;
+	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	gap: 10px;
+	padding: 10px 16px 16px;
 }
 
 .wj-list-card.wj-view-cards .wj-table-wrap,
@@ -2358,28 +2364,33 @@ body[data-route^="wajha/"] .page-container {
 .wj-list-card.wj-view-kanban .wj-cards,
 .wj-list-card.wj-view-kanban .wj-pager-controls,
 .wj-list-card.wj-view-kanban .wj-pager-bottom,
-.wj-list-card.wj-view-kanban .wj-sentinel {
+.wj-list-card.wj-view-kanban .wj-sentinel,
+.wj-list-card.wj-view-report > .wj-table-wrap,
+.wj-list-card.wj-view-report .wj-cards,
+.wj-list-card.wj-view-report .wj-pager-controls,
+.wj-list-card.wj-view-report .wj-pager-bottom,
+.wj-list-card.wj-view-report .wj-sentinel {
 	display: none !important;
 }
 
 .wj-list-card.wj-view-kanban .wj-kanban {
 	display: flex;
-	gap: 12px;
+	gap: 10px;
 	align-items: flex-start;
 	overflow-x: auto;
-	padding: 12px 16px 16px;
+	padding: 10px 16px 16px;
 	scroll-snap-type: x proximity;
 }
 
 .wj-kanban-col {
-	flex: 0 0 290px;
-	max-width: 290px;
+	flex: 0 0 280px;
+	max-width: 280px;
 	display: flex;
 	flex-direction: column;
 	max-height: 72vh;
 	background: var(--wj-page-bg);
-	border-radius: 12px;
-	padding: 8px;
+	border-radius: 8px;
+	padding: 6px;
 	scroll-snap-align: start;
 }
 
@@ -2389,19 +2400,21 @@ body[data-route^="wajha/"] .page-container {
 	align-items: center;
 	gap: 8px;
 	padding: 6px 8px 10px;
+	font-size: 13px;
 	font-weight: 600;
+	color: var(--wj-ink);
 }
 
 .wj-kanban-count {
 	color: var(--wj-muted-ink);
 	font-weight: 500;
-	font-size: 13px;
+	font-size: 12px;
 }
 
 .wj-kanban-body {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
+	gap: 6px;
 	overflow-y: auto;
 	min-height: 40px;
 }
@@ -2409,17 +2422,17 @@ body[data-route^="wajha/"] .page-container {
 .wj-kanban-more {
 	text-align: center;
 	color: var(--wj-muted-ink);
-	font-size: 13px;
+	font-size: 12px;
 	padding: 6px;
 }
 
 .wj-kcard {
 	display: flex;
-	gap: 12px;
-	padding: 12px;
+	gap: 10px;
+	padding: 10px 12px;
 	background: var(--wj-surface-bg);
 	border: 1px solid var(--wj-border);
-	border-radius: 12px;
+	border-radius: 8px;
 	color: var(--wj-ink);
 	text-decoration: none;
 	text-align: start;
@@ -2429,8 +2442,7 @@ body[data-route^="wajha/"] .page-container {
 
 .wj-kcard:hover,
 .wj-kcard:focus-visible {
-	border-color: var(--wj-primary);
-	box-shadow: var(--wj-shadow);
+	border-color: var(--wj-muted-ink);
 	color: var(--wj-ink);
 	outline: none;
 }
@@ -2438,9 +2450,9 @@ body[data-route^="wajha/"] .page-container {
 .wj-kcard-img,
 .wj-kcard-initials {
 	flex: none;
-	width: 64px;
-	height: 64px;
-	border-radius: 12px;
+	width: 48px;
+	height: 48px;
+	border-radius: 50%;
 	object-fit: cover;
 	background: var(--wj-page-bg);
 }
@@ -2449,10 +2461,10 @@ body[data-route^="wajha/"] .page-container {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	font-weight: 700;
-	font-size: 20px;
-	background: hsl(var(--wj-hue) 55% 90%);
-	color: hsl(var(--wj-hue) 45% 32%);
+	font-weight: 600;
+	font-size: 15px;
+	color: var(--wj-muted-ink);
+	background: hsl(var(--wj-hue) 25% 92%);
 }
 
 .wj-kcard-main {
@@ -2460,7 +2472,7 @@ body[data-route^="wajha/"] .page-container {
 	min-width: 0;
 	display: flex;
 	flex-direction: column;
-	gap: 4px;
+	gap: 3px;
 }
 
 .wj-kcard-head {
@@ -2472,8 +2484,8 @@ body[data-route^="wajha/"] .page-container {
 
 .wj-kcard-title {
 	font-weight: 600;
-	font-size: 15px;
-	line-height: 1.35;
+	font-size: 14px;
+	line-height: 1.4;
 	display: -webkit-box;
 	-webkit-line-clamp: 2;
 	-webkit-box-orient: vertical;
@@ -2482,14 +2494,15 @@ body[data-route^="wajha/"] .page-container {
 
 .wj-kcard-sub {
 	color: var(--wj-muted-ink);
-	font-size: 13px;
+	font-size: 12px;
 }
 
 .wj-kcard-line {
 	display: flex;
 	align-items: center;
 	gap: 6px;
-	font-size: 13px;
+	font-size: 12px;
+	color: var(--wj-muted-ink);
 	min-width: 0;
 }
 
@@ -2500,8 +2513,8 @@ body[data-route^="wajha/"] .page-container {
 }
 
 .wj-kcard-line .icon {
-	color: var(--wj-muted-ink);
 	flex: none;
+	opacity: .8;
 }
 
 .wj-kind-phone > span {
@@ -2513,33 +2526,95 @@ body[data-route^="wajha/"] .page-container {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 4px;
-	margin-top: 2px;
+	margin-top: 3px;
 }
 
+/* A grey pill with a coloured dot: the Desk's indicator pill, coloured by
+   the value so the same department reads the same on every card. */
 .wj-tag {
-	font-size: 12px;
-	padding: 2px 9px;
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	font-size: 11px;
+	padding: 2px 8px;
 	border-radius: 999px;
-	background: hsl(var(--wj-hue) 60% 90%);
-	color: hsl(var(--wj-hue) 45% 30%);
+	background: var(--wj-page-bg);
+	color: var(--wj-ink);
 	white-space: nowrap;
 }
 
+.wj-tag::before {
+	content: "";
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: hsl(var(--wj-hue) 55% 50%);
+	flex: none;
+}
+
 .wj-kcard-compact {
-	padding: 10px;
-	gap: 10px;
+	padding: 8px 10px;
+	gap: 8px;
 }
 
 .wj-kcard-compact .wj-kcard-img,
 .wj-kcard-compact .wj-kcard-initials {
-	width: 44px;
-	height: 44px;
-	border-radius: 10px;
-	font-size: 16px;
+	width: 36px;
+	height: 36px;
+	font-size: 13px;
 }
 
 .wj-kcard-compact .wj-kcard-title {
-	font-size: 14px;
+	font-size: 13px;
+}
+
+/* Report: the group-by picker, a bar of counts, then the summary table. */
+.wj-list-card.wj-view-report .wj-report {
+	display: block;
+	padding: 4px 16px 16px;
+}
+
+.wj-report-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	flex-wrap: wrap;
+	margin-bottom: 8px;
+}
+
+.wj-report-head label {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 13px;
+	color: var(--wj-muted-ink);
+}
+
+.wj-report-group {
+	font: inherit;
+	font-size: 13px;
+	padding: 6px 10px;
+	border: 1px solid var(--wj-border);
+	border-radius: 8px;
+	background: var(--wj-surface-bg);
+	color: var(--wj-ink);
+}
+
+.wj-report-total {
+	font-size: 13px;
+	color: var(--wj-muted-ink);
+}
+
+.wj-report-chart {
+	min-height: 220px;
+	margin-bottom: 8px;
+}
+
+.wj-report-table table tfoot th {
+	border-top: 2px solid var(--wj-border);
+	padding: 8px 10px;
+	text-align: start;
 }
 
 @media (max-width: 700px) {

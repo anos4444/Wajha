@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.27.0 — 2026-09-16
+
+- **Report view.** The fourth view on every list module: the records
+  summarised by one field (any Select, Link, Data or Check column, the
+  status, the kanban field), a bar of counts, and a table with the count
+  and the sums of the numeric columns and a totals row. Grouped in SQL
+  under the module's scope, filters and search. A row opens the table
+  filtered to that value when the field is one of the module's filters.
+- **The apps read like the business.** Workspace groups in the sidebar,
+  the Home tiles and newly seeded modules follow one order: CRM, Selling,
+  Buying, Stock, Manufacturing, Quality, Projects, Support, Accounting,
+  Assets, HR and Payroll, then custom apps, then Users, Tools,
+  Integrations and Settings last. The alphabet only breaks ties.
+- **Native look.** Cards, kanban and the view switch now use the Desk's
+  own vocabulary: flat surfaces, one-pixel borders, round grey avatars,
+  grey pills with a coloured dot, no shadows.
+
 ## 0.26.2 — 2026-09-15
 
 - Kanban groups up to 1000 rows (was 500): an employee list of 899 lost a

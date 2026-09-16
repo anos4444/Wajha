@@ -52,8 +52,8 @@ const PAGE_LENGTHS = [20, 100, 500];
 // The three ways a list module can be read: the table, a grid of cards
 // (photo, title, subtitle, lines, badges), or a kanban board grouped by one
 // field. The choice is remembered per module in this browser.
-const VIEWS = ['table', 'cards', 'kanban'];
-const VIEW_ICONS = { table: 'fa-table-list', cards: 'wj-cards', kanban: 'wj-kanban' };
+const VIEWS = ['table', 'cards', 'kanban', 'report'];
+const VIEW_ICONS = { table: 'fa-table-list', cards: 'wj-cards', kanban: 'wj-kanban', report: 'fa-chart-simple' };
 function wj_hue(text) {
 	let h = 0;
 	for (const ch of String(text || '')) h = (h * 31 + ch.codePointAt(0)) % 360;
@@ -337,6 +337,11 @@ class WajhaShell {
 				if (b[0] === '') return 1;
 				const aa = auto_group(a[1]), ab = auto_group(b[1]);
 				if (aa !== ab) return aa ? 1 : -1;
+				// Pack-seeded groups follow the business order the server ranks
+				// them by (CRM, Selling, Buying, Stock, …, Settings last), the
+				// alphabet only breaking ties.
+				const ra = wj_int((a[1][0] || {}).group_rank), rb = wj_int((b[1][0] || {}).group_rank);
+				if (aa && ra !== rb) return ra - rb;
 				return a[0].localeCompare(b[0], WJ_LANG);
 			})
 			.forEach(([group, mods]) => {
@@ -557,7 +562,7 @@ class WajhaShell {
 		if (!(meta.filters || []).length) $filter_btn.hide();
 		this.state.view = this.saved_view(meta);
 		const $switch = $(`<div class="wj-view-switch" role="group" aria-label="${__("View")}"></div>`).appendTo($search_row);
-		const view_labels = { table: __("Table"), cards: __("Cards"), kanban: __("Kanban") };
+		const view_labels = { table: __("Table"), cards: __("Cards"), kanban: __("Kanban"), report: __("Report") };
 		VIEWS.filter((v) => v !== 'kanban' || (meta.card && meta.card.kanban)).forEach((v) => {
 			$(`<button type="button" class="wj-view-btn" data-view="${v}" title="${view_labels[v]}" aria-label="${view_labels[v]}"
 				aria-pressed="${String(v === this.state.view)}">${wj_icon(VIEW_ICONS[v])}</button>`)
@@ -694,6 +699,7 @@ class WajhaShell {
 		$('<div class="wj-cards" role="list"></div>').appendTo($card);
 		$('<div class="wj-kcards" role="list"></div>').appendTo($card);
 		$('<div class="wj-kanban" role="list"></div>').appendTo($card);
+		$('<div class="wj-report"></div>').appendTo($card);
 		$('<div class="wj-sentinel" aria-hidden="true"></div>').appendTo($card);
 		$(pager('bottom')).appendTo($card);
 		this.apply_view();
@@ -760,6 +766,7 @@ class WajhaShell {
 	// under it, the way ERPNext's list grows; the count then reads from row 1.
 	load_rows(append = false) {
 		if (this.state.view === 'kanban') return this.load_kanban();
+		if (this.state.view === 'report') return this.load_report();
 		const req_module = this.state.module.module_key;
 		this.state.loading = true;
 		if (!append && !this.state.rows.length) this.$body.find('.wj-cards').addClass('wj-skeleton');
@@ -808,7 +815,7 @@ class WajhaShell {
 	apply_view() {
 		const v = this.state.view || 'table';
 		const $card = this.$body.find('.wj-list-card');
-		$card.removeClass('wj-view-table wj-view-cards wj-view-kanban').addClass('wj-view-' + v);
+		$card.removeClass('wj-view-table wj-view-cards wj-view-kanban wj-view-report').addClass('wj-view-' + v);
 		$card.find('.wj-view-btn').each((_, b) => b.setAttribute('aria-pressed', String(b.dataset.view === v)));
 	}
 
@@ -881,6 +888,68 @@ class WajhaShell {
 			if (!this.state.module || this.state.module.module_key !== req_module) return;
 			this.render_kanban(r.message || { columns: [], total: 0 });
 		}).always(() => { this.state.loading = false; });
+	}
+
+	// The list summarised by one field: a bar of counts and a table with the
+	// count and the sums of the numeric columns, a totals row at the end.
+	load_report() {
+		const req_module = this.state.module.module_key;
+		this.state.loading = true;
+		const $r = this.$body.find('.wj-report');
+		if (!$r.children().length) $r.html(`<div class="wj-empty">${__("Loading…")}</div>`);
+		let group_by = this.state.report_group || '';
+		try { group_by = group_by || localStorage.getItem('wj_report:' + req_module) || ''; } catch (e) { /* private mode */ }
+		return frappe.call('wajha.api.get_module_report', {
+			module_key: req_module,
+			group_by,
+			status_value: this.state.status_value || '',
+			filters: JSON.stringify(this.state.filters || {}),
+			search: this.state.search || '',
+		}).then((r) => {
+			if (!this.state.module || this.state.module.module_key !== req_module) return;
+			this.render_report(r.message || { rows: [], choices: [], sum_fields: [] });
+		}).always(() => { this.state.loading = false; });
+	}
+
+	render_report(d) {
+		const $r = this.$body.find('.wj-report').empty();
+		const $head = $(`<div class="wj-report-head"><label>${__("Group by")}
+			<select class="wj-report-group">${(d.choices || []).map((c) =>
+				`<option value="${esc(c.fieldname)}"${c.fieldname === d.group_by ? ' selected' : ''}>${esc(c.label)}</option>`).join('')}</select></label></div>`).appendTo($r);
+		$head.find('select').on('change', (e) => {
+			this.state.report_group = e.target.value;
+			try { localStorage.setItem('wj_report:' + this.state.module.module_key, e.target.value); } catch (err) { /* private mode */ }
+			this.load_report();
+		});
+		if (!(d.rows || []).length) { $r.append(`<div class="wj-empty">${__("No matching records.")}</div>`); return; }
+		const $chart = $('<div class="wj-report-chart" dir="ltr"></div>').appendTo($r);
+		const shown = d.rows.slice(0, 20);
+		this.draw_chart($chart, {
+			type: 'Bar', color: null, timeseries: 0,
+			data: { labels: shown.map((x) => x.label), datasets: [{ name: __("Count"), values: shown.map((x) => x.count) }] },
+		});
+		const $t = $(`<div class="wj-table-wrap wj-report-table"><table class="wj-table"><thead><tr>
+			<th>${esc(d.group_label)}</th><th style="text-align:end">${__("Count")}</th>
+			${(d.sum_fields || []).map((f) => `<th style="text-align:end">${esc(f.label)}</th>`).join('')}
+		</tr></thead><tbody></tbody><tfoot></tfoot></table></div>`).appendTo($r);
+		const $tb = $t.find('tbody');
+		d.rows.forEach((row) => {
+			$(`<tr class="wj-row"><td>${esc(row.label)}</td><td style="text-align:end">${wj_int(row.count)}</td>
+				${(d.sum_fields || []).map((f, i) => `<td style="text-align:end">${this.fmt(row.sums[i], f.format)}</td>`).join('')}</tr>`)
+				.on('click', () => {
+					// A group row opens the table filtered to that value where the
+					// field is one of the module's filters; otherwise it just reads.
+					if (row.value === null || !(this.meta.filters || []).some((f) => f.fieldname === d.group_by)) return;
+					this.state.filters[d.group_by] = row.value;
+					this.set_view('table');
+					this.paint_list_frame();
+					this.load_rows();
+				})
+				.appendTo($tb);
+		});
+		$t.find('tfoot').append(`<tr><th>${__("Total")}</th><th style="text-align:end">${wj_int(d.total)}</th>
+			${(d.sum_fields || []).map((f, i) => `<th style="text-align:end">${this.fmt(d.sum_totals[i], f.format)}</th>`).join('')}</tr>`);
+		this.$body.find('.wj-count').text(`${wj_int(d.total || 0)} ${__("records")}`);
 	}
 
 	render_kanban(d) {

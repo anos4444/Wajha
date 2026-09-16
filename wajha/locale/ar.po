@@ -1640,3 +1640,27 @@ msgstr ""
 #: wajha/wajha/doctype/shell_module/shell_module.json
 msgid "اختياري. حقل اختيار أو ارتباط تُبنى أعمدة الكانبان من قيمه. الافتراضي: حقل الحالة إن كان حقل اختيار."
 msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:565
+msgid "Report"
+msgstr "تقرير"
+
+#: wajha/wajha/page/wajha/wajha.js:916
+msgid "Group by"
+msgstr "تجميع حسب"
+
+#: wajha/wajha/page/wajha/wajha.js:929
+msgid "Count"
+msgstr "العدد"
+
+#: wajha/api.py:656
+msgid "This module has no field to group by"
+msgstr "لا يوجد حقل للتجميع في هذه الوحدة"
+
+#: wajha/api.py:688
+msgid "Yes"
+msgstr "نعم"
+
+#: wajha/api.py:688
+msgid "No"
+msgstr "لا"

@@ -372,3 +372,20 @@ Identity and trailers (the owner's standing instruction, 2026-09-06):
 - The two view glyphs (`icon-wj-cards`, `icon-wj-kanban`) are hand-drawn
   symbols at the end of `fa.svg`, not Font Awesome; `icons.py` only lists
   `icon-fa-*` names, so they stay out of the picker on purpose.
+
+## Business order and the report view (0.27)
+
+- `wajha/ordering.py` is the one place the apps' order lives: `rank(title)`
+  for a workspace title or module group. `get_config` stamps `group_rank`
+  on every module, the sidebar sorts pack-seeded groups by it, `discovery.tiles`
+  sorts the Home tiles by it, and `packs/apps` derives a new module's
+  `sequence` from it. Add a workspace name to `BUSINESS_ORDER` or
+  `ADMIN_ORDER`; never sort by the alphabet somewhere else.
+- `get_module_report` groups in SQL with the dict aggregate form
+  (`{"COUNT": "*"}`, `{"SUM": field}`) and `as_list=True`, reading results by
+  position: the alias Frappe gives an aggregate is not stable across
+  versions, the position is.
+- The card and kanban CSS deliberately mirrors the Desk (flat, 1px
+  `--wj-border`, round grey avatars, grey pills with a dot). Do not
+  reintroduce shadows or saturated tag backgrounds; the shell must read
+  as part of ERPNext, not as another app.

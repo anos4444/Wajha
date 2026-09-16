@@ -318,6 +318,13 @@ def tiles():
                 "label": frappe._(ws.title or ws.name), "label_en": ws.title or ws.name,
                 "icon": ws.icon, "logo_url": None, "bg_color": None, "app": ws.get("app"), "count": 0,
             })
+    # Business order first (see wajha.ordering), the site's own order within
+    # a rank, so "Selling, Buying, Stock, …" reads like the operation.
+    from wajha import ordering
+
+    out = [t for _, _, t in sorted(
+        ((ordering.rank(t.get("label_en") or t.get("label")), i, t) for i, t in enumerate(out)),
+        key=lambda x: (x[0], x[1]))]
     frappe.cache().set_value(key, out, expires_in_sec=TILES_CACHE_TTL)
     return out
 

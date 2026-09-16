@@ -1661,3 +1661,27 @@ msgstr "Kanban field"
 #: wajha/wajha/doctype/shell_module/shell_module.json
 msgid "اختياري. حقل اختيار أو ارتباط تُبنى أعمدة الكانبان من قيمه. الافتراضي: حقل الحالة إن كان حقل اختيار."
 msgstr "Optional. A Select or Link field whose values become the kanban columns. Default: the status field when it is a Select."
+
+#: wajha/wajha/page/wajha/wajha.js:565
+msgid "Report"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:916
+msgid "Group by"
+msgstr ""
+
+#: wajha/wajha/page/wajha/wajha.js:929
+msgid "Count"
+msgstr ""
+
+#: wajha/api.py:656
+msgid "This module has no field to group by"
+msgstr ""
+
+#: wajha/api.py:688
+msgid "Yes"
+msgstr ""
+
+#: wajha/api.py:688
+msgid "No"
+msgstr ""

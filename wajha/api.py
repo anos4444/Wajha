@@ -12,7 +12,7 @@ import json
 import frappe
 from frappe.utils import cint
 
-from wajha import icons
+from wajha import icons, ordering
 
 CONFIG_CACHE_KEY = "wajha_config"
 FIELDS_CACHE_PREFIX = "wajha_fields_"
@@ -107,6 +107,9 @@ def get_config():
         # Group names and pack-seeded labels are stored as their source text;
         # frappe._ gives each user their own where a translation exists.
         m["group_label"] = frappe._(m.group) if m.group else ""
+        # Where the group sits in the business order (see wajha.ordering):
+        # the sidebar sorts pack-seeded groups by this, not by the alphabet.
+        m["group_rank"] = ordering.rank(m.group) if m.group else 0
         m["module_label"] = module_label(m)
         modules.append(icons.attach(m))
 
@@ -620,6 +623,86 @@ def get_module_data(module_key, page=1, filters=None, search=None,
         "page_length": page_length,
         "total": total,
         "doctype": module.ref_doctype,
+    }
+
+
+NUMERIC_FIELDTYPES = ("Currency", "Int", "Float", "Percent")
+REPORT_GROUP_FIELDTYPES = ("Select", "Link", "Data", "Check", "Autocomplete")
+REPORT_MAX_GROUPS = 60
+
+
+@frappe.whitelist()
+def get_module_report(module_key, group_by=None, filters=None, search=None, status_value=None):
+    """The list summarised: one row per value of a field, with the count and
+    the sums of the module's numeric columns. Same scope, filters and search
+    as the list; grouped in SQL so a large table is one query."""
+    module = _get_module(module_key)
+    fields, real, status_field = _allowed_fields(module)
+    meta = frappe.get_meta(module.ref_doctype)
+    by_name = {df.fieldname: df for df in meta.fields}
+
+    choices = []
+    for c in module.columns:
+        df = by_name.get(c.fieldname)
+        if df and df.fieldtype in REPORT_GROUP_FIELDTYPES and c.fieldname not in choices:
+            choices.append(c.fieldname)
+    if status_field and status_field not in choices and (status_field == "docstatus" or status_field in by_name):
+        choices.append(status_field)
+    card = _card_config(module, meta, by_name, [c.fieldname for c in module.columns], status_field)
+    kb = card.get("kanban")
+    if kb and kb["field"] not in choices:
+        choices.append(kb["field"])
+    if not choices:
+        frappe.throw(frappe._("This module has no field to group by"))
+    gb = group_by if group_by in choices else choices[0]
+
+    def label_of(f):
+        if f == "docstatus":
+            return frappe._("Status")
+        df = by_name.get(f)
+        return frappe._(df.label) if df and df.label else f
+
+    sums = [c.fieldname for c in module.columns
+            if by_name.get(c.fieldname) and by_name[c.fieldname].fieldtype in NUMERIC_FIELDTYPES]
+
+    if isinstance(filters, str):
+        filters = json.loads(filters or "{}")
+    applied = scope_filters(module) + _build_filters(module, filters, real)
+    if status_value not in (None, "") and status_field:
+        applied.append([status_field, "=", status_value])
+    or_filters = _search_filters(module, search, real)
+
+    kwargs = dict(doctype=module.ref_doctype,
+                  fields=[gb, {"COUNT": "*"}] + [{"SUM": f} for f in sums],
+                  filters=applied, group_by=gb, as_list=True, limit_page_length=0)
+    if or_filters:
+        kwargs["or_filters"] = or_filters
+    raw = frappe.get_list(**kwargs)
+
+    def value_label(v):
+        if v is None or v == "":
+            return frappe._("Not set")
+        if gb == "docstatus":
+            return frappe._(DOCSTATUS_LABELS.get(cint(v), str(v)))
+        if by_name.get(gb) and by_name[gb].fieldtype == "Check":
+            return frappe._("Yes") if cint(v) else frappe._("No")
+        return frappe._(str(v)) if by_name.get(gb) and by_name[gb].fieldtype == "Select" else str(v)
+
+    rows = [{"value": "" if r[0] is None else str(r[0]), "label": value_label(r[0]),
+             "count": cint(r[1]), "sums": [flt(x) for x in r[2:]]} for r in raw]
+    rows.sort(key=lambda r: -r["count"])
+    if len(rows) > REPORT_MAX_GROUPS:
+        rest = rows[REPORT_MAX_GROUPS:]
+        rows = rows[:REPORT_MAX_GROUPS] + [{
+            "value": None, "label": frappe._("Others"), "count": sum(r["count"] for r in rest),
+            "sums": [sum(r["sums"][i] for r in rest) for i in range(len(sums))]}]
+    return {
+        "group_by": gb, "group_label": label_of(gb),
+        "choices": [{"fieldname": f, "label": label_of(f)} for f in choices],
+        "sum_fields": [{"fieldname": f, "label": label_of(f), "format": _fmt_for(by_name[f].fieldtype)} for f in sums],
+        "rows": rows,
+        "total": sum(r["count"] for r in rows),
+        "sum_totals": [sum(r["sums"][i] for r in rows) for i in range(len(sums))],
     }
 
 
