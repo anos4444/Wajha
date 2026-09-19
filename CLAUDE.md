@@ -143,6 +143,17 @@ everything.
 
 ## Known sharp edges (do not reintroduce)
 
+- **Frappe reads compiled `.mo`, never the app's `locale/*.po`.**
+  `get_translations_from_mo` resolves
+  `sites/assets/locale/<lang>/LC_MESSAGES/<app>.mo`, and nothing in `bench
+  install-app` or `bench migrate` compiles an app's PO sources. Wajha
+  shipped PO and no MO, so for several releases **no** Wajha translation
+  loaded in either language — `frappe._()` returned its argument and an
+  English user read the Arabic sidebar group names. `install.compile_translations()`
+  now runs on both hooks; a new locale needs nothing extra, but anything
+  that bypasses those hooks (an image baked without a migrate) ships
+  untranslated. Check with `get_all_translations("en")` — 43 entries on
+  hub meant broken, 188 meant working.
 - **`frappe.get_route_str()` / `frappe.get_route()` are unsafe.** Frappe
   core does `frappe.router.current_route.join("/")` with no null guard, and
   `current_route` is genuinely `null` for a moment during some route
