@@ -154,6 +154,16 @@
 	min-height: 36px;
 }
 
+/* The heading is three flex children: the caret (::before), the label and
+   the count. Without a grow on the label, justify-content: space-between
+   spreads all three and the text drifts to the far edge — in LTR that read
+   as a right-aligned heading sitting over left-aligned module entries.
+   `start` keeps it correct in both directions. */
+.wj-group-label > span:not(.wj-group-count) {
+	flex: 1;
+	text-align: start;
+}
+
 .wj-group-label::before {
 	content: "▸";
 	font-size: 10px;

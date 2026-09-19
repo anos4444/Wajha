@@ -55,10 +55,12 @@ def after_install():
     rendered untokenised until someone happened to run `bench migrate`.
     """
     _seed()
+    compile_translations()
 
 
 def after_migrate():
     _seed()
+    compile_translations()
 
 
 def _seed():
@@ -66,6 +68,45 @@ def _seed():
     seed_themes()
     ensure_settings()
     frappe.db.commit()
+
+
+def compile_translations():
+    """Compile this app's PO catalogue into the MO files Frappe actually reads.
+
+    At runtime Frappe only ever reads compiled catalogues:
+    `get_translations_from_mo` looks for
+    `sites/assets/locale/<lang>/LC_MESSAGES/<app>.mo`, and the `locale/*.po`
+    sources shipped in the app are never consulted. Nothing in `bench
+    install-app` or `bench migrate` compiles them, so until this ran Wajha
+    had **no** translations loaded on any site: an English user read the
+    Arabic sidebar group names ("التطبيقات" instead of "Apps") because
+    `frappe._()` fell through to the source string, and the Arabic catalogue
+    was just as inert. Measured on hub.tawasulcloud.com: the English
+    translation dict held 43 entries before compiling and 188 after.
+
+    Fails soft — a site that cannot compile its translations still migrates.
+    """
+    try:
+        from frappe.gettext.translate import _compile_translation, get_locales
+    except Exception as e:  # a Frappe without the gettext module
+        print(f"wajha: translations not compiled ({e})")
+        return
+
+    # Deliberately not frappe.gettext.translate.compile_translations: that
+    # one fans out over a multiprocessing Pool, which has no business being
+    # forked inside a migrate hook. One locale at a time is fast enough.
+    done, failed = [], []
+    for locale in get_locales("wajha") or []:
+        try:
+            _compile_translation("wajha", locale, force=True)
+            done.append(locale)
+        except Exception:
+            failed.append(locale)
+            frappe.log_error(title=f"wajha: compiling {locale}.po failed")
+    if done:
+        print(f"wajha: translations compiled ({', '.join(sorted(done))})")
+    if failed:
+        print(f"wajha: translations FAILED for {', '.join(sorted(failed))}")
 
 
 def create_role():

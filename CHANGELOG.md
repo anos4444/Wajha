@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.27.3 — 2026-09-19
+
+**None of Wajha's translations were ever loaded.** Frappe reads compiled
+catalogues only — `get_translations_from_mo` looks for
+`sites/assets/locale/<lang>/LC_MESSAGES/<app>.mo` — and nothing in `bench
+install-app` or `bench migrate` compiles an app's `locale/*.po`. Wajha has
+shipped PO files and no MO since the gettext move, so `frappe._()` fell
+straight through to the source string: an English user on hub read the
+Arabic sidebar group names over English entries, and the Arabic catalogue
+was equally inert.
+
+- Install and migrate now compile the app's own PO files. Measured on
+  hub.tawasulcloud.com: the English translation dict held 43 entries
+  before and 188 after — "التطبيقات" reads "Apps" and "الإجازات والمطالبات"
+  reads "Leave & Claims"; Arabic gained 166 entries of its own.
+- Compiled a locale at a time rather than through Frappe's
+  `compile_translations`, which fans the work out over a multiprocessing
+  pool — not something to fork inside a migrate hook. Fails soft: a site
+  that cannot compile still migrates.
+
 ## 0.27.2 — 2026-09-16
 
 - Any sidebar group made only of workspace links follows the business

@@ -126,6 +126,29 @@ function wj_labels(ar, en) {
 const wj_module_label = (m) => wj_labels(m.module_label, m.module_label_en).main;
 const wj_num = (v) => parseFloat(v) || 0;
 
+// Whether a chart's x labels need a full-width card to stay readable.
+//
+// The chart library fits x-axis labels by dividing the drawing width
+// between them at roughly eight pixels a character, and when the result
+// leaves fewer than about four characters it gives up and prints a bare
+// " ..." under every bar. A half-width card holds ~200px of drawing width,
+// so hub's "Employees per department" — eight department names of 12 to 23
+// characters — rendered as eight identical ellipses. Measured on that
+// chart: 0 characters at 445px, 7 at 931px.
+//
+// The labels are widened rather than pre-shortened on purpose. Shortening
+// them here would feed the short string to the tooltip as well, and the
+// tooltip is the one place the full department name still reads correctly
+// today.
+const wj_needs_width = (c) => {
+	if (c.timeseries) return false;
+	// Pie/donut/percentage put their labels in a legend, not on an axis.
+	if (['Pie', 'Donut', 'Percentage'].includes(c.type)) return false;
+	const labels = ((c.data || {}).labels) || [];
+	if (labels.length < 4) return false;
+	return labels.reduce((m, l) => Math.max(m, String(l).length), 0) > 8;
+};
+
 // Every place the shell navigates from is a real link: a plain click still
 // routes in-page (no reload, the shell keeps its state), while Ctrl/⌘/Shift
 // and middle clicks fall through to the browser and open a second tab —
@@ -1438,7 +1461,8 @@ class WajhaShell {
 			if ((admin.charts || []).length) {
 				const $g = $('<div class="wj-charts"></div>').appendTo($s);
 				admin.charts.forEach((c) => {
-					const $c = $(`<div class="wj-chart-card${c.width === 'Full' ? ' wj-chart-full' : ''}"><div class="wj-dash-label">${esc(c.label)}</div><div class="wj-chart" dir="ltr"></div></div>`).appendTo($g);
+					const full = c.width === 'Full' || wj_needs_width(c);
+					const $c = $(`<div class="wj-chart-card${full ? ' wj-chart-full' : ''}"><div class="wj-dash-label">${esc(c.label)}</div><div class="wj-chart" dir="ltr"></div></div>`).appendTo($g);
 					this.draw_chart($c.find('.wj-chart'), c);
 				});
 			}
