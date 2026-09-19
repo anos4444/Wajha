@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.27.4 — 2026-09-19
+
+- A sidebar group heading sits next to its caret again. The heading is
+  three flex children — the caret, the label, the count — and
+  `justify-content: space-between` with no grow on the label pushed the
+  text to the far edge, so in English the headings read right-aligned
+  over left-aligned entries. The label now takes the free space and
+  aligns to `start`, which is correct in both directions.
+
 ## 0.27.3 — 2026-09-19
 
 **None of Wajha's translations were ever loaded.** Frappe reads compiled
