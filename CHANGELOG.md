@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.27.5 — 2026-09-19
+
+- A chart whose x labels cannot fit a half-width card now takes a full
+  one. The chart library divides the drawing width between the labels at
+  about eight pixels a character and, below roughly four characters,
+  gives up and prints a bare " ..." under every bar — which is what
+  hub's "Employees per department" did with eight department names of 12
+  to 23 characters. Measured on that chart: 0 characters at 445px, 7 at
+  931px. The labels are widened rather than shortened because the
+  tooltip reads from the same strings, and the tooltip is the one place
+  the full name still showed.
+
 ## 0.27.4 — 2026-09-19
 
 - A sidebar group heading sits next to its caret again. The heading is
