@@ -1,0 +1,77 @@
+# Layered production image: frappe + erpnext + hrms + wajha
+# ---------------------------------------------------------------------------
+# A frappe_docker "custom apps" layered build. It starts from the official
+# frappe/base image, clones every app listed in apps.json, runs
+# `bench setup requirements` + `bench build`, and produces an
+# nginx+gunicorn production image.
+#
+# Why bake the apps in rather than install them into a running container:
+# a split Frappe stack runs the same image as backend, queues, scheduler and
+# websocket. Installing an app into one running container leaves the others
+# without it, and the change is lost the moment compose recreates it. Node
+# and yarn are present in THIS build image even when the runtime containers
+# ship without them, so apps that bundle assets build correctly here.
+#
+# Build (from the directory containing apps.json):
+#
+#   APPS_JSON_BASE64=$(base64 -w0 apps.json)   # macOS: base64 -i apps.json
+#   docker build -f Containerfile \
+#     --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
+#     --build-arg=FRAPPE_BRANCH=version-16 \
+#     --build-arg=APPS_JSON_BASE64="$APPS_JSON_BASE64" \
+#     -t <IMAGE>:v16-next .
+#
+# Every app in apps.json is public, so the clone needs no credentials. If you
+# swap in a private fork, inject a fine-grained read-only token into that
+# entry's clone URL only (https://x-access-token:<TOKEN>@github.com/...)
+# before base64-encoding, and revoke it after the build — the URL would
+# otherwise be recoverable from the build arg.
+#
+# Pin FRAPPE_BRANCH, and the branches in apps.json, to matching release tags
+# instead of the moving `version-16` head if you want a reproducible build.
+# ---------------------------------------------------------------------------
+
+ARG FRAPPE_PATH=https://github.com/frappe/frappe
+ARG FRAPPE_BRANCH=version-16
+ARG PYTHON_VERSION=3.11.9
+ARG NODE_VERSION=20.19.0
+FROM frappe/base:${FRAPPE_BRANCH} AS build
+
+ARG FRAPPE_PATH
+ARG FRAPPE_BRANCH
+ARG APPS_JSON_BASE64
+USER frappe
+
+RUN mkdir -p /opt/frappe && echo "${APPS_JSON_BASE64}" | base64 -d > /opt/frappe/apps.json
+
+WORKDIR /home/frappe
+RUN bench init \
+      --frappe-branch=${FRAPPE_BRANCH} \
+      --frappe-path=${FRAPPE_PATH} \
+      --apps_path=/opt/frappe/apps.json \
+      --no-procfile \
+      --no-backups \
+      --skip-redis-config-generation \
+      --verbose \
+      /home/frappe/frappe-bench && \
+    cd /home/frappe/frappe-bench && \
+    echo "{}" > sites/common_site_config.json && \
+    find apps -mindepth 1 -path "*/.git" -prune -exec rm -fr {} + || true
+
+FROM frappe/base:${FRAPPE_BRANCH} AS backend
+USER frappe
+COPY --from=build --chown=frappe:frappe /home/frappe/frappe-bench /home/frappe/frappe-bench
+WORKDIR /home/frappe/frappe-bench
+VOLUME [ "/home/frappe/frappe-bench/sites", "/home/frappe/frappe-bench/sites/assets", "/home/frappe/frappe-bench/logs" ]
+CMD [ \
+  "/home/frappe/frappe-bench/env/bin/gunicorn", \
+  "--chdir=/home/frappe/frappe-bench/sites", \
+  "--bind=0.0.0.0:8000", \
+  "--threads=4", \
+  "--workers=2", \
+  "--worker-class=gthread", \
+  "--worker-tmp-dir=/dev/shm", \
+  "--timeout=120", \
+  "--preload", \
+  "frappe.app:application" \
+]
